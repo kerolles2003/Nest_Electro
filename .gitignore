@@ -1,50 +1,49 @@
-# Dependencies
-node_modules/
-.pnpm-store/
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-# Next.js
-.next/
-out/
-
-# Build
-dist/
-build/
+# compiled output
+dist
+tmp
+out-tsc
 *.tsbuildinfo
+.expo
+.expo-shared
 
-# Turbo
-.turbo/
+# dependencies
+node_modules
 
-# Environment
-.env
-.env.*
-!.env.example
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
-# MCP
-.mcp.json
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# OS
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
 .DS_Store
 Thumbs.db
 
-# IDE
-.vscode/
-.idea/
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
 
-# Project private docs
-.project_plan/
-.prompts/
-
-# Scripts / temp files
-fix_hero.js
-fix_hero2.js
-fix_hero3.js
-adjust_images.js
-rewrite.js
-rewrite2.js
-
-# Seeds
-seed.js
-seed_data.json
-
-# Internal docs
-AGENTS.md
+# Replit
+.cache/
+.local/
