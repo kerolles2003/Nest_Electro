@@ -98,7 +98,7 @@ export default function CheckoutPage() {
           <ShoppingBag className="w-16 h-16 mx-auto text-slate-200 mb-4" />
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Your cart is empty</h1>
           <p className="text-slate-500 mb-6">Add some products to your cart before checking out.</p>
-          <Link href={ROUTES.products}><a className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-md font-medium hover:bg-blue-700 transition-colors">Continue Shopping</a></Link>
+          <Link href={ROUTES.products} className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-md font-medium hover:bg-blue-700 transition-colors">Continue Shopping</Link>
         </div>
       </div>
     );
@@ -231,7 +231,7 @@ export default function CheckoutPage() {
               <h2 className="text-2xl font-bold text-slate-900 mb-2">Order Placed!</h2>
               <p className="text-slate-500 mb-4">Thank you for your order. We'll contact you soon to confirm delivery.</p>
               {orderNumber && <p className="text-sm font-medium text-slate-700 mb-6">Order Number: <span className="text-blue-600 font-bold">{orderNumber}</span></p>}
-              <Link href={ROUTES.account.orders}><a className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-md font-medium hover:bg-blue-700 transition-colors">View My Orders</a></Link>
+              <Link href={ROUTES.account.orders} className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-md font-medium hover:bg-blue-700 transition-colors">View My Orders</Link>
             </div>
           )}
         </div>

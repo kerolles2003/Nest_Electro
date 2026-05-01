@@ -25,7 +25,7 @@ export default function CategoriesPage() {
   return (
     <div className="container-nest py-8">
       <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-        <Link href="/"><a className="hover:text-blue-600 transition-colors">Home</a></Link>
+        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
         <ChevronRight className="w-3 h-3" />
         <span className="text-slate-900 font-medium">All Categories</span>
       </nav>

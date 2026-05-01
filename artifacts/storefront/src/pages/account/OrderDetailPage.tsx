@@ -55,7 +55,7 @@ export default function OrderDetailPage() {
     <div className="text-center py-16 bg-white border border-slate-200 rounded-md">
       <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
       <h2 className="text-lg font-medium text-slate-900">Order not found</h2>
-      <Link href={ROUTES.account.orders}><a className="mt-4 inline-block text-sm text-blue-600 hover:underline">Back to Orders</a></Link>
+      <Link href={ROUTES.account.orders} className="mt-4 inline-block text-sm text-blue-600 hover:underline">Back to Orders</Link>
     </div>
   );
 

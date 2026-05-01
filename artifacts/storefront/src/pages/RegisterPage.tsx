@@ -43,7 +43,7 @@ export default function RegisterPage() {
             <p className="text-sm text-green-700">Check your email for a confirmation link to complete your registration.</p>
           </div>
           <p className="text-center text-sm text-slate-500">
-            <Link href={ROUTES.login}><a className="text-blue-600 hover:underline">Back to sign in</a></Link>
+            <Link href={ROUTES.login} className="text-blue-600 hover:underline">Back to sign in</Link>
           </p>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function RegisterPage() {
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
           <p className="pt-2 text-center text-sm text-slate-500">
-            Already have an account?{' '}<Link href={ROUTES.login}><a className="text-blue-600 hover:underline">Sign in</a></Link>
+            Already have an account?{' '}<Link href={ROUTES.login} className="text-blue-600 hover:underline">Sign in</Link>
           </p>
         </form>
       </div>

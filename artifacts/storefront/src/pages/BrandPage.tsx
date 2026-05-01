@@ -59,16 +59,16 @@ export default function BrandPage() {
   if (!brand) return (
     <div className="container-nest py-16 text-center">
       <h1 className="text-xl font-semibold text-slate-900">Brand not found</h1>
-      <Link href="/products"><a className="mt-4 inline-block text-blue-600 hover:underline text-sm">Browse all products</a></Link>
+      <Link href="/products" className="mt-4 inline-block text-blue-600 hover:underline text-sm">Browse all products</Link>
     </div>
   );
 
   return (
     <div className="container-nest py-6">
       <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-        <Link href="/"><a className="hover:text-blue-600 transition-colors">Home</a></Link>
+        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
         <ChevronRight className="w-3 h-3" />
-        <Link href="/products"><a className="hover:text-blue-600 transition-colors">Products</a></Link>
+        <Link href="/products" className="hover:text-blue-600 transition-colors">Products</Link>
         <ChevronRight className="w-3 h-3" />
         <span className="text-slate-900 font-medium">{brand.name_en}</span>
       </nav>

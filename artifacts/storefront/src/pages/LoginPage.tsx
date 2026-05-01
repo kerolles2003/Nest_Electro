@@ -116,8 +116,8 @@ export default function LoginPage() {
             </button>
 
             <div className="space-y-2 pt-2 text-center text-sm">
-              <p><Link href={ROUTES.forgotPassword}><a className="text-blue-600 hover:underline">Forgot your password?</a></Link></p>
-              <p className="text-slate-500">Don't have an account?{' '}<Link href={ROUTES.register}><a className="text-blue-600 hover:underline">Register</a></Link></p>
+              <p><Link href={ROUTES.forgotPassword} className="text-blue-600 hover:underline">Forgot your password?</Link></p>
+              <p className="text-slate-500">Don't have an account?{' '}<Link href={ROUTES.register} className="text-blue-600 hover:underline">Register</Link></p>
             </div>
           </form>
         </div>

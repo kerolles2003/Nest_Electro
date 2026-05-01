@@ -7,7 +7,7 @@ export function FeaturedProducts({ products }: { products: ProductCardDTO[] }) {
     <section className="container-nest section-gap">
       <div className="flex justify-between items-center mb-5">
         <h2 className="text-xl font-heading font-semibold text-slate-900">Featured Products</h2>
-        <Link href="/products?sort=featured"><a className="text-sm text-blue-600 hover:text-blue-700 font-medium">See All</a></Link>
+        <Link href="/products?sort=featured" className="text-sm text-blue-600 hover:text-blue-700 font-medium">See All</Link>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {products.map((product) => <ProductCard key={product.id} product={product} />)}

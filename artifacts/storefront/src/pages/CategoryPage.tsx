@@ -71,7 +71,7 @@ export default function CategoryPage() {
     return (
       <div className="container-nest py-16 text-center">
         <h1 className="text-xl font-semibold text-slate-900">Category not found</h1>
-        <Link href="/categories"><a className="mt-4 inline-block text-blue-600 hover:underline text-sm">Browse all categories</a></Link>
+        <Link href="/categories" className="mt-4 inline-block text-blue-600 hover:underline text-sm">Browse all categories</Link>
       </div>
     );
   }
@@ -79,9 +79,9 @@ export default function CategoryPage() {
   return (
     <div className="container-nest py-6">
       <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-        <Link href="/"><a className="hover:text-blue-600 transition-colors">Home</a></Link>
+        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
         <ChevronRight className="w-3 h-3" />
-        <Link href="/categories"><a className="hover:text-blue-600 transition-colors">Categories</a></Link>
+        <Link href="/categories" className="hover:text-blue-600 transition-colors">Categories</Link>
         <ChevronRight className="w-3 h-3" />
         <span className="text-slate-900 font-medium">{category.name_en}</span>
       </nav>

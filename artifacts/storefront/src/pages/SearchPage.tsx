@@ -51,7 +51,7 @@ export default function SearchPage() {
   return (
     <div className="container-nest py-6">
       <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-        <Link href="/"><a className="hover:text-blue-600 transition-colors">Home</a></Link>
+        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
         <ChevronRight className="w-3 h-3" />
         <span className="text-slate-900 font-medium">Search{query ? `: ${query}` : ''}</span>
       </nav>
@@ -82,7 +82,7 @@ export default function SearchPage() {
             <li>Check your spelling and try again</li>
             <li>Try more general search terms</li>
           </ul>
-          <Link href="/products"><a className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm px-5 py-2 rounded-md hover:bg-blue-700 transition-colors">Browse All Products</a></Link>
+          <Link href="/products" className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm px-5 py-2 rounded-md hover:bg-blue-700 transition-colors">Browse All Products</Link>
         </div>
       ) : (
         <>

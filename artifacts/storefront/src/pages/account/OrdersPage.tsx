@@ -67,7 +67,7 @@ export default function OrdersPage() {
       <div className="text-center py-16 bg-white border border-slate-200 rounded-md">
         <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
         <h2 className="text-lg font-medium text-slate-900">Sign in to view your orders</h2>
-        <Link href={ROUTES.login}><a className="inline-block mt-4 text-sm font-medium text-blue-600 hover:text-blue-700">Sign In</a></Link>
+        <Link href={ROUTES.login} className="inline-block mt-4 text-sm font-medium text-blue-600 hover:text-blue-700">Sign In</Link>
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function OrdersPage() {
         <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
         <h2 className="text-lg font-medium text-slate-900">No orders yet</h2>
         <p className="text-slate-500 mt-1">Start shopping to see your orders here.</p>
-        <Link href={ROUTES.products}><a className="inline-block mt-4 text-sm font-medium text-blue-600 hover:text-blue-700">Browse Products</a></Link>
+        <Link href={ROUTES.products} className="inline-block mt-4 text-sm font-medium text-blue-600 hover:text-blue-700">Browse Products</Link>
       </div>
     );
   }

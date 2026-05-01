@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
               <p className="text-sm text-green-700">Check your email for a password reset link.</p>
             </div>
             <p className="text-center text-sm text-slate-500">
-              <Link href={ROUTES.login}><a className="text-blue-600 hover:underline">Back to sign in</a></Link>
+              <Link href={ROUTES.login} className="text-blue-600 hover:underline">Back to sign in</Link>
             </p>
           </div>
         ) : (
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
               {loading ? 'Sending...' : 'Send Reset Link'}
             </button>
             <p className="pt-2 text-center text-sm text-slate-500">
-              Remember your password?{' '}<Link href={ROUTES.login}><a className="text-blue-600 hover:underline">Sign in</a></Link>
+              Remember your password?{' '}<Link href={ROUTES.login} className="text-blue-600 hover:underline">Sign in</Link>
             </p>
           </form>
         )}

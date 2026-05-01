@@ -9,10 +9,12 @@ export function BrandsStrip({ brands }: { brands: Brand[] }) {
       <div className="container-nest">
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-none pb-1">
           {brands.map((brand) => (
-            <Link key={brand.id} href={`/brands/${brand.slug}`}>
-              <a className="flex-shrink-0 px-5 py-2.5 bg-white border border-slate-200 rounded-md text-sm font-semibold text-slate-500 hover:text-blue-600 hover:border-blue-400 hover:shadow-sm transition-all">
-                {brand.name_en}
-              </a>
+            <Link
+              key={brand.id}
+              href={`/brands/${brand.slug}`}
+              className="flex-shrink-0 px-5 py-2.5 bg-white border border-slate-200 rounded-md text-sm font-semibold text-slate-500 hover:text-blue-600 hover:border-blue-400 hover:shadow-sm transition-all"
+            >
+              {brand.name_en}
             </Link>
           ))}
         </div>

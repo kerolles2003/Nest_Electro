@@ -34,23 +34,21 @@ export function HeroBanner({ categories }: HeroBannerProps) {
               Arduino, ESP32, sensors, motors, displays and 500+ more components. Delivered across Egypt.
             </p>
             <div className="flex gap-3 mt-8">
-              <Link href="/products">
-                <a className="btn-primary px-6 py-2.5 text-sm">Shop Now</a>
-              </Link>
-              <Link href="/categories">
-                <a className="btn-secondary px-6 py-2.5 text-sm">Browse Categories</a>
-              </Link>
+              <Link href="/products" className="btn-primary px-6 py-2.5 text-sm">Shop Now</Link>
+              <Link href="/categories" className="btn-secondary px-6 py-2.5 text-sm">Browse Categories</Link>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {displayCategories.map((cat) => (
-              <Link key={cat.id} href={`/categories/${cat.slug}`}>
-                <a className="rounded-xl bg-white border border-slate-200 shadow-sm p-5 flex flex-col items-center gap-3 text-center hover:border-blue-400 hover:shadow-md transition-all duration-200">
-                  <div className="text-blue-600 bg-blue-50 rounded-lg p-3">
-                    {categoryIcons[cat.slug] ?? <Cpu className="w-6 h-6" />}
-                  </div>
-                  <span className="text-sm font-medium text-slate-800 leading-tight">{cat.name_en}</span>
-                </a>
+              <Link
+                key={cat.id}
+                href={`/categories/${cat.slug}`}
+                className="rounded-xl bg-white border border-slate-200 shadow-sm p-5 flex flex-col items-center gap-3 text-center hover:border-blue-400 hover:shadow-md transition-all duration-200"
+              >
+                <div className="text-blue-600 bg-blue-50 rounded-lg p-3">
+                  {categoryIcons[cat.slug] ?? <Cpu className="w-6 h-6" />}
+                </div>
+                <span className="text-sm font-medium text-slate-800 leading-tight">{cat.name_en}</span>
               </Link>
             ))}
           </div>

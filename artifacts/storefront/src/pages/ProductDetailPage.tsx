@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
         <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
         <h1 className="text-xl font-semibold text-slate-900">Product not found</h1>
         <p className="text-slate-500 mt-2">This product may have been removed or doesn't exist.</p>
-        <Link href="/products"><a className="mt-4 inline-block text-blue-600 hover:underline text-sm">Browse all products</a></Link>
+        <Link href="/products" className="mt-4 inline-block text-blue-600 hover:underline text-sm">Browse all products</Link>
       </div>
     );
   }
@@ -97,11 +97,11 @@ export default function ProductDetailPage() {
     <div className="container-nest py-6">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-6">
-        <Link href="/"><a className="hover:text-blue-600 transition-colors">Home</a></Link>
+        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
         <ChevronRight className="w-3 h-3" />
         {product.category && (
           <>
-            <Link href={`/categories/${product.category.slug}`}><a className="hover:text-blue-600 transition-colors">{product.category.name_en}</a></Link>
+            <Link href={`/categories/${product.category.slug}`} className="hover:text-blue-600 transition-colors">{product.category.name_en}</Link>
             <ChevronRight className="w-3 h-3" />
           </>
         )}
