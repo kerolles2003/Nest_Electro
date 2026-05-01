@@ -140,9 +140,7 @@ export default function ProductDetailPage() {
         {/* Info */}
         <div className="space-y-4">
           {product.brand && (
-            <Link href={`/brands/${product.brand.slug}`}>
-              <a className="text-xs font-semibold text-blue-600 uppercase tracking-wide hover:underline">{product.brand.name_en}</a>
-            </Link>
+            <Link href={`/brands/${product.brand.slug}`} className="text-xs font-semibold text-blue-600 uppercase tracking-wide hover:underline">{product.brand.name_en}</Link>
           )}
           <h1 className="text-2xl font-heading font-bold text-slate-900">{product.name_en}</h1>
 
