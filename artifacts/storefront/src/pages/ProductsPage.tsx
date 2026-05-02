@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useLocation, useSearch } from 'wouter';
 import { getSupabaseClient } from '@/lib/supabase';
 import { ProductCard, ProductCardSkeleton, type ProductCardDTO } from '@/components/ProductCard';
-import { Search, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
 
 interface Category { id: string; name_en: string; slug: string; parent_id: string | null; }
 interface Brand { id: string; name_en: string; slug: string; }
@@ -60,6 +60,20 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Local price state so inputs don't re-fetch on every keystroke
+  const [localMin, setLocalMin] = useState(filters.minPrice);
+  const [localMax, setLocalMax] = useState(filters.maxPrice);
+  const priceApplied = useRef(false);
+
+  // Sync local price state when URL changes externally (e.g. clear filters)
+  useEffect(() => {
+    if (!priceApplied.current) {
+      setLocalMin(filters.minPrice);
+      setLocalMax(filters.maxPrice);
+    }
+    priceApplied.current = false;
+  }, [search]);
 
   const supabase = getSupabaseClient();
 
@@ -126,43 +140,98 @@ export default function ProductsPage() {
     loadProducts();
   }, [loadProducts]);
 
-  const setFilter = (key: string, value: string) => {
-    const params = new URLSearchParams(window.location.search.slice(1));
+  // Build a new URL by merging a key/value into current search params.
+  // Uses the reactive `search` value (not window.location.search) to avoid stale state.
+  const setFilter = useCallback((key: string, value: string) => {
+    const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
     if (value) params.set(key, value);
     else params.delete(key);
     params.delete('page');
     navigate(`/products?${params.toString()}`);
+  }, [search, navigate]);
+
+  const applyPriceFilter = () => {
+    priceApplied.current = true;
+    const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
+    if (localMin) params.set('minPrice', localMin); else params.delete('minPrice');
+    if (localMax) params.set('maxPrice', localMax); else params.delete('maxPrice');
+    params.delete('page');
+    navigate(`/products?${params.toString()}`);
+  };
+
+  const clearAllFilters = () => {
+    priceApplied.current = true;
+    setLocalMin('');
+    setLocalMax('');
+    const params = new URLSearchParams();
+    if (filters.q) params.set('q', filters.q);
+    navigate(`/products${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
+  const activeFilterCount = [
+    filters.category,
+    filters.brand,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.inStock ? 'inStock' : '',
+  ].filter(Boolean).length;
+
+  const hasActiveFilters = activeFilterCount > 0;
+
+  const topCategories = categories.filter((c) => !c.parent_id);
+
   return (
     <div className="container-nest py-6">
+      {/* Header row */}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-xl font-heading font-semibold text-slate-900">
-            {filters.q ? `Search: "${filters.q}"` : 'All Products'}
+            {filters.q ? `Results for "${filters.q}"` : 'All Products'}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">{total} products</p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Sort dropdown */}
           <select
             value={filters.sort}
             onChange={(e) => setFilter('sort', e.target.value)}
             className="text-sm border border-slate-200 rounded-md px-3 py-1.5 bg-white focus:outline-none focus:border-blue-500"
+            aria-label="Sort products"
           >
             <option value="newest">Newest</option>
             <option value="featured">Featured</option>
             <option value="price_asc">Price: Low to High</option>
             <option value="price_desc">Price: High to Low</option>
           </select>
+
+          {/* Filters toggle (mobile/tablet) */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-1.5 text-sm border border-slate-200 rounded-md px-3 py-1.5 bg-white hover:bg-slate-50 transition-colors"
+            className="relative flex items-center gap-1.5 text-sm border border-slate-200 rounded-md px-3 py-1.5 bg-white hover:bg-slate-50 transition-colors lg:hidden"
+            aria-expanded={showFilters}
+            aria-label="Toggle filters"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filters
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
+
+          {/* Clear filters */}
+          {hasActiveFilters && (
+            <button
+              onClick={clearAllFilters}
+              className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors"
+            >
+              <X className="w-3 h-3" />
+              Clear
+            </button>
+          )}
         </div>
       </div>
 
@@ -170,20 +239,22 @@ export default function ProductsPage() {
         {/* Sidebar Filters */}
         <aside className={`${showFilters ? 'block' : 'hidden'} lg:block w-52 shrink-0`}>
           <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-5 sticky top-32">
+
+            {/* Category */}
             <div>
               <h3 className="text-sm font-semibold text-slate-900 mb-2">Category</h3>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <button
                   onClick={() => setFilter('category', '')}
-                  className={`w-full text-left text-sm px-2 py-1 rounded transition-colors ${!filters.category ? 'text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-900'}`}
+                  className={`w-full text-left text-sm px-2 py-1.5 rounded transition-colors ${!filters.category ? 'text-blue-600 font-medium bg-blue-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
                 >
                   All Categories
                 </button>
-                {categories.filter(c => !c.parent_id).map((cat) => (
+                {topCategories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => setFilter('category', cat.slug)}
-                    className={`w-full text-left text-sm px-2 py-1 rounded transition-colors ${filters.category === cat.slug ? 'text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-900'}`}
+                    className={`w-full text-left text-sm px-2 py-1.5 rounded transition-colors ${filters.category === cat.slug ? 'text-blue-600 font-medium bg-blue-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
                   >
                     {cat.name_en}
                   </button>
@@ -191,12 +262,13 @@ export default function ProductsPage() {
               </div>
             </div>
 
+            {/* Brand */}
             <div>
               <h3 className="text-sm font-semibold text-slate-900 mb-2">Brand</h3>
-              <div className="space-y-1 max-h-48 overflow-y-auto">
+              <div className="space-y-0.5 max-h-52 overflow-y-auto">
                 <button
                   onClick={() => setFilter('brand', '')}
-                  className={`w-full text-left text-sm px-2 py-1 rounded transition-colors ${!filters.brand ? 'text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-900'}`}
+                  className={`w-full text-left text-sm px-2 py-1.5 rounded transition-colors ${!filters.brand ? 'text-blue-600 font-medium bg-blue-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
                 >
                   All Brands
                 </button>
@@ -204,7 +276,7 @@ export default function ProductsPage() {
                   <button
                     key={brand.id}
                     onClick={() => setFilter('brand', brand.slug)}
-                    className={`w-full text-left text-sm px-2 py-1 rounded transition-colors ${filters.brand === brand.slug ? 'text-blue-600 font-medium' : 'text-slate-500 hover:text-slate-900'}`}
+                    className={`w-full text-left text-sm px-2 py-1.5 rounded transition-colors ${filters.brand === brand.slug ? 'text-blue-600 font-medium bg-blue-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
                   >
                     {brand.name_en}
                   </button>
@@ -212,40 +284,85 @@ export default function ProductsPage() {
               </div>
             </div>
 
+            {/* Price Range */}
             <div>
               <h3 className="text-sm font-semibold text-slate-900 mb-2">Price (EGP)</h3>
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
                 <input
                   type="number"
+                  min={0}
                   placeholder="Min"
-                  value={filters.minPrice}
-                  onChange={(e) => setFilter('minPrice', e.target.value)}
-                  className="w-full border border-slate-200 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500"
+                  value={localMin}
+                  onChange={(e) => setLocalMin(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && applyPriceFilter()}
+                  className="w-full border border-slate-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-500"
+                  aria-label="Minimum price"
                 />
                 <input
                   type="number"
+                  min={0}
                   placeholder="Max"
-                  value={filters.maxPrice}
-                  onChange={(e) => setFilter('maxPrice', e.target.value)}
-                  className="w-full border border-slate-200 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500"
+                  value={localMax}
+                  onChange={(e) => setLocalMax(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && applyPriceFilter()}
+                  className="w-full border border-slate-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-blue-500"
+                  aria-label="Maximum price"
                 />
               </div>
+              <button
+                onClick={applyPriceFilter}
+                className="w-full text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded py-1.5 transition-colors font-medium"
+              >
+                Apply Price
+              </button>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            {/* In Stock */}
+            <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={filters.inStock}
                 onChange={(e) => setFilter('inStock', e.target.checked ? 'true' : '')}
-                className="rounded border-slate-300"
+                className="rounded border-slate-300 accent-blue-600"
               />
               <span className="text-sm text-slate-700">In stock only</span>
             </label>
+
+            {/* Clear filters (inside sidebar) */}
+            {hasActiveFilters && (
+              <button
+                onClick={clearAllFilters}
+                className="w-full text-xs text-red-500 hover:text-red-600 border border-red-100 hover:border-red-200 rounded py-1.5 transition-colors"
+              >
+                Clear all filters
+              </button>
+            )}
           </div>
         </aside>
 
         {/* Products Grid */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
+          {/* Active filter chips */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {filters.category && (
+                <FilterChip label={`Category: ${categories.find((c) => c.slug === filters.category)?.name_en ?? filters.category}`} onRemove={() => setFilter('category', '')} />
+              )}
+              {filters.brand && (
+                <FilterChip label={`Brand: ${brands.find((b) => b.slug === filters.brand)?.name_en ?? filters.brand}`} onRemove={() => setFilter('brand', '')} />
+              )}
+              {filters.minPrice && (
+                <FilterChip label={`Min: EGP ${filters.minPrice}`} onRemove={() => { setLocalMin(''); priceApplied.current = true; setFilter('minPrice', ''); }} />
+              )}
+              {filters.maxPrice && (
+                <FilterChip label={`Max: EGP ${filters.maxPrice}`} onRemove={() => { setLocalMax(''); priceApplied.current = true; setFilter('maxPrice', ''); }} />
+              )}
+              {filters.inStock && (
+                <FilterChip label="In stock" onRemove={() => setFilter('inStock', '')} />
+              )}
+            </div>
+          )}
+
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {Array.from({ length: 12 }).map((_, i) => <ProductCardSkeleton key={i} />)}
@@ -254,7 +371,12 @@ export default function ProductsPage() {
             <div className="text-center py-20 border border-slate-200 rounded-lg bg-white">
               <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <h2 className="text-lg font-semibold text-slate-900 mb-1">No products found</h2>
-              <p className="text-slate-500 text-sm">Try adjusting your filters or search terms.</p>
+              <p className="text-slate-500 text-sm mb-4">Try adjusting your filters or search terms.</p>
+              {hasActiveFilters && (
+                <button onClick={clearAllFilters} className="text-sm text-blue-600 hover:underline">
+                  Clear all filters
+                </button>
+              )}
             </div>
           ) : (
             <>
@@ -265,7 +387,11 @@ export default function ProductsPage() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-1 mt-8">
                   {filters.page > 1 && (
-                    <button onClick={() => setFilter('page', String(filters.page - 1))} className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 transition-colors">
+                    <button
+                      onClick={() => setFilter('page', String(filters.page - 1))}
+                      className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 transition-colors"
+                      aria-label="Previous page"
+                    >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
                   )}
@@ -273,17 +399,25 @@ export default function ProductsPage() {
                     .filter((p) => p === 1 || p === totalPages || Math.abs(p - filters.page) <= 2)
                     .map((p, idx, arr) => (
                       <span key={p} className="contents">
-                        {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-slate-400 text-sm px-1">…</span>}
+                        {idx > 0 && arr[idx - 1] !== p - 1 && (
+                          <span className="text-slate-400 text-sm px-1">…</span>
+                        )}
                         <button
                           onClick={() => setFilter('page', String(p))}
                           className={`flex h-8 w-8 items-center justify-center rounded text-xs font-medium transition-colors ${p === filters.page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-slate-100'}`}
+                          aria-label={`Page ${p}`}
+                          aria-current={p === filters.page ? 'page' : undefined}
                         >
                           {p}
                         </button>
                       </span>
                     ))}
                   {filters.page < totalPages && (
-                    <button onClick={() => setFilter('page', String(filters.page + 1))} className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 transition-colors">
+                    <button
+                      onClick={() => setFilter('page', String(filters.page + 1))}
+                      className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 transition-colors"
+                      aria-label="Next page"
+                    >
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   )}
@@ -294,5 +428,16 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2.5 py-1">
+      {label}
+      <button onClick={onRemove} className="hover:text-blue-900 transition-colors" aria-label={`Remove filter: ${label}`}>
+        <X className="w-3 h-3" />
+      </button>
+    </span>
   );
 }
