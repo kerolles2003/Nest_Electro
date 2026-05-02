@@ -124,12 +124,17 @@ export default function ProductsPage() {
       // 1. Compute avg_rating per product from real review data.
       // 2. Fetch all matching product IDs (no pagination) to get the filtered set.
       // 3. Intersect and sort globally; slice the correct page; fetch product details.
+      // Fetch IDs ordered by created_at desc so that ties in avg_rating and
+      // unrated products have a deterministic, stable secondary sort.
+      const allIdsQuery = (
+        buildFilterQuery<ReturnType<typeof supabase.from>>('id')
+      ).order('created_at', { ascending: false });
       const [reviewResult, allIdsResult] = await Promise.all([
         supabase
           .from('reviews')
           .select('product_id, rating')
           .eq('moderation_status', 'approved') as Promise<{ data: { product_id: string; rating: number }[] | null }>,
-        buildFilterQuery<Promise<{ data: { id: string }[] | null }>>('id'),
+        allIdsQuery as unknown as Promise<{ data: { id: string }[] | null }>,
       ]);
 
       // Compute avg_rating per product globally
@@ -225,6 +230,8 @@ export default function ProductsPage() {
     setLocalMax('');
     const params = new URLSearchParams();
     if (filters.q) params.set('q', filters.q);
+    // Preserve sort so "clear filters" only removes attribute filters, not user's chosen order
+    if (filters.sort && filters.sort !== 'newest') params.set('sort', filters.sort);
     navigate(`/products${params.toString() ? `?${params.toString()}` : ''}`);
   };
 

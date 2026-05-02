@@ -3,7 +3,7 @@ import { getSupabaseClient } from '@/lib/supabase';
 import { HeroBanner } from '@/components/home/HeroBanner';
 import { TrustBar } from '@/components/home/TrustBar';
 import { FeaturedProducts, FeaturedProductsSkeleton } from '@/components/home/FeaturedProducts';
-import { NewArrivals } from '@/components/home/NewArrivals';
+import { BestPick } from '@/components/home/BestPick';
 import { BrandsStrip } from '@/components/home/BrandsStrip';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
 import type { ProductCardDTO } from '@/components/ProductCard';
@@ -25,7 +25,20 @@ interface Brand {
 
 const PRODUCT_SELECT = `id, slug, sku, name_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en)`;
 
-function toProductDTO(p: any): ProductCardDTO {
+function toProductDTO(p: {
+  id: string;
+  slug: string;
+  sku: string;
+  name_en: string;
+  base_price: number;
+  sale_price: number | null;
+  stock_quantity: number;
+  reserved_quantity: number;
+  is_featured: boolean;
+  images?: { url: string }[];
+  brand?: { name_en: string } | null;
+  category?: { name_en: string } | null;
+}): ProductCardDTO {
   const available = (p.stock_quantity ?? 0) - (p.reserved_quantity ?? 0);
   return {
     id: p.id,
@@ -37,8 +50,8 @@ function toProductDTO(p: any): ProductCardDTO {
     imageUrl: p.images?.[0]?.url ?? null,
     basePrice: p.base_price,
     salePrice: p.sale_price,
-    rating: p.avg_rating ?? 0,
-    reviewCount: p.review_count ?? 0,
+    rating: 0,
+    reviewCount: 0,
     inStock: available > 0,
     isFeatured: p.is_featured,
   };
@@ -54,14 +67,15 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featured, setFeatured] = useState<ProductCardDTO[]>([]);
   const [newArrivals, setNewArrivals] = useState<ProductCardDTO[]>([]);
+  const [bestPick, setBestPick] = useState<ProductCardDTO[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const supabase = getSupabaseClient();
 
   useEffect(() => {
     const load = async () => {
-      const [catRes, brandRes, featuredRes, newRes] = await Promise.all([
+      const [catRes, brandRes, featuredRes, newRes, saleRes] = await Promise.all([
         supabase
           .from('categories')
           .select('id, name_en, slug, parent_id, sort_order')
@@ -81,21 +95,33 @@ export default function HomePage() {
           .eq('is_featured', true)
           .is('deleted_at', null)
           .order('created_at', { ascending: false })
-          .limit(5),
+          .limit(10),
         supabase
           .from('products')
           .select(PRODUCT_SELECT)
           .eq('is_active', true)
           .is('deleted_at', null)
           .order('created_at', { ascending: false })
-          .limit(5),
+          .limit(10),
+        // "Best pick" = products with a sale price (good deals)
+        supabase
+          .from('products')
+          .select(PRODUCT_SELECT)
+          .eq('is_active', true)
+          .is('deleted_at', null)
+          .not('sale_price', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(8),
       ]);
 
       setCategories(catRes.data ?? []);
       setBrands(brandRes.data ?? []);
       setFeatured((featuredRes.data ?? []).map(toProductDTO));
       setNewArrivals((newRes.data ?? []).map(toProductDTO));
-      setLoadingFeatured(false);
+      // Best pick: prefer sale items, fall back to newest if no sale items
+      const saleItems = (saleRes.data ?? []).map(toProductDTO);
+      setBestPick(saleItems.length >= 3 ? saleItems : (newRes.data ?? []).map(toProductDTO));
+      setLoading(false);
     };
 
     load();
@@ -107,8 +133,16 @@ export default function HomePage() {
     <>
       <HeroBanner categories={categoryTree} />
       <TrustBar />
-      {loadingFeatured ? <FeaturedProductsSkeleton /> : <FeaturedProducts products={featured} />}
-      <NewArrivals products={newArrivals} />
+      {loading ? (
+        <FeaturedProductsSkeleton />
+      ) : (
+        <FeaturedProducts
+          featured={featured}
+          topRated={featured}
+          newArrivals={newArrivals}
+        />
+      )}
+      <BestPick products={bestPick} />
       <BrandsStrip brands={brands} />
       <CategoryGrid categories={categoryTree} />
     </>
