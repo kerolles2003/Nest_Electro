@@ -49,18 +49,20 @@ export default function ProductDetailPage() {
       .is('deleted_at', null)
       .single()
       .then(({ data }) => {
-        setProduct(data as any);
+        setProduct(data as ProductDetail | null);
         setLoading(false);
         if (data) {
+          const productId = (data as ProductDetail).id;
           supabase
             .from('reviews')
             .select('rating', { count: 'exact' })
-            .eq('product_id', (data as any).id)
+            .eq('product_id', productId)
             .eq('moderation_status', 'approved')
             .then(({ data: reviews, count }) => {
               const cnt = count ?? 0;
               if (cnt > 0 && reviews) {
-                const sum = reviews.reduce((acc: number, r: any) => acc + (r.rating ?? 0), 0);
+                const sum = (reviews as { rating: number | null }[])
+                  .reduce((acc, r) => acc + (r.rating ?? 0), 0);
                 setAvgRating(Math.round((sum / cnt) * 10) / 10);
                 setReviewCount(cnt);
               }

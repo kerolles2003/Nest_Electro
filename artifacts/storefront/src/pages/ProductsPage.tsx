@@ -21,16 +21,28 @@ function parseSearch(search: string) {
   };
 }
 
+// avg_rating and review_count are not columns in the products table;
+// they are aggregated from the reviews table separately when needed.
 const PRODUCT_SELECT = `id, slug, sku, name_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, images:product_images(url), brand:brands(name_en, slug), category:categories(name_en, slug)`;
 
-function toProductDTO(p: any): ProductCardDTO {
+interface ProductRow {
+  id: string; slug: string; sku: string; name_en: string;
+  base_price: number; sale_price: number | null;
+  stock_quantity: number; reserved_quantity: number;
+  is_featured: boolean;
+  images: { url: string }[];
+  brand: { name_en: string; slug: string } | null;
+  category: { name_en: string; slug: string } | null;
+}
+
+function toProductDTO(p: ProductRow): ProductCardDTO {
   const available = (p.stock_quantity ?? 0) - (p.reserved_quantity ?? 0);
   return {
     id: p.id, slug: p.slug, sku: p.sku, name: p.name_en,
     brandName: p.brand?.name_en ?? null, categoryName: p.category?.name_en ?? null,
     imageUrl: p.images?.[0]?.url ?? null,
     basePrice: p.base_price, salePrice: p.sale_price,
-    rating: p.avg_rating ?? 0, reviewCount: p.review_count ?? 0,
+    rating: 0, reviewCount: 0,
     inStock: available > 0, isFeatured: p.is_featured,
   };
 }
@@ -66,13 +78,13 @@ export default function ProductsPage() {
     const { q, category, brand, sort, page, minPrice, maxPrice, inStock } = parseSearch(search);
 
     // Resolve category/brand slugs to IDs for server-side filtering
-    const [catIdResult, brandIdResult] = await Promise.all([
+    const [catRow, brandRow] = await Promise.all([
       category
-        ? supabase.from('categories').select('id').eq('slug', category).single()
-        : Promise.resolve({ data: null }),
+        ? supabase.from('categories').select('id').eq('slug', category).single<{ id: string }>()
+        : Promise.resolve({ data: null as { id: string } | null }),
       brand
-        ? supabase.from('brands').select('id').eq('slug', brand).single()
-        : Promise.resolve({ data: null }),
+        ? supabase.from('brands').select('id').eq('slug', brand).single<{ id: string }>()
+        : Promise.resolve({ data: null as { id: string } | null }),
     ]);
 
     let query = supabase
@@ -82,8 +94,8 @@ export default function ProductsPage() {
       .is('deleted_at', null);
 
     if (q) query = query.ilike('name_en', `%${q}%`);
-    if (catIdResult.data) query = query.eq('category_id', (catIdResult.data as any).id);
-    if (brandIdResult.data) query = query.eq('brand_id', (brandIdResult.data as any).id);
+    if (catRow.data) query = query.eq('category_id', catRow.data.id);
+    if (brandRow.data) query = query.eq('brand_id', brandRow.data.id);
     if (minPrice) query = query.gte('base_price', parseFloat(minPrice));
     if (maxPrice) query = query.lte('base_price', parseFloat(maxPrice));
     // In-stock pre-filter: PostgREST does not support cross-column arithmetic
@@ -102,10 +114,11 @@ export default function ProductsPage() {
     const { data, count } = await query;
     // Client-side exact available-stock check: removes fully-reserved items
     // that passed the server-side stock_quantity > 0 pre-filter.
+    // Server count is used for pagination so page numbers remain correct.
     const mapped = (data ?? []).map(toProductDTO);
     const filtered = inStock ? mapped.filter((p) => p.inStock) : mapped;
     setProducts(filtered);
-    setTotal(inStock ? filtered.length : (count ?? 0));
+    setTotal(count ?? 0);
     setLoading(false);
   }, [search]);
 
