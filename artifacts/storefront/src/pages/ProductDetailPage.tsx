@@ -16,6 +16,7 @@ interface ProductDetail {
   brand?: { name_en: string; slug: string } | null;
   category?: { name_en: string; slug: string } | null;
   images: ProductImage[];
+  specifications?: Record<string, string> | null;
 }
 
 export default function ProductDetailPage() {
@@ -24,6 +25,8 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [avgRating, setAvgRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
 
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useUIStore((s) => s.openCart);
@@ -36,6 +39,9 @@ export default function ProductDetailPage() {
     setLoading(true);
     setSelectedImage(0);
     setQuantity(1);
+    setAvgRating(0);
+    setReviewCount(0);
+
     supabase
       .from('products')
       .select(`id, slug, sku, name_en, description_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, is_active, images:product_images(url, alt_text), brand:brands(name_en, slug), category:categories(name_en, slug)`)
@@ -46,6 +52,21 @@ export default function ProductDetailPage() {
       .then(({ data }) => {
         setProduct(data as any);
         setLoading(false);
+        if (data) {
+          supabase
+            .from('reviews')
+            .select('rating', { count: 'exact' })
+            .eq('product_id', (data as any).id)
+            .eq('moderation_status', 'approved')
+            .then(({ data: reviews, count }) => {
+              const cnt = count ?? 0;
+              if (cnt > 0 && reviews) {
+                const sum = reviews.reduce((acc: number, r: any) => acc + (r.rating ?? 0), 0);
+                setAvgRating(Math.round((sum / cnt) * 10) / 10);
+                setReviewCount(cnt);
+              }
+            });
+        }
       });
   }, [slug]);
 
@@ -146,6 +167,16 @@ export default function ProductDetailPage() {
           )}
           <h1 className="text-2xl font-heading font-bold text-slate-900">{product.name_en}</h1>
 
+          {reviewCount > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className={`w-4 h-4 ${i < Math.round(avgRating) ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
+                ))}
+              </div>
+              <span className="text-sm text-slate-500">({reviewCount} reviews)</span>
+            </div>
+          )}
 
           <div className="flex items-baseline gap-3">
             <span className="text-3xl font-bold text-blue-600">EGP {price.toLocaleString()}</span>
@@ -231,6 +262,22 @@ export default function ProductDetailPage() {
         </div>
       )}
 
+      {/* Specifications — rendered if the product has specifications data */}
+      {product.specifications && Object.keys(product.specifications).length > 0 && (
+        <div className="mt-8 border-t border-slate-200 pt-8">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Specifications</h2>
+          <table className="w-full text-sm border-collapse">
+            <tbody>
+              {Object.entries(product.specifications).map(([key, value]) => (
+                <tr key={key} className="border-b border-slate-100">
+                  <td className="py-2.5 pr-6 font-medium text-slate-600 w-40">{key}</td>
+                  <td className="py-2.5 text-slate-900">{value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
