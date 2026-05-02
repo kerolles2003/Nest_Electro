@@ -15,7 +15,7 @@ function toProductDTO(p: any): ProductCardDTO {
     brandName: p.brand?.name_en ?? null, categoryName: p.category?.name_en ?? null,
     imageUrl: p.images?.[0]?.url ?? null,
     basePrice: p.base_price, salePrice: p.sale_price,
-    rating: p.avg_rating ?? 0, reviewCount: p.review_count ?? 0,
+    rating: 0, reviewCount: 0,
     inStock: available > 0, isFeatured: p.is_featured,
   };
 }
@@ -52,50 +52,59 @@ export default function BrandPage() {
   }, [slug]);
 
   if (loading) return (
-    <div className="container-nest py-6 animate-pulse">
-      <div className="h-4 bg-slate-100 rounded w-48 mb-4" />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)}
+    <div className="bg-[#f8f8f8] min-h-screen">
+      <div className="container-nest py-6 animate-pulse">
+        <div className="h-4 bg-[#f2f2f2] rounded w-48 mb-4" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)}
+        </div>
       </div>
     </div>
   );
 
   if (!brand) return (
-    <div className="container-nest py-16 text-center">
-      <h1 className="text-xl font-semibold text-slate-900">Brand not found</h1>
-      <Link href="/products" className="mt-4 inline-block text-blue-600 hover:underline text-sm">Browse all products</Link>
+    <div className="bg-[#f8f8f8] min-h-screen">
+      <div className="container-nest py-16 text-center">
+        <h1 className="font-heading font-semibold text-xl text-[#0D0625]">Brand not found</h1>
+        <Link href="/products" className="mt-4 inline-block text-[#E14A5C] hover:underline text-sm font-medium">Browse all products</Link>
+      </div>
     </div>
   );
 
   return (
-    <div className="container-nest py-6">
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
-        <ChevronRight className="w-3 h-3" />
-        <Link href="/products" className="hover:text-blue-600 transition-colors">Products</Link>
-        <ChevronRight className="w-3 h-3" />
-        <span className="text-slate-900 font-medium">{brand.name_en}</span>
-      </nav>
-      <div className="flex items-center gap-3 mb-4">
-        {brand.logo_url && (
-          <div className="w-12 h-12 bg-white border border-slate-200 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
-            <img src={brand.logo_url} alt={brand.name_en} className="max-w-full max-h-full object-contain p-1" />
+    <div className="bg-[#f8f8f8] min-h-screen">
+      <div className="container-nest py-6">
+        <nav className="flex items-center gap-1.5 text-xs text-[#999] mb-4">
+          <Link href="/" className="hover:text-[#E14A5C] transition-colors">Home</Link>
+          <ChevronRight className="w-3 h-3" />
+          <Link href="/products" className="hover:text-[#E14A5C] transition-colors">Products</Link>
+          <ChevronRight className="w-3 h-3" />
+          <span className="text-[#0D0625] font-medium">{brand.name_en}</span>
+        </nav>
+
+        <div className="flex items-center gap-3 mb-5 bg-white border border-[#e8e8e8] rounded-lg p-4">
+          {brand.logo_url && (
+            <div className="w-14 h-14 bg-white border border-[#e8e8e8] rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
+              <img src={brand.logo_url} alt={brand.name_en} className="max-w-full max-h-full object-contain p-1" />
+            </div>
+          )}
+          <div>
+            <h1 className="font-heading font-bold text-xl text-[#0D0625]">{brand.name_en}</h1>
+            <p className="text-xs text-[#999] mt-0.5">{total} products</p>
+          </div>
+        </div>
+
+        {products.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-[#e8e8e8] rounded-lg">
+            <h3 className="font-heading font-semibold text-lg text-[#0D0625]">No products found</h3>
+            <p className="text-[#777] text-sm mt-1">This brand has no active products yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {products.map((product) => <ProductCard key={product.id} product={product} />)}
           </div>
         )}
-        <div>
-          <h1 className="text-xl font-heading font-semibold text-slate-900">{brand.name_en}</h1>
-          <p className="text-xs text-slate-500 mt-0.5">{total} products</p>
-        </div>
       </div>
-      {products.length === 0 ? (
-        <div className="text-center py-20 border border-slate-200 rounded-lg">
-          <h3 className="text-lg font-medium text-slate-900">No products found</h3>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {products.map((product) => <ProductCard key={product.id} product={product} />)}
-        </div>
-      )}
     </div>
   );
 }

@@ -15,7 +15,7 @@ function toProductDTO(p: any): ProductCardDTO {
     brandName: p.brand?.name_en ?? null, categoryName: p.category?.name_en ?? null,
     imageUrl: p.images?.[0]?.url ?? null,
     basePrice: p.base_price, salePrice: p.sale_price,
-    rating: p.avg_rating ?? 0, reviewCount: p.review_count ?? 0,
+    rating: 0, reviewCount: 0,
     inStock: available > 0, isFeatured: p.is_featured,
   };
 }
@@ -27,7 +27,6 @@ export default function CategoryPage() {
   const [products, setProducts] = useState<ProductCardDTO[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-
   const supabase = getSupabaseClient();
 
   useEffect(() => {
@@ -59,66 +58,68 @@ export default function CategoryPage() {
     load();
   }, [slug]);
 
-  if (loading) {
-    return (
+  if (loading) return (
+    <div className="bg-[#f8f8f8] min-h-screen">
       <div className="container-nest py-6 animate-pulse">
-        <div className="h-4 bg-slate-100 rounded w-48 mb-4" />
-        <div className="h-6 bg-slate-100 rounded w-40 mb-6" />
+        <div className="h-4 bg-[#f2f2f2] rounded w-48 mb-4" />
+        <div className="h-6 bg-[#f2f2f2] rounded w-40 mb-6" />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (!category) {
-    return (
+  if (!category) return (
+    <div className="bg-[#f8f8f8] min-h-screen">
       <div className="container-nest py-16 text-center">
-        <h1 className="text-xl font-semibold text-slate-900">Category not found</h1>
-        <Link href="/categories" className="mt-4 inline-block text-blue-600 hover:underline text-sm">Browse all categories</Link>
+        <h1 className="font-heading font-semibold text-xl text-[#0D0625]">Category not found</h1>
+        <Link href="/categories" className="mt-4 inline-block text-[#E14A5C] hover:underline text-sm font-medium">Browse all categories</Link>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
-    <div className="container-nest py-6">
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
-        <ChevronRight className="w-3 h-3" />
-        <Link href="/categories" className="hover:text-blue-600 transition-colors">Categories</Link>
-        <ChevronRight className="w-3 h-3" />
-        <span className="text-slate-900 font-medium">{category.name_en}</span>
-      </nav>
+    <div className="bg-[#f8f8f8] min-h-screen">
+      <div className="container-nest py-6">
+        <nav className="flex items-center gap-1.5 text-xs text-[#999] mb-4">
+          <Link href="/" className="hover:text-[#E14A5C] transition-colors">Home</Link>
+          <ChevronRight className="w-3 h-3" />
+          <Link href="/categories" className="hover:text-[#E14A5C] transition-colors">Categories</Link>
+          <ChevronRight className="w-3 h-3" />
+          <span className="text-[#0D0625] font-medium">{category.name_en}</span>
+        </nav>
 
-      <div className="mb-4">
-        <h1 className="text-xl font-heading font-semibold text-slate-900">{category.name_en}</h1>
-        <p className="text-xs text-slate-500 mt-0.5">{total} products</p>
+        <div className="mb-4">
+          <h1 className="font-heading font-bold text-xl text-[#0D0625]">{category.name_en}</h1>
+          <p className="text-xs text-[#999] mt-0.5">{total} products</p>
+        </div>
+
+        {subcategories.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-5">
+            {subcategories.map((sub) => (
+              <Link
+                key={sub.id}
+                href={`/categories/${sub.slug}`}
+                className="inline-flex items-center px-3 py-1.5 bg-white border border-[#e8e8e8] rounded-full text-xs font-medium text-[#555] hover:text-[#E14A5C] hover:border-[#E14A5C]/40 transition-colors"
+              >
+                {sub.name_en}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {products.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-[#e8e8e8] rounded-lg">
+            <h3 className="font-heading font-semibold text-lg text-[#0D0625]">No products in this category</h3>
+            <p className="text-[#777] mt-1 text-sm">Check back later for new arrivals.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {products.map((product) => <ProductCard key={product.id} product={product} />)}
+          </div>
+        )}
       </div>
-
-      {subcategories.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {subcategories.map((sub) => (
-            <Link
-              key={sub.id}
-              href={`/categories/${sub.slug}`}
-              className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-medium text-slate-500 hover:text-blue-600 hover:border-blue-400 transition-colors"
-            >
-              {sub.name_en}
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {products.length === 0 ? (
-        <div className="text-center py-20 border border-slate-200 rounded-lg bg-white">
-          <h3 className="text-lg font-medium text-slate-900">No products in this category</h3>
-          <p className="text-slate-500 mt-1 text-sm">Check back later for new arrivals.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {products.map((product) => <ProductCard key={product.id} product={product} />)}
-        </div>
-      )}
     </div>
   );
 }

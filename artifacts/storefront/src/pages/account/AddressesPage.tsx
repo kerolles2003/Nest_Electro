@@ -8,6 +8,8 @@ interface AddressFormData { label: string; full_name: string; phone: string; str
 
 const emptyForm: AddressFormData = { label: '', full_name: '', phone: '', street: '', city: '', governorate: '' };
 
+const INPUT_CLASS = 'w-full rounded-md border border-[#e0e0e0] px-3 py-2.5 text-sm text-[#0D0625] placeholder:text-[#aaa] bg-white focus:outline-none focus:ring-2 focus:ring-[#E14A5C]/10 focus:border-[#E14A5C] transition-colors';
+
 export default function AddressesPage() {
   const [addresses, setAddresses] = useState<AddressData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,101 +67,125 @@ export default function AddressesPage() {
 
   if (isLoading) return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between"><h2 className="text-2xl font-bold text-slate-900">Addresses</h2></div>
-      <div className="bg-white border border-slate-200 rounded-md p-6 space-y-3">
-        {Array.from({ length: 2 }).map((_, i) => <div key={i} className="h-20 bg-slate-100 rounded-md animate-pulse" />)}
+      <div className="flex items-center justify-between">
+        <div className="h-8 w-32 bg-[#f2f2f2] animate-pulse rounded" />
+      </div>
+      <div className="bg-white border border-[#e8e8e8] rounded-lg p-6 space-y-3">
+        {Array.from({ length: 2 }).map((_, i) => <div key={i} className="h-20 bg-[#f2f2f2] rounded-md animate-pulse" />)}
       </div>
     </div>
   );
 
   if (!userId) return (
-    <div className="text-center py-16 bg-white border border-slate-200 rounded-md">
-      <MapPin className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-      <h2 className="text-lg font-medium text-slate-900">Sign in to manage addresses</h2>
+    <div className="text-center py-16 bg-white border border-[#e8e8e8] rounded-lg">
+      <div className="w-16 h-16 rounded-full bg-[#fde8ea] flex items-center justify-center mx-auto mb-4">
+        <MapPin className="w-8 h-8 text-[#E14A5C]/40" />
+      </div>
+      <h2 className="font-heading font-semibold text-lg text-[#0D0625]">Sign in to manage addresses</h2>
     </div>
   );
 
-  const inputClass = 'w-full rounded-md border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-slate-300';
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-900">Addresses</h2>
+        <h2 className="font-heading font-bold text-xl text-[#0D0625]">Addresses</h2>
         {!showForm && (
-          <button onClick={() => { setForm(emptyForm); setEditingId(null); setError(''); setShowForm(true); }} className="flex items-center gap-1 px-3 py-1.5 text-sm border border-slate-200 rounded-md bg-white hover:bg-slate-50 transition-colors">
+          <button
+            onClick={() => { setForm(emptyForm); setEditingId(null); setError(''); setShowForm(true); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-[#E14A5C] text-[#E14A5C] rounded-md hover:bg-[#fde8ea] transition-colors font-medium"
+          >
             <Plus className="w-4 h-4" /> Add Address
           </button>
         )}
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-md p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white border border-[#e8e8e8] rounded-lg p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">{editingId ? 'Edit Address' : 'New Address'}</h3>
-            <button type="button" onClick={closeForm} className="p-1 rounded hover:bg-slate-100 text-slate-400"><X className="w-4 h-4" /></button>
+            <h3 className="font-heading font-semibold text-[#0D0625]">{editingId ? 'Edit Address' : 'New Address'}</h3>
+            <button type="button" onClick={closeForm} className="p-1 rounded hover:bg-[#f8f8f8] text-[#aaa] hover:text-[#555] transition-colors">
+              <X className="w-4 h-4" />
+            </button>
           </div>
           {error && <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{error}</div>}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { key: 'label', label: 'Label', placeholder: 'Home, Work, etc.' },
+              { key: 'label',     label: 'Label',      placeholder: 'Home, Work, etc.' },
               { key: 'full_name', label: 'Full Name *', placeholder: 'Recipient name' },
-              { key: 'phone', label: 'Phone *', placeholder: '+20 1XX XXX XXXX' },
-              { key: 'street', label: 'Street *', placeholder: 'Street address' },
-              { key: 'city', label: 'City *', placeholder: 'City' },
+              { key: 'phone',     label: 'Phone *',     placeholder: '+20 1XX XXX XXXX' },
+              { key: 'street',    label: 'Street *',    placeholder: 'Street address' },
+              { key: 'city',      label: 'City *',      placeholder: 'City' },
             ].map(({ key, label, placeholder }) => (
-              <div key={key} className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">{label}</label>
-                <input type="text" value={(form as any)[key]} onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))} className={inputClass} placeholder={placeholder} />
+              <div key={key} className="space-y-1.5">
+                <label className="text-sm font-medium text-[#333]">{label}</label>
+                <input type="text" value={(form as any)[key]} onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))} className={INPUT_CLASS} placeholder={placeholder} />
               </div>
             ))}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Governorate *</label>
-              <select value={form.governorate} onChange={(e) => setForm(f => ({ ...f, governorate: e.target.value }))} className={inputClass}>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-[#333]">Governorate *</label>
+              <select value={form.governorate} onChange={(e) => setForm(f => ({ ...f, governorate: e.target.value }))} className={INPUT_CLASS}>
                 <option value="" disabled>Select governorate</option>
                 {EGYPTIAN_GOVERNORATES.map((gov) => <option key={gov} value={gov}>{gov}</option>)}
               </select>
             </div>
           </div>
-          <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
-              {saving ? <><Loader2 className="w-4 h-4 animate-spin" />{editingId ? 'Saving...' : 'Adding...'}</> : <>{editingId ? 'Save Changes' : 'Add Address'}</>}
+          <div className="flex gap-3 pt-1">
+            <button type="submit" disabled={saving} className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#E14A5C] hover:bg-[#c93e4e] text-white text-sm rounded-md font-semibold disabled:opacity-50 transition-colors">
+              {saving
+                ? <><Loader2 className="w-4 h-4 animate-spin" />{editingId ? 'Saving…' : 'Adding…'}</>
+                : <>{editingId ? 'Save Changes' : 'Add Address'}</>}
             </button>
-            <button type="button" onClick={closeForm} className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 transition-colors">Cancel</button>
+            <button type="button" onClick={closeForm} className="px-4 py-2.5 text-sm text-[#555] hover:text-[#0D0625] transition-colors">Cancel</button>
           </div>
         </form>
       )}
 
       {!showForm && addresses.length === 0 && (
-        <div className="text-center py-16 bg-white border border-slate-200 rounded-md">
-          <MapPin className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-          <h3 className="text-lg font-medium text-slate-900">No addresses saved</h3>
-          <p className="text-slate-500 mt-1">Save your shipping details for faster checkout.</p>
+        <div className="text-center py-16 bg-white border border-[#e8e8e8] rounded-lg">
+          <div className="w-16 h-16 rounded-full bg-[#fde8ea] flex items-center justify-center mx-auto mb-4">
+            <MapPin className="w-8 h-8 text-[#E14A5C]/40" />
+          </div>
+          <h3 className="font-heading font-semibold text-lg text-[#0D0625]">No addresses saved</h3>
+          <p className="text-[#777] text-sm mt-1">Save your shipping details for faster checkout.</p>
         </div>
       )}
 
       {!showForm && addresses.length > 0 && (
         <div className="space-y-3">
           {addresses.map((address) => (
-            <div key={address.id} className="bg-white border border-slate-200 rounded-md p-5">
+            <div key={address.id} className="bg-white border border-[#e8e8e8] rounded-lg p-5 hover:border-[#E14A5C]/30 transition-colors">
               <div className="flex items-center gap-2 mb-2">
-                {address.is_default && <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 px-2.5 py-0.5 text-xs font-medium">Default</span>}
-                {address.label && <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{address.label}</span>}
+                {address.is_default && (
+                  <span className="inline-flex items-center rounded-full bg-[#fde8ea] text-[#E14A5C] px-2.5 py-0.5 text-xs font-semibold">Default</span>
+                )}
+                {address.label && (
+                  <span className="inline-flex items-center rounded-full bg-[#f5f5f5] px-2.5 py-0.5 text-xs font-medium text-[#555]">{address.label}</span>
+                )}
               </div>
               <div className="text-sm space-y-1">
-                <p className="font-medium text-slate-900">{address.full_name}</p>
-                <p className="text-slate-500">{address.phone}</p>
-                <p className="text-slate-500">{address.street}</p>
-                <p className="text-slate-500">{address.city}, {address.governorate}</p>
+                <p className="font-semibold text-[#0D0625]">{address.full_name}</p>
+                <p className="text-[#777]">{address.phone}</p>
+                <p className="text-[#777]">{address.street}</p>
+                <p className="text-[#777]">{address.city}, {address.governorate}</p>
               </div>
-              <div className="flex items-center gap-1 mt-4 pt-3 border-t border-slate-100">
-                <button onClick={() => { setForm({ label: address.label, full_name: address.full_name, phone: address.phone, street: address.street, city: address.city, governorate: address.governorate }); setEditingId(address.id); setError(''); setShowForm(true); }} className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded transition-colors">
-                  <Pencil className="w-4 h-4" /> Edit
+              <div className="flex items-center gap-1 mt-3 pt-3 border-t border-[#f5f5f5]">
+                <button
+                  onClick={() => { setForm({ label: address.label, full_name: address.full_name, phone: address.phone, street: address.street, city: address.city, governorate: address.governorate }); setEditingId(address.id); setError(''); setShowForm(true); }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-[#555] hover:text-[#0D0625] hover:bg-[#f8f8f8] rounded transition-colors"
+                >
+                  <Pencil className="w-3.5 h-3.5" /> Edit
                 </button>
-                <button onClick={() => handleDelete(address.id)} className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
-                  <Trash2 className="w-4 h-4" /> Delete
+                <button
+                  onClick={() => handleDelete(address.id)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Delete
                 </button>
                 {!address.is_default && (
-                  <button onClick={() => handleSetDefault(address.id)} className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded transition-colors">
+                  <button
+                    onClick={() => handleSetDefault(address.id)}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-[#E14A5C] hover:bg-[#fde8ea] rounded transition-colors font-medium ml-auto"
+                  >
                     Set as Default
                   </button>
                 )}

@@ -6,9 +6,6 @@ import { SearchBar } from '@/components/SearchBar';
 import { Search, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const PAGE_SIZE = 24;
-
-// avg_rating and review_count are not columns in the products table;
-// they are aggregated from the reviews table separately when needed.
 const PRODUCT_SELECT = `id, slug, sku, name_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en)`;
 
 function toProductDTO(p: any): ProductCardDTO {
@@ -33,7 +30,6 @@ export default function SearchPage() {
   const [products, setProducts] = useState<ProductCardDTO[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-
   const supabase = getSupabaseClient();
 
   const loadResults = useCallback(async () => {
@@ -64,69 +60,78 @@ export default function SearchPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="container-nest py-6">
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
-        <ChevronRight className="w-3 h-3" />
-        <span className="text-slate-900 font-medium">Search</span>
-      </nav>
+    <div className="bg-[#f8f8f8] min-h-screen">
+      <div className="container-nest py-6">
+        <nav className="flex items-center gap-1.5 text-xs text-[#999] mb-4">
+          <Link href="/" className="hover:text-[#E14A5C] transition-colors">Home</Link>
+          <ChevronRight className="w-3 h-3" />
+          <span className="text-[#0D0625] font-medium">Search</span>
+        </nav>
 
-      <div className="mb-6 max-w-xl">
-        <SearchBar initialQuery={query} />
-      </div>
+        <div className="mb-6 max-w-xl">
+          <SearchBar initialQuery={query} />
+        </div>
 
-      {!query ? (
-        <div className="text-center py-20">
-          <Search className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-          <p className="text-slate-500">Enter a search term to find products</p>
-        </div>
-      ) : loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)}
-        </div>
-      ) : products.length === 0 ? (
-        <div className="text-center py-20">
-          <Search className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-          <h2 className="text-lg font-semibold text-slate-900 mb-1">No results for "{query}"</h2>
-          <p className="text-slate-500 text-sm mb-4">Try different keywords or browse all products.</p>
-          <Link href="/products" className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm px-5 py-2 rounded-md hover:bg-blue-700 transition-colors">Browse All Products</Link>
-        </div>
-      ) : (
-        <>
-          <p className="text-sm text-slate-500 mb-4">{total} results for "{query}"</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {products.map((product) => <ProductCard key={product.id} product={product} />)}
+        {!query ? (
+          <div className="text-center py-20 bg-white border border-[#e8e8e8] rounded-lg">
+            <Search className="w-12 h-12 text-[#e0e0e0] mx-auto mb-3" />
+            <p className="text-[#777]">Enter a search term to find products</p>
           </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-1 mt-8">
-              {page > 1 && (
-                <button onClick={() => setPageParam(page - 1)} className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 transition-colors">
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-              )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
-                .map((p, idx, arr) => (
-                  <span key={p} className="contents">
-                    {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-slate-400 text-sm px-1">…</span>}
-                    <button
-                      onClick={() => setPageParam(p)}
-                      className={`flex h-8 w-8 items-center justify-center rounded text-xs font-medium transition-colors ${p === page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-slate-100'}`}
-                    >
-                      {p}
-                    </button>
-                  </span>
-                ))}
-              {page < totalPages && (
-                <button onClick={() => setPageParam(page + 1)} className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 transition-colors">
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              )}
+        ) : loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-[#e8e8e8] rounded-lg">
+            <Search className="w-12 h-12 text-[#e0e0e0] mx-auto mb-3" />
+            <h2 className="font-heading font-semibold text-lg text-[#0D0625] mb-1">No results for "{query}"</h2>
+            <p className="text-[#777] text-sm mb-5">Try different keywords or browse all products.</p>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-2 bg-[#E14A5C] hover:bg-[#c93e4e] text-white text-sm px-5 py-2.5 rounded-md font-semibold transition-colors"
+            >
+              Browse All Products
+            </Link>
+          </div>
+        ) : (
+          <>
+            <p className="text-sm text-[#777] mb-4">
+              <span className="font-semibold text-[#0D0625]">{total}</span> results for "<span className="text-[#E14A5C]">{query}</span>"
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {products.map((product) => <ProductCard key={product.id} product={product} />)}
             </div>
-          )}
-        </>
-      )}
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1 mt-8">
+                {page > 1 && (
+                  <button onClick={() => setPageParam(page - 1)} className="flex h-8 w-8 items-center justify-center rounded border border-[#e8e8e8] bg-white text-[#555] hover:border-[#E14A5C] hover:text-[#E14A5C] transition-colors">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+                  .map((p, idx, arr) => (
+                    <span key={p} className="contents">
+                      {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-[#aaa] text-sm px-1">…</span>}
+                      <button
+                        onClick={() => setPageParam(p)}
+                        className={`flex h-8 w-8 items-center justify-center rounded text-xs font-semibold transition-colors border ${p === page ? 'bg-[#E14A5C] text-white border-[#E14A5C]' : 'border-[#e8e8e8] bg-white text-[#555] hover:border-[#E14A5C] hover:text-[#E14A5C]'}`}
+                      >
+                        {p}
+                      </button>
+                    </span>
+                  ))}
+                {page < totalPages && (
+                  <button onClick={() => setPageParam(page + 1)} className="flex h-8 w-8 items-center justify-center rounded border border-[#e8e8e8] bg-white text-[#555] hover:border-[#E14A5C] hover:text-[#E14A5C] transition-colors">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
