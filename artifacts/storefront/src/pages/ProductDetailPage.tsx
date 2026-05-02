@@ -16,7 +16,6 @@ interface ProductDetail {
   brand?: { name_en: string; slug: string } | null;
   category?: { name_en: string; slug: string } | null;
   images: ProductImage[];
-  specifications?: Record<string, string> | null;
 }
 
 export default function ProductDetailPage() {
@@ -262,22 +261,6 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {/* Specifications — rendered if the product has specifications data */}
-      {product.specifications && Object.keys(product.specifications).length > 0 && (
-        <div className="mt-8 border-t border-slate-200 pt-8">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Specifications</h2>
-          <table className="w-full text-sm border-collapse">
-            <tbody>
-              {Object.entries(product.specifications).map(([key, value]) => (
-                <tr key={key} className="border-b border-slate-100">
-                  <td className="py-2.5 pr-6 font-medium text-slate-600 w-40">{key}</td>
-                  <td className="py-2.5 text-slate-900">{value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }

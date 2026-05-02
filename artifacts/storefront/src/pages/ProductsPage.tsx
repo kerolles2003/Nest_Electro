@@ -86,7 +86,9 @@ export default function ProductsPage() {
     if (brandIdResult.data) query = query.eq('brand_id', (brandIdResult.data as any).id);
     if (minPrice) query = query.gte('base_price', parseFloat(minPrice));
     if (maxPrice) query = query.lte('base_price', parseFloat(maxPrice));
-    // in-stock: filter server-side using stock_quantity > 0 (excludes zero-stock products)
+    // In-stock pre-filter: PostgREST does not support cross-column arithmetic
+    // (stock_quantity - reserved_quantity), so we exclude rows with zero stock
+    // server-side and then apply the exact available-stock check client-side.
     if (inStock) query = query.gt('stock_quantity', 0);
 
     if (sort === 'price_asc') query = query.order('base_price', { ascending: true });
@@ -98,8 +100,12 @@ export default function ProductsPage() {
     query = query.range(from, from + PAGE_SIZE - 1);
 
     const { data, count } = await query;
-    setProducts((data ?? []).map(toProductDTO));
-    setTotal(count ?? 0);
+    // Client-side exact available-stock check: removes fully-reserved items
+    // that passed the server-side stock_quantity > 0 pre-filter.
+    const mapped = (data ?? []).map(toProductDTO);
+    const filtered = inStock ? mapped.filter((p) => p.inStock) : mapped;
+    setProducts(filtered);
+    setTotal(inStock ? filtered.length : (count ?? 0));
     setLoading(false);
   }, [search]);
 
