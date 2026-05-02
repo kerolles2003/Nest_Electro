@@ -92,12 +92,12 @@ export default function ProductsPage() {
     const { q, category, brand, sort, page, minPrice, maxPrice, inStock } = parseSearch(search);
 
     // Resolve category/brand slugs to IDs for server-side filtering
-    const [catRow, brandRow] = await Promise.all([
+    const [catRow, brandRow]: [{ data: { id: string } | null }, { data: { id: string } | null }] = await Promise.all([
       category
-        ? supabase.from('categories').select('id').eq('slug', category).single<{ id: string }>()
+        ? supabase.from('categories').select('id').eq('slug', category).single()
         : Promise.resolve({ data: null as { id: string } | null }),
       brand
-        ? supabase.from('brands').select('id').eq('slug', brand).single<{ id: string }>()
+        ? supabase.from('brands').select('id').eq('slug', brand).single()
         : Promise.resolve({ data: null as { id: string } | null }),
     ]);
 
@@ -129,7 +129,7 @@ export default function ProductsPage() {
     // Client-side exact available-stock check: removes fully-reserved items
     // that passed the server-side stock_quantity > 0 pre-filter.
     // Server count is used for pagination so page numbers remain correct.
-    const mapped = (data ?? []).map(toProductDTO);
+    const mapped = ((data ?? []) as ProductRow[]).map(toProductDTO);
     const filtered = inStock ? mapped.filter((p) => p.inStock) : mapped;
     setProducts(filtered);
     setTotal(count ?? 0);

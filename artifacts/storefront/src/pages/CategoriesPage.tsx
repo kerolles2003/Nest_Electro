@@ -12,7 +12,7 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     supabase.from('categories').select('id, name_en, slug, parent_id').eq('is_active', true).is('deleted_at', null).order('sort_order')
-      .then(({ data }) => {
+      .then(({ data }: { data: Category[] | null }) => {
         const all = data ?? [];
         const roots = all.filter((c: Category) => !c.parent_id).map((r: Category) => ({
           ...r, children: all.filter((c: Category) => c.parent_id === r.id)

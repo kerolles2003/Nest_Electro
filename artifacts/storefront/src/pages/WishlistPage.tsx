@@ -33,7 +33,7 @@ export default function WishlistPage() {
       .from('products')
       .select(PRODUCT_SELECT)
       .in('id', items)
-      .then(({ data }) => {
+      .then(({ data }: { data: Record<string, unknown>[] | null }) => {
         setProducts((data ?? []).map(toProductDTO));
         setLoading(false);
       });

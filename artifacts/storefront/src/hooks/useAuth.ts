@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSupabaseClient } from '@/lib/supabase';
-import type { User } from '@supabase/supabase-js';
+import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 interface AuthUser {
   id: string;
@@ -26,12 +26,12 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       setUser(toAuthUser(session?.user ?? null));
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setUser(toAuthUser(session?.user ?? null));
     });
 
