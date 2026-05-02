@@ -101,44 +101,87 @@ export default function ProductsPage() {
         : Promise.resolve({ data: null as { id: string } | null }),
     ]);
 
-    let query = supabase
-      .from('products')
-      .select(PRODUCT_SELECT, { count: 'exact' })
-      .eq('is_active', true)
-      .is('deleted_at', null);
+    // Helper: build a base filter query with all active filters applied
+    const buildFilterQuery = <T extends object>(selectClause: string, options?: { count?: 'exact' }) => {
+      let q2 = supabase
+        .from('products')
+        .select(selectClause, options)
+        .eq('is_active', true)
+        .is('deleted_at', null) as ReturnType<typeof supabase.from>;
+      if (q) q2 = q2.ilike('name_en', `%${q}%`);
+      if (catRow.data) q2 = q2.eq('category_id', catRow.data.id);
+      if (brandRow.data) q2 = q2.eq('brand_id', brandRow.data.id);
+      if (minPrice) q2 = q2.gte('base_price', parseFloat(minPrice));
+      if (maxPrice) q2 = q2.lte('base_price', parseFloat(maxPrice));
+      if (inStock) q2 = q2.gt('stock_quantity', 0);
+      return q2 as unknown as T;
+    };
 
-    if (q) query = query.ilike('name_en', `%${q}%`);
-    if (catRow.data) query = query.eq('category_id', catRow.data.id);
-    if (brandRow.data) query = query.eq('brand_id', brandRow.data.id);
-    if (minPrice) query = query.gte('base_price', parseFloat(minPrice));
-    if (maxPrice) query = query.lte('base_price', parseFloat(maxPrice));
-    // In-stock pre-filter: PostgREST does not support cross-column arithmetic
-    // (stock_quantity - reserved_quantity), so we exclude rows with zero stock
-    // server-side and then apply the exact available-stock check client-side.
-    if (inStock) query = query.gt('stock_quantity', 0);
+    const from = (page - 1) * PAGE_SIZE;
 
-    // For rating sort: fetch avg ratings from real review data, sort client-side.
-    // avg_rating does not exist as a DB column, so we aggregate from the reviews table.
-    let avgRatings = new Map<string, number>();
     if (sort === 'rating') {
-      const { data: reviewRows } = await supabase
-        .from('reviews')
-        .select('product_id, rating')
-        .eq('moderation_status', 'approved') as { data: { product_id: string; rating: number }[] | null };
+      // Globally-correct rating sort:
+      // 1. Compute avg_rating per product from real review data.
+      // 2. Fetch all matching product IDs (no pagination) to get the filtered set.
+      // 3. Intersect and sort globally; slice the correct page; fetch product details.
+      const [reviewResult, allIdsResult] = await Promise.all([
+        supabase
+          .from('reviews')
+          .select('product_id, rating')
+          .eq('moderation_status', 'approved') as Promise<{ data: { product_id: string; rating: number }[] | null }>,
+        buildFilterQuery<Promise<{ data: { id: string }[] | null }>>('id'),
+      ]);
+
+      // Compute avg_rating per product globally
       const accum = new Map<string, { sum: number; count: number }>();
-      (reviewRows ?? []).forEach(({ product_id, rating }) => {
+      (reviewResult.data ?? []).forEach(({ product_id, rating }) => {
         const curr = accum.get(product_id) ?? { sum: 0, count: 0 };
         accum.set(product_id, { sum: curr.sum + rating, count: curr.count + 1 });
       });
-      accum.forEach((v, k) => avgRatings.set(k, v.sum / v.count));
+      const avgRating = new Map<string, number>();
+      accum.forEach((v, k) => avgRating.set(k, v.sum / v.count));
+
+      // Get globally sorted IDs: rated products first (desc), unrated last
+      const matchingIds = (allIdsResult.data ?? []).map((r) => r.id);
+      const ratedFirst = matchingIds
+        .filter((id) => avgRating.has(id))
+        .sort((a, b) => (avgRating.get(b) ?? 0) - (avgRating.get(a) ?? 0));
+      const unrated = matchingIds.filter((id) => !avgRating.has(id));
+      const globalSortedIds = [...ratedFirst, ...unrated];
+
+      // Paginate by slicing the globally-sorted list
+      const pageIds = globalSortedIds.slice(from, from + PAGE_SIZE);
+      if (pageIds.length === 0) {
+        setProducts([]);
+        setTotal(globalSortedIds.length);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch actual product rows for this page (IN does not preserve order)
+      const { data: pageData } = await supabase
+        .from('products')
+        .select(PRODUCT_SELECT)
+        .in('id', pageIds)
+        .eq('is_active', true) as { data: ProductRow[] | null };
+
+      // Re-sort fetched rows to match the rating order for this page
+      const productMap = new Map((pageData ?? []).map((p) => [p.id, p]));
+      const sortedPage = pageIds.map((id) => productMap.get(id)).filter(Boolean) as ProductRow[];
+      const mapped = sortedPage.map(toProductDTO);
+      const filtered = inStock ? mapped.filter((p) => p.inStock) : mapped;
+      setProducts(filtered);
+      setTotal(globalSortedIds.length);
+      setLoading(false);
+      return;
     }
 
+    // Standard sort path (newest / price_asc / price_desc)
+    let query = buildFilterQuery<ReturnType<typeof supabase.from>>(PRODUCT_SELECT, { count: 'exact' });
     if (sort === 'price_asc') query = query.order('base_price', { ascending: true });
     else if (sort === 'price_desc') query = query.order('base_price', { ascending: false });
-    else if (sort === 'rating') query = query.order('created_at', { ascending: false }); // client-sorted below
     else query = query.order('created_at', { ascending: false });
 
-    const from = (page - 1) * PAGE_SIZE;
     query = query.range(from, from + PAGE_SIZE - 1);
 
     const { data, count } = await query;
@@ -146,10 +189,6 @@ export default function ProductsPage() {
     // that passed the server-side stock_quantity > 0 pre-filter.
     // Server count is used for pagination so page numbers remain correct.
     const mapped = ((data ?? []) as ProductRow[]).map(toProductDTO);
-    // Apply rating sort client-side using real avg ratings from reviews table
-    if (sort === 'rating') {
-      mapped.sort((a, b) => (avgRatings.get(b.id) ?? 0) - (avgRatings.get(a.id) ?? 0));
-    }
     const filtered = inStock ? mapped.filter((p) => p.inStock) : mapped;
     setProducts(filtered);
     setTotal(count ?? 0);
