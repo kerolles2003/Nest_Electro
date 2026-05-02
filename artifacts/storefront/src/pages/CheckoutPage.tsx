@@ -51,32 +51,53 @@ export default function CheckoutPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) { setOrderError('Please sign in to place an order.'); setIsSubmitting(false); return; }
 
-      const orderItems = items.map((item) => ({
-        product_id: item.product_id,
-        quantity: item.quantity,
-        price: item.product.sale_price ?? item.product.base_price,
-        name: item.product.name_en,
-        sku: item.product.sku,
-        total: (item.product.sale_price ?? item.product.base_price) * item.quantity,
-      }));
+      const total = subtotal + SHIPPING_FEE;
+      const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-      const { data, error } = await supabase.rpc('create_order_v2', {
-        p_user_id: session.user.id,
-        p_shipping_address: {
-          full_name: shippingData.full_name, phone: shippingData.phone,
-          street: shippingData.street, city: shippingData.city,
-          governorate: shippingData.governorate, postal_code: shippingData.postal_code || null,
-        },
-        p_items: orderItems,
-        p_payment_method: 'cod',
-        p_shipping_fee: SHIPPING_FEE,
-        p_subtotal: subtotal,
-        p_total: subtotal + SHIPPING_FEE,
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: session.user.id,
+          order_number: orderNumber,
+          order_status: 'pending_payment',
+          payment_method: 'cod',
+          shipping_address: {
+            full_name: shippingData.full_name,
+            phone: shippingData.phone,
+            street: shippingData.street,
+            city: shippingData.city,
+            governorate: shippingData.governorate,
+            postal_code: shippingData.postal_code || null,
+          },
+          subtotal,
+          shipping_fee: SHIPPING_FEE,
+          discount: 0,
+          tax: 0,
+          total,
+        })
+        .select('id, order_number')
+        .single();
+
+      if (orderError) throw orderError;
+
+      const orderItems = items.map((item) => {
+        const price = item.product.sale_price ?? item.product.base_price;
+        return {
+          order_id: order.id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price,
+          name: item.product.name_en,
+          sku: item.product.sku,
+          total: price * item.quantity,
+        };
       });
 
-      if (error) throw error;
+      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
+      if (itemsError) throw itemsError;
+
       clearCart();
-      setOrderNumber(data?.order_number ?? 'N/A');
+      setOrderNumber(order.order_number);
       setStep(2);
     } catch (err: any) {
       setOrderError(err?.message ?? 'Failed to create order. Please try again.');
