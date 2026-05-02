@@ -23,7 +23,10 @@ interface Brand {
   slug: string;
 }
 
+const PRODUCT_SELECT = `id, slug, sku, name_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en)`;
+
 function toProductDTO(p: any): ProductCardDTO {
+  const available = (p.stock_quantity ?? 0) - (p.reserved_quantity ?? 0);
   return {
     id: p.id,
     slug: p.slug,
@@ -36,7 +39,7 @@ function toProductDTO(p: any): ProductCardDTO {
     salePrice: p.sale_price,
     rating: p.avg_rating ?? 0,
     reviewCount: p.review_count ?? 0,
-    inStock: p.available_stock > 0,
+    inStock: available > 0,
     isFeatured: p.is_featured,
   };
 }
@@ -69,19 +72,22 @@ export default function HomePage() {
           .from('brands')
           .select('id, name_en, slug')
           .eq('is_active', true)
+          .is('deleted_at', null)
           .order('name_en')
           .limit(20),
         supabase
           .from('products')
-          .select(`id, slug, sku, name_en, base_price, sale_price, avg_rating, review_count, available_stock, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en)`)
-          .eq('is_published', true)
+          .select(PRODUCT_SELECT)
+          .eq('is_active', true)
           .eq('is_featured', true)
+          .is('deleted_at', null)
           .order('created_at', { ascending: false })
           .limit(10),
         supabase
           .from('products')
-          .select(`id, slug, sku, name_en, base_price, sale_price, avg_rating, review_count, available_stock, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en)`)
-          .eq('is_published', true)
+          .select(PRODUCT_SELECT)
+          .eq('is_active', true)
+          .is('deleted_at', null)
           .order('created_at', { ascending: false })
           .limit(10),
       ]);

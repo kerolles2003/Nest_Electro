@@ -6,14 +6,17 @@ import { ChevronRight } from 'lucide-react';
 
 interface Brand { id: string; name_en: string; slug: string; logo_url?: string | null; description_en?: string | null; }
 
+const PRODUCT_SELECT = `id, slug, sku, name_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en)`;
+
 function toProductDTO(p: any): ProductCardDTO {
+  const available = (p.stock_quantity ?? 0) - (p.reserved_quantity ?? 0);
   return {
     id: p.id, slug: p.slug, sku: p.sku, name: p.name_en,
     brandName: p.brand?.name_en ?? null, categoryName: p.category?.name_en ?? null,
     imageUrl: p.images?.[0]?.url ?? null,
     basePrice: p.base_price, salePrice: p.sale_price,
     rating: p.avg_rating ?? 0, reviewCount: p.review_count ?? 0,
-    inStock: p.available_stock > 0, isFeatured: p.is_featured,
+    inStock: available > 0, isFeatured: p.is_featured,
   };
 }
 
@@ -34,8 +37,9 @@ export default function BrandPage() {
       if (brandData) {
         const { data, count } = await supabase
           .from('products')
-          .select(`id, slug, sku, name_en, base_price, sale_price, avg_rating, review_count, available_stock, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en)`, { count: 'exact' })
-          .eq('is_published', true)
+          .select(PRODUCT_SELECT, { count: 'exact' })
+          .eq('is_active', true)
+          .is('deleted_at', null)
           .eq('brand_id', brandData.id)
           .order('created_at', { ascending: false })
           .limit(24);

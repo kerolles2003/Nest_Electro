@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { getSupabaseClient } from '@/lib/supabase';
 import { ProductCard, ProductCardSkeleton, type ProductCardDTO } from '@/components/ProductCard';
-import { Search, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 
 interface Category { id: string; name_en: string; slug: string; parent_id: string | null; }
 interface Brand { id: string; name_en: string; slug: string; }
@@ -21,14 +21,17 @@ function parseSearch(search: string) {
   };
 }
 
+const PRODUCT_SELECT = `id, slug, sku, name_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, images:product_images(url), brand:brands(name_en, slug), category:categories(name_en, slug)`;
+
 function toProductDTO(p: any): ProductCardDTO {
+  const available = (p.stock_quantity ?? 0) - (p.reserved_quantity ?? 0);
   return {
     id: p.id, slug: p.slug, sku: p.sku, name: p.name_en,
     brandName: p.brand?.name_en ?? null, categoryName: p.category?.name_en ?? null,
     imageUrl: p.images?.[0]?.url ?? null,
     basePrice: p.base_price, salePrice: p.sale_price,
     rating: p.avg_rating ?? 0, reviewCount: p.review_count ?? 0,
-    inStock: p.available_stock > 0, isFeatured: p.is_featured,
+    inStock: available > 0, isFeatured: p.is_featured,
   };
 }
 
@@ -50,7 +53,7 @@ export default function ProductsPage() {
   useEffect(() => {
     Promise.all([
       supabase.from('categories').select('id, name_en, slug, parent_id').eq('is_active', true).is('deleted_at', null).order('sort_order'),
-      supabase.from('brands').select('id, name_en, slug').eq('is_active', true).order('name_en'),
+      supabase.from('brands').select('id, name_en, slug').eq('is_active', true).is('deleted_at', null).order('name_en'),
     ]).then(([catRes, brandRes]) => {
       setCategories(catRes.data ?? []);
       setBrands(brandRes.data ?? []);
@@ -63,15 +66,13 @@ export default function ProductsPage() {
 
     let query = supabase
       .from('products')
-      .select(`id, slug, sku, name_en, base_price, sale_price, avg_rating, review_count, available_stock, is_featured, images:product_images(url), brand:brands(name_en, slug), category:categories(name_en, slug)`, { count: 'exact' })
-      .eq('is_published', true);
+      .select(PRODUCT_SELECT, { count: 'exact' })
+      .eq('is_active', true)
+      .is('deleted_at', null);
 
     if (q) query = query.ilike('name_en', `%${q}%`);
-    if (category) query = query.eq('categories.slug', category);
-    if (brand) query = query.eq('brands.slug', brand);
     if (minPrice) query = query.gte('base_price', parseFloat(minPrice));
     if (maxPrice) query = query.lte('base_price', parseFloat(maxPrice));
-    if (inStock) query = query.gt('available_stock', 0);
 
     if (sort === 'price_asc') query = query.order('base_price', { ascending: true });
     else if (sort === 'price_desc') query = query.order('base_price', { ascending: false });
@@ -82,7 +83,11 @@ export default function ProductsPage() {
     query = query.range(from, from + PAGE_SIZE - 1);
 
     const { data, count } = await query;
-    setProducts((data ?? []).map(toProductDTO));
+    const results = (data ?? []) as any[];
+    const filtered = inStock
+      ? results.filter((p) => (p.stock_quantity ?? 0) - (p.reserved_quantity ?? 0) > 0)
+      : results;
+    setProducts(filtered.map(toProductDTO));
     setTotal(count ?? 0);
     setLoading(false);
   }, [location]);
@@ -237,16 +242,15 @@ export default function ProductsPage() {
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter((p) => p === 1 || p === totalPages || Math.abs(p - filters.page) <= 2)
                     .map((p, idx, arr) => (
-                      <>
-                        {idx > 0 && arr[idx - 1] !== p - 1 && <span key={`ellipsis-${p}`} className="text-slate-400 text-sm px-1">…</span>}
+                      <span key={p} className="contents">
+                        {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-slate-400 text-sm px-1">…</span>}
                         <button
-                          key={p}
                           onClick={() => setFilter('page', String(p))}
                           className={`flex h-8 w-8 items-center justify-center rounded text-xs font-medium transition-colors ${p === filters.page ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-slate-100'}`}
                         >
                           {p}
                         </button>
-                      </>
+                      </span>
                     ))}
                   {filters.page < totalPages && (
                     <button onClick={() => setFilter('page', String(filters.page + 1))} className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-100 transition-colors">

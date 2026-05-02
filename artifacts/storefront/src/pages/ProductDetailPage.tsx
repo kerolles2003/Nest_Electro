@@ -7,16 +7,15 @@ import { useUIStore } from '@/stores/ui-store';
 import { QuantitySelector } from '@/components/QuantitySelector';
 import { ShoppingCart, Heart, Star, ChevronRight, Package, Shield, Truck } from 'lucide-react';
 
-interface ProductImage { url: string; alt?: string; }
+interface ProductImage { url: string; alt_text?: string; }
 interface ProductDetail {
   id: string; slug: string; sku: string; name_en: string;
   description_en?: string; base_price: number; sale_price: number | null;
-  avg_rating: number; review_count: number; available_stock: number;
-  is_featured: boolean; is_published: boolean;
+  stock_quantity: number; reserved_quantity: number;
+  is_featured: boolean; is_active: boolean;
   brand?: { name_en: string; slug: string } | null;
   category?: { name_en: string; slug: string } | null;
   images: ProductImage[];
-  specifications?: Record<string, string> | null;
 }
 
 export default function ProductDetailPage() {
@@ -39,9 +38,10 @@ export default function ProductDetailPage() {
     setQuantity(1);
     supabase
       .from('products')
-      .select(`id, slug, sku, name_en, description_en, base_price, sale_price, avg_rating, review_count, available_stock, is_featured, is_published, specifications, images:product_images(url, alt_text), brand:brands(name_en, slug), category:categories(name_en, slug)`)
+      .select(`id, slug, sku, name_en, description_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, is_active, images:product_images(url, alt_text), brand:brands(name_en, slug), category:categories(name_en, slug)`)
       .eq('slug', slug)
-      .eq('is_published', true)
+      .eq('is_active', true)
+      .is('deleted_at', null)
       .single()
       .then(({ data }) => {
         setProduct(data as any);
@@ -77,10 +77,11 @@ export default function ProductDetailPage() {
     );
   }
 
+  const availableStock = (product.stock_quantity ?? 0) - (product.reserved_quantity ?? 0);
   const price = product.sale_price ?? product.base_price;
   const hasDiscount = product.sale_price !== null && product.sale_price < product.base_price;
   const discount = hasDiscount ? Math.round(((product.base_price - product.sale_price!) / product.base_price) * 100) : 0;
-  const inStock = product.available_stock > 0;
+  const inStock = availableStock > 0;
   const isWishlisted = hasItem(product.id);
 
   const handleAddToCart = () => {
@@ -88,7 +89,8 @@ export default function ProductDetailPage() {
     addItem({
       id: product.id, name_en: product.name_en, slug: product.slug, sku: product.sku,
       base_price: product.base_price, sale_price: product.sale_price,
-      images: product.images, available_stock: product.available_stock,
+      images: product.images.map((img) => ({ url: img.url })),
+      available_stock: availableStock,
     }, quantity);
     openCart();
   };
@@ -144,16 +146,6 @@ export default function ProductDetailPage() {
           )}
           <h1 className="text-2xl font-heading font-bold text-slate-900">{product.name_en}</h1>
 
-          {product.review_count > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={`w-4 h-4 ${i < Math.round(product.avg_rating) ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
-                ))}
-              </div>
-              <span className="text-sm text-slate-500">({product.review_count} reviews)</span>
-            </div>
-          )}
 
           <div className="flex items-baseline gap-3">
             <span className="text-3xl font-bold text-blue-600">EGP {price.toLocaleString()}</span>
@@ -168,7 +160,7 @@ export default function ProductDetailPage() {
           <div className="flex items-center gap-2">
             <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded ${inStock ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${inStock ? 'bg-green-500' : 'bg-red-500'}`} />
-              {inStock ? `In Stock (${product.available_stock} available)` : 'Out of Stock'}
+              {inStock ? `In Stock (${availableStock} available)` : 'Out of Stock'}
             </span>
             <span className="text-xs text-slate-400">SKU: {product.sku}</span>
           </div>
@@ -179,9 +171,9 @@ export default function ProductDetailPage() {
                 <span className="text-sm font-medium text-slate-700">Quantity:</span>
                 <QuantitySelector
                   quantity={quantity}
-                  onIncrease={() => setQuantity((q) => Math.min(q + 1, product.available_stock))}
+                  onIncrease={() => setQuantity((q) => Math.min(q + 1, availableStock))}
                   onDecrease={() => setQuantity((q) => Math.max(q - 1, 1))}
-                  max={product.available_stock}
+                  max={availableStock}
                 />
               </div>
               <div className="flex gap-3">
@@ -239,22 +231,6 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {/* Specifications */}
-      {product.specifications && Object.keys(product.specifications).length > 0 && (
-        <div className="mt-8 border-t border-slate-200 pt-8">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Specifications</h2>
-          <table className="w-full text-sm border-collapse">
-            <tbody>
-              {Object.entries(product.specifications).map(([key, value]) => (
-                <tr key={key} className="border-b border-slate-100">
-                  <td className="py-2.5 pr-6 font-medium text-slate-600 w-40">{key}</td>
-                  <td className="py-2.5 text-slate-900">{value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }

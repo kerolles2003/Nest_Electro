@@ -6,14 +6,17 @@ import { ChevronRight } from 'lucide-react';
 
 interface Category { id: string; name_en: string; slug: string; parent_id: string | null; }
 
+const PRODUCT_SELECT = `id, slug, sku, name_en, base_price, sale_price, stock_quantity, reserved_quantity, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en, slug)`;
+
 function toProductDTO(p: any): ProductCardDTO {
+  const available = (p.stock_quantity ?? 0) - (p.reserved_quantity ?? 0);
   return {
     id: p.id, slug: p.slug, sku: p.sku, name: p.name_en,
     brandName: p.brand?.name_en ?? null, categoryName: p.category?.name_en ?? null,
     imageUrl: p.images?.[0]?.url ?? null,
     basePrice: p.base_price, salePrice: p.sale_price,
     rating: p.avg_rating ?? 0, reviewCount: p.review_count ?? 0,
-    inStock: p.available_stock > 0, isFeatured: p.is_featured,
+    inStock: available > 0, isFeatured: p.is_featured,
   };
 }
 
@@ -42,8 +45,9 @@ export default function CategoryPage() {
         setSubcategories(subs);
         const prodRes = await supabase
           .from('products')
-          .select(`id, slug, sku, name_en, base_price, sale_price, avg_rating, review_count, available_stock, is_featured, images:product_images(url), brand:brands(name_en), category:categories(name_en, slug)`, { count: 'exact' })
-          .eq('is_published', true)
+          .select(PRODUCT_SELECT, { count: 'exact' })
+          .eq('is_active', true)
+          .is('deleted_at', null)
           .eq('category_id', cat.id)
           .order('created_at', { ascending: false })
           .limit(24);
@@ -94,10 +98,12 @@ export default function CategoryPage() {
       {subcategories.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {subcategories.map((sub) => (
-            <Link key={sub.id} href={`/categories/${sub.slug}`}>
-              <a className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-medium text-slate-500 hover:text-blue-600 hover:border-blue-400 transition-colors">
-                {sub.name_en}
-              </a>
+            <Link
+              key={sub.id}
+              href={`/categories/${sub.slug}`}
+              className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-medium text-slate-500 hover:text-blue-600 hover:border-blue-400 transition-colors"
+            >
+              {sub.name_en}
             </Link>
           ))}
         </div>
