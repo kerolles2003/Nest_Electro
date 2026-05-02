@@ -117,9 +117,25 @@ export default function ProductsPage() {
     // server-side and then apply the exact available-stock check client-side.
     if (inStock) query = query.gt('stock_quantity', 0);
 
+    // For rating sort: fetch avg ratings from real review data, sort client-side.
+    // avg_rating does not exist as a DB column, so we aggregate from the reviews table.
+    let avgRatings = new Map<string, number>();
+    if (sort === 'rating') {
+      const { data: reviewRows } = await supabase
+        .from('reviews')
+        .select('product_id, rating')
+        .eq('moderation_status', 'approved') as { data: { product_id: string; rating: number }[] | null };
+      const accum = new Map<string, { sum: number; count: number }>();
+      (reviewRows ?? []).forEach(({ product_id, rating }) => {
+        const curr = accum.get(product_id) ?? { sum: 0, count: 0 };
+        accum.set(product_id, { sum: curr.sum + rating, count: curr.count + 1 });
+      });
+      accum.forEach((v, k) => avgRatings.set(k, v.sum / v.count));
+    }
+
     if (sort === 'price_asc') query = query.order('base_price', { ascending: true });
     else if (sort === 'price_desc') query = query.order('base_price', { ascending: false });
-    else if (sort === 'featured') query = query.eq('is_featured', true).order('created_at', { ascending: false });
+    else if (sort === 'rating') query = query.order('created_at', { ascending: false }); // client-sorted below
     else query = query.order('created_at', { ascending: false });
 
     const from = (page - 1) * PAGE_SIZE;
@@ -130,6 +146,10 @@ export default function ProductsPage() {
     // that passed the server-side stock_quantity > 0 pre-filter.
     // Server count is used for pagination so page numbers remain correct.
     const mapped = ((data ?? []) as ProductRow[]).map(toProductDTO);
+    // Apply rating sort client-side using real avg ratings from reviews table
+    if (sort === 'rating') {
+      mapped.sort((a, b) => (avgRatings.get(b.id) ?? 0) - (avgRatings.get(a.id) ?? 0));
+    }
     const filtered = inStock ? mapped.filter((p) => p.inStock) : mapped;
     setProducts(filtered);
     setTotal(count ?? 0);
@@ -142,11 +162,12 @@ export default function ProductsPage() {
 
   // Build a new URL by merging a key/value into current search params.
   // Uses the reactive `search` value (not window.location.search) to avoid stale state.
+  // Resets page to 1 whenever the caller changes a filter (not when changing page itself).
   const setFilter = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
     if (value) params.set(key, value);
     else params.delete(key);
-    params.delete('page');
+    if (key !== 'page') params.delete('page');
     navigate(`/products?${params.toString()}`);
   }, [search, navigate]);
 
@@ -201,7 +222,7 @@ export default function ProductsPage() {
             aria-label="Sort products"
           >
             <option value="newest">Newest</option>
-            <option value="featured">Featured</option>
+            <option value="rating">Top Rated</option>
             <option value="price_asc">Price: Low to High</option>
             <option value="price_desc">Price: High to Low</option>
           </select>
