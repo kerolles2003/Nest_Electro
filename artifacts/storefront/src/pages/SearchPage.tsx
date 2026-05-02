@@ -72,7 +72,7 @@ export default function SearchPage() {
       </nav>
 
       <div className="mb-6 max-w-xl">
-        <SearchBar />
+        <SearchBar initialQuery={query} />
       </div>
 
       {!query ? (
