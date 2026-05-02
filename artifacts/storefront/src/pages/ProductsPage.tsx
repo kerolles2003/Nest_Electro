@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, useSearch } from 'wouter';
 import { getSupabaseClient } from '@/lib/supabase';
 import { ProductCard, ProductCardSkeleton, type ProductCardDTO } from '@/components/ProductCard';
 import { Search, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
@@ -38,8 +38,9 @@ function toProductDTO(p: any): ProductCardDTO {
 const PAGE_SIZE = 24;
 
 export default function ProductsPage() {
-  const [location, navigate] = useLocation();
-  const filters = parseSearch(window.location.search);
+  const [, navigate] = useLocation();
+  const search = useSearch();
+  const filters = parseSearch(search);
 
   const [products, setProducts] = useState<ProductCardDTO[]>([]);
   const [total, setTotal] = useState(0);
@@ -62,7 +63,17 @@ export default function ProductsPage() {
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
-    const { q, category, brand, sort, page, minPrice, maxPrice, inStock } = parseSearch(window.location.search);
+    const { q, category, brand, sort, page, minPrice, maxPrice, inStock } = parseSearch(search);
+
+    // Resolve category/brand slugs to IDs for server-side filtering
+    const [catIdResult, brandIdResult] = await Promise.all([
+      category
+        ? supabase.from('categories').select('id').eq('slug', category).single()
+        : Promise.resolve({ data: null }),
+      brand
+        ? supabase.from('brands').select('id').eq('slug', brand).single()
+        : Promise.resolve({ data: null }),
+    ]);
 
     let query = supabase
       .from('products')
@@ -71,8 +82,12 @@ export default function ProductsPage() {
       .is('deleted_at', null);
 
     if (q) query = query.ilike('name_en', `%${q}%`);
+    if (catIdResult.data) query = query.eq('category_id', (catIdResult.data as any).id);
+    if (brandIdResult.data) query = query.eq('brand_id', (brandIdResult.data as any).id);
     if (minPrice) query = query.gte('base_price', parseFloat(minPrice));
     if (maxPrice) query = query.lte('base_price', parseFloat(maxPrice));
+    // in-stock: filter server-side using stock_quantity > 0 (excludes zero-stock products)
+    if (inStock) query = query.gt('stock_quantity', 0);
 
     if (sort === 'price_asc') query = query.order('base_price', { ascending: true });
     else if (sort === 'price_desc') query = query.order('base_price', { ascending: false });
@@ -83,14 +98,10 @@ export default function ProductsPage() {
     query = query.range(from, from + PAGE_SIZE - 1);
 
     const { data, count } = await query;
-    const results = (data ?? []) as any[];
-    const filtered = inStock
-      ? results.filter((p) => (p.stock_quantity ?? 0) - (p.reserved_quantity ?? 0) > 0)
-      : results;
-    setProducts(filtered.map(toProductDTO));
+    setProducts((data ?? []).map(toProductDTO));
     setTotal(count ?? 0);
     setLoading(false);
-  }, [location]);
+  }, [search]);
 
   useEffect(() => {
     loadProducts();

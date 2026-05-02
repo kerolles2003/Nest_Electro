@@ -73,8 +73,7 @@ export default function HomePage() {
           .select('id, name_en, slug')
           .eq('is_active', true)
           .is('deleted_at', null)
-          .order('name_en')
-          .limit(20),
+          .order('name_en'),
         supabase
           .from('products')
           .select(PRODUCT_SELECT)
@@ -82,14 +81,14 @@ export default function HomePage() {
           .eq('is_featured', true)
           .is('deleted_at', null)
           .order('created_at', { ascending: false })
-          .limit(10),
+          .limit(5),
         supabase
           .from('products')
           .select(PRODUCT_SELECT)
           .eq('is_active', true)
           .is('deleted_at', null)
           .order('created_at', { ascending: false })
-          .limit(10),
+          .limit(5),
       ]);
 
       setCategories(catRes.data ?? []);

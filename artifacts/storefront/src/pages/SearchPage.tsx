@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useLocation, Link } from 'wouter';
+import { useLocation, useSearch, Link } from 'wouter';
 import { getSupabaseClient } from '@/lib/supabase';
 import { ProductCard, ProductCardSkeleton, type ProductCardDTO } from '@/components/ProductCard';
 import { SearchBar } from '@/components/SearchBar';
@@ -20,8 +20,9 @@ function toProductDTO(p: any): ProductCardDTO {
 }
 
 export default function SearchPage() {
-  const [location, navigate] = useLocation();
-  const params = new URLSearchParams(window.location.search.slice(1));
+  const [, navigate] = useLocation();
+  const search = useSearch();
+  const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
   const query = params.get('q') ?? '';
   const page = parseInt(params.get('page') ?? '1', 10) || 1;
 
@@ -47,7 +48,7 @@ export default function SearchPage() {
     setProducts((data ?? []).map(toProductDTO));
     setTotal(count ?? 0);
     setLoading(false);
-  }, [location]);
+  }, [search]);
 
   useEffect(() => { loadResults(); }, [loadResults]);
 
