@@ -43,38 +43,58 @@ this session, with the reason stated. Nothing here is silently dropped.
   contract gates pass, and the CI gates themselves were repaired so
   they can run at all (test URI, replica-set name, per-run JWT_SECRET).
 
-## Browser-e2e findings (first Playwright runs, continuation session)
+## Browser-e2e findings (updated by the adversarial audit, third session)
 
-6. **Admin dev server is broken by its own CSP.** `script-src 'self'
-   'nonce-…' 'strict-dynamic'` blocks Next.js dev chunk loads (168
-   violations in one run): loading boundaries and lazy chunks do not
-   inherit the nonce in dev, so parts of the console never hydrate.
-   Admin suite: 13/33 passed; every failure traces to this. Needs a
-   project decision: thread the nonce through dev chunk loading, relax
-   the policy in development only, or run e2e against a production
-   build. Production behaviour was not measured.
-7. **Product-page JSON-LD hydration error (dev only).** The `<script>`
-   renders `nonce=""` in server HTML while the client flight data
-   carries the CSP nonce, tripping the browser-health gate in 4
-   storefront tests. Production React does not emit the error. Fix by
-   changing how the nonce reaches those scripts — not by deleting the
-   nonce (CSP) and not by allowlisting the error away without a
-   decision.
-8. **Catalogue images at opacity 0 on `/products`.** 9 loaded product
-   images never fade in, despite the `@nest/ui` card's mount-time
-   `img.complete` guard (present at base). Home page passes. Mechanism
-   not isolated; a live-browser probe on a normal machine is the next
-   step.
+6. **Admin console is broken by its own CSP — IN PRODUCTION TOO.**
+   `script-src 'self' 'nonce-…' 'strict-dynamic'` blocks Next.js chunk
+   loads that carry no nonce: 168 violations in dev mode (13/33 e2e),
+   and a production-build probe still showed a blocked chunk and a
+   dead user menu (ADV-1 in MUSE_ADVERSARIAL_AUDIT.md). Fix by
+   threading the nonce into dynamic chunk loading
+   (`__webpack_nonce__` / Next nonce propagation) and gate admin e2e
+   on a production build. Do NOT relax the CSP.
+7. **Product-page JSON-LD hydration error — CLOSED as dev-only.**
+   Production-build probe: zero hydration errors; the JSON-LD
+   scripts render with content. No fix planned; if the health gate
+   keeps tripping in dev, that is a dev-experience item, not a
+   product defect.
+8. **Catalogue images at opacity 0 — CLOSED as dev-only (with one
+   caveat).** Production-build probe: every loaded image visible,
+   before and after scrolling. The dev-mode mechanism was never
+   isolated; one confirmation pass on the team's own hardware is
+   the only remaining step.
 9. **`/blog` returns 500** whenever Supabase is unconfigured (item 16);
    the site chrome links to it, so the link check fails in any
-   environment without the legacy backend.
+   environment without the legacy backend. Owner decision: hide the
+   link, fail soft, or migrate the blog.
 10. **Wallet/InstaPay browser e2e still not written.** API-level
-    coverage is complete (Jest, 11/11). Recipe: add `MANUAL_PAYMENT_*`
-    test values to the storefront e2e API env, drive checkout in the
-    storefront suite, and verify from the admin suite against the same
-    scratch run — the two suites currently boot separate worlds, so a
-    shared fixture has to come first. The admin unreachable-API
-    Playwright config was also not run.
+    coverage is complete (Jest manual-payment 11/11 + adversarial
+    11/11). Recipe: add `MANUAL_PAYMENT_*` test values to the
+    storefront e2e API env, drive checkout in the storefront suite,
+    and verify from the admin suite against the same scratch run —
+    the two suites currently boot separate worlds, so a shared
+    fixture has to come first. The admin unreachable-API Playwright
+    config was also not run.
+
+## Adversarial-audit additions (third session)
+
+- **PAY-3 (owner decision): fulfilment does not wait for payment
+  verification.** A VERIFICATION_REJECTED Wallet order was
+  confirmed, shipped and delivered in a test. Decide whether
+  manual-transfer orders require PAID before SHIPPED; the
+  adversarial suite's EVIDENCE test is the one to flip if gated.
+- **Color contrast (design decision).** axe-core against the
+  production storefront: `color-contrast` (serious) on every page
+  tested (7–55 nodes; white on `#e14a5c` measured at 3.93:1 vs
+  4.5:1). Traces to a few shared tokens/components. The critical
+  `label` finding on the price filter was fixed (`d00b69f`);
+  heading-order and redundant-alt items remain.
+- **`pnpm audit` has never been run successfully** — the sandbox
+  proxy blocks the audit endpoint. Run it in CI or on a dev
+  machine and triage before release.
+- **No Playwright job exists in CI.** Both browser-level defects
+  found across these sessions were invisible to CI; add at least
+  the storefront suite against production builds.
 
 ## High priority
 

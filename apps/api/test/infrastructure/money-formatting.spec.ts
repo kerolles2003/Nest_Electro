@@ -141,6 +141,22 @@ const ALLOWED: readonly Allowance[] = [
   },
   {
     file: 'apps/storefront/src/components/FilterSidebar.tsx',
+    snippet: 'aria-valuetext={`EGP ${localMin.toLocaleString()}`}',
+    why:
+      'The aria-valuetext for the minimum-price range input (adversarial a11y fix, 2026-11-21): ' +
+      'it announces the same filter bound as the visible chip above it, in pounds, to assistive ' +
+      'technology. Not a server amount, and not rendered.',
+  },
+  {
+    file: 'apps/storefront/src/components/FilterSidebar.tsx',
+    snippet: 'aria-valuetext={`EGP ${localMax.toLocaleString()}`}',
+    why:
+      'The aria-valuetext for the maximum-price range input (adversarial a11y fix, 2026-11-21): ' +
+      'it announces the same filter bound as the visible chip above it, in pounds, to assistive ' +
+      'technology. Not a server amount, and not rendered.',
+  },
+  {
+    file: 'apps/storefront/src/components/FilterSidebar.tsx',
     snippet: "`EGP ${params.min_price}`",
     why: 'The active-filter chip for the bound above. Major units, from the URL.',
   },

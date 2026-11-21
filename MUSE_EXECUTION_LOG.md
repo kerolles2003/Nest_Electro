@@ -309,3 +309,92 @@ newest and spec lookups. No code changes were made under this item.
 - Playwright: storefront 97/105 passed, admin 13/33 passed, with every
   failure classified above; one real defect found and fixed
   (guest-cart merge doubling, `f65e5b4`).
+
+---
+
+# Third session — adversarial quality & production readiness audit (2026-11-21)
+
+Authorized as an independent adversarial audit (QA / AppSec /
+performance / release), not feature work. Starting HEAD `1a9d76f`
+(17 commits, clean tree, verified before starting). Full detail in
+`MUSE_ADVERSARIAL_AUDIT.md`, `MUSE_PAYMENT_SECURITY_AUDIT.md`,
+`MUSE_TEST_EVIDENCE.md`, `MUSE_RELEASE_READINESS_REPORT.md`,
+`MUSE_FINAL_RECOMMENDATIONS.md`.
+
+## What was done
+
+- **Payment adversarial suite** (`test/checkout/payment-adversarial
+  .spec.ts`, 11 tests, real persistence). Found and fixed two
+  defects in the payment workflow (`a911c20`): an ADMIN could
+  approve the payment on their OWN order (200 → now 403, segregation
+  of duties in `decide()`), and a customer could resubmit evidence
+  on a CANCELLED order, reopening a round `decide()` always refuses
+  (200 → now refused; terminal orders excluded in `resubmit()`).
+  Everything else held: concurrent dual decisions yield exactly one
+  winner and one audit row; a stale ADMIN token stops deciding once
+  the DB role is revoked; RETURNED orders refuse decisions;
+  malformed/negative/fractional/off-by-one/shipping-omitted amounts
+  refused. The suite also records as EVIDENCE that fulfilment does
+  not wait for verification (a VERIFICATION_REJECTED order was
+  delivered) — a business-risk finding for the owner (PAY-3), not
+  changed unilaterally.
+- **Backend security suite** (`test/security/security-adversarial
+  .spec.ts`, 14/14): NoSQL operator injection (body + query string),
+  checkout body injection, cross-customer address use, IDOR
+  (foreign order ≡ nonexistent), profile mass assignment, audit-log
+  mutation routes (none), alg=none forgery, error-envelope leakage,
+  pagination caps — all refused correctly.
+- **Integrity suite** (`test/database/integrity-adversarial.spec
+  .ts`, 4/4): concurrent double-cancel restores stock exactly once;
+  concurrent duplicate-SKU create yields one product + one clean
+  4xx; checkout against a product deleted after carting refused
+  with no stock movement; double-submit with two different
+  idempotency keys creates exactly one order.
+- **Production-mode Playwright probes** (temporary configs, removed
+  after use; tree verified clean): storefront production build —
+  zero hydration errors, all loaded catalogue images visible →
+  the two dev-e2e findings are dev-only. Admin production build —
+  the CSP still blocks a chunk (`strict-dynamic`, no nonce) and the
+  user menu is dead → **ADV-1: the admin CSP problem is a
+  production defect, not a dev annoyance.** Not fixed here: the fix
+  is framework-level nonce propagation, and weakening the CSP was
+  explicitly out of bounds.
+- **Accessibility** (axe-core 4.11.3, production storefront, 6
+  pages): `label` critical on the price-filter range inputs —
+  FIXED (`d00b69f`, aria-label + aria-valuetext; verified gone on
+  re-run). `color-contrast` serious on every page (7–55 nodes;
+  e.g. white on `#e14a5c` at 3.93:1) — open, design-token decision.
+  Heading-order and redundant-alt findings recorded.
+- **Performance**: API medians 1–9 ms at seed scale (method and
+  limits in the evidence doc); client JS totals 956 kB (storefront)
+  / 1076 kB (admin) uncompressed across all chunks. No Lighthouse
+  available; no optimisation implemented — nothing measured was
+  slow.
+- **Release engineering**: env validation fails fast with named
+  problems; helmet headers strict; CORS fails closed by design;
+  CI re-read — the transaction gate runs the FULL Jest suite, but
+  no Playwright job exists (false-green gap, ADV-5). `pnpm audit`
+  could not run: the sandbox registry proxy denies the audit
+  endpoint (recorded as not verified, ADV-7).
+
+## Fixes committed this session
+
+- `a911c20` payment segregation of duties + terminal-order
+  resubmission refusal (+ the 11-test adversarial suite).
+- `af4dcf5` security adversarial suite (14 tests, no code changes
+  needed).
+- `06f26fd` integrity adversarial suite (4 tests, no code changes
+  needed).
+- `d00b69f` price-filter input labels (axe critical).
+
+## Regression
+
+Full Jest run after all session-3 changes: 71/73 suites passed
+(1 skipped), 1461/1477 tests passed, **1 failure** —
+`money-formatting`, tripped by the session's own FilterSidebar
+change (the gate requires a registered allowance for a currency
+symbol beside a formatted value). Allowances with written
+justifications were registered for the two new lines (the project's
+own mechanism, used for the identical visible chips in the same
+file) and the gate re-ran green, 4/4. Type-checks: api and
+storefront exit 0. Details in `MUSE_TEST_EVIDENCE.md`.
