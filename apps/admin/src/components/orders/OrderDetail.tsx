@@ -15,9 +15,11 @@ import {
   confirmOrderAction,
   deliverOrderAction,
   failDeliveryAction,
+  rejectPaymentAction,
   retryShipmentAction,
   returnOrderAction,
   shipOrderAction,
+  verifyPaymentAction,
   type OrderActionResult,
 } from '@/actions/admin-order.actions';
 import type { AdminOrder, AdminOrderTransition, OrderStatus } from '@/lib/api/types';
@@ -208,6 +210,25 @@ export default function OrderDetail({ order }: OrderDetailProps) {
           <span className="text-warning/80">
             marking this order delivered records the cash as collected, in the same write.
           </span>
+        </div>
+      )}
+
+      {!isCod && order.payment.status === 'PENDING_VERIFICATION' && (
+        <PaymentVerificationPanel order={order} onDone={(result) => {
+          if (result.ok) {
+            addToast('Payment decision recorded', 'success');
+            router.refresh();
+          } else {
+            setRefusal(result.error ?? 'The decision was refused.');
+          }
+        }} />
+      )}
+
+      {!isCod && order.payment.status === 'VERIFICATION_REJECTED' && (
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-2.5 text-xs text-destructive">
+          <span className="font-semibold">Transfer rejected:</span>{' '}
+          {order.payment.verification?.decisionNote ?? 'No reason recorded.'} The customer can
+          resubmit evidence for a new review.
         </div>
       )}
 
@@ -563,6 +584,101 @@ export default function OrderDetail({ order }: OrderDetailProps) {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Manual transfer verification (D03): the operator compares the received
+ * transfer against the order total and decides. Approval requires typing
+ * the received amount; the API refuses any amount that is not the total,
+ * and refuses a second decision — this panel is a form, not the authority.
+ */
+function PaymentVerificationPanel({
+  order,
+  onDone,
+}: {
+  order: AdminOrder;
+  onDone: (result: OrderActionResult) => void;
+}) {
+  const [amount, setAmount] = useState((order.pricing.grandTotal.amount / 100).toFixed(2));
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState<'verify' | 'reject' | null>(null);
+
+  async function decide(kind: 'verify' | 'reject'): Promise<void> {
+    setBusy(kind);
+    const result =
+      kind === 'verify'
+        ? await verifyPaymentAction(order.id, Number(amount))
+        : await rejectPaymentAction(order.id, reason);
+    setBusy(null);
+    onDone(result);
+  }
+
+  return (
+    <div className="rounded-xl border border-warning/30 bg-warning/5 p-4 space-y-3">
+      <p className="text-xs font-bold uppercase tracking-wider text-warning">
+        Manual transfer awaiting verification
+      </p>
+      <p className="text-sm text-muted-foreground">
+        {order.payment.method} transfer of{' '}
+        <strong className="text-foreground">{order.pricing.grandTotal.formatted}</strong>
+        {order.payment.verification?.transferSender != null && (
+          <>
+            {' '}declared from{' '}
+            <strong className="text-foreground">{order.payment.verification.transferSender}</strong>
+          </>
+        )}
+        {order.payment.verification?.submittedAt != null && (
+          <> · submitted {new Date(order.payment.verification.submittedAt).toLocaleString('en-GB')}</>
+        )}
+        . Check the screenshot the customer sent on WhatsApp against the actual transfer before deciding.
+      </p>
+
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block">
+          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            Amount actually received
+          </span>
+          <input
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            inputMode="decimal"
+            className="w-40 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={busy !== null}
+          onClick={() => void decide('verify')}
+          className="rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white disabled:opacity-50"
+        >
+          {busy === 'verify' ? 'Verifying…' : 'Approve — mark paid'}
+        </button>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block grow">
+          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            Rejection reason (customer sees this)
+          </span>
+          <input
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            maxLength={500}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            placeholder="e.g. Screenshot total does not match the order total"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={busy !== null || reason.trim().length < 3}
+          onClick={() => void decide('reject')}
+          className="rounded-lg border border-destructive px-4 py-2 text-xs font-bold uppercase tracking-wider text-destructive disabled:opacity-50"
+        >
+          {busy === 'reject' ? 'Rejecting…' : 'Reject transfer'}
+        </button>
       </div>
     </div>
   );

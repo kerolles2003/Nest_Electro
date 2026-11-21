@@ -8,6 +8,7 @@ import * as api from '@/lib/api/endpoints';
 import { customerMessage } from '@/lib/api/errors';
 import { readSession } from '@/lib/api/session';
 import { CancelOrderForm } from '@/components/account/CancelOrderForm';
+import { ManualPaymentPanel } from '@/components/account/ManualPaymentPanel';
 import type { Order } from '@/lib/api/types';
 
 /**
@@ -84,6 +85,18 @@ export default async function OrderDetailPage({
   }
 
   const order = result.data.data;
+
+  // Manual payment instructions are owner configuration; a failure to load
+  // them degrades the panel to status-only rather than breaking the page.
+  const isManual = order.payment.method !== 'COD';
+  const instructionsResult = isManual ? await tryApi(() => api.getPaymentMethods()) : null;
+  const instructions = instructionsResult?.ok ? instructionsResult.data.data : null;
+  const destination =
+    order.payment.method === 'WALLET'
+      ? (instructions?.walletNumber ?? null)
+      : order.payment.method === 'INSTAPAY'
+        ? (instructions?.instapayAddress ?? null)
+        : null;
 
   return (
     <article className="space-y-8 animate-in fade-in duration-500">
@@ -183,6 +196,14 @@ export default async function OrderDetailPage({
         </div>
       </section>
 
+      {isManual && (
+        <ManualPaymentPanel
+          order={order}
+          destination={destination}
+          whatsappNumber={instructions?.whatsappNumber ?? null}
+        />
+      )}
+
       {order.cancellation !== null ? (
         <section className="rounded-sm border border-[var(--color-border)] bg-surface/40 p-5">
           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground-muted">
@@ -212,7 +233,15 @@ function PlacedBanner({ order }: { order: Order }) {
         </h1>
         <p className="mt-1 text-sm font-medium text-foreground-muted">
           Your order number is <strong className="text-foreground">{order.orderNumber}</strong>.
-          Pay {order.pricing.grandTotal.formatted} in cash when it arrives.
+          {order.payment.method === 'COD' ? (
+            <> Pay {order.pricing.grandTotal.formatted} in cash when it arrives.</>
+          ) : (
+            <>
+              {' '}
+              Transfer {order.pricing.grandTotal.formatted} as shown below and send the screenshot on
+              WhatsApp — your order is paid once our team verifies the transfer.
+            </>
+          )}
         </p>
       </div>
     </div>

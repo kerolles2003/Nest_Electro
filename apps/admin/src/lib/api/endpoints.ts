@@ -216,6 +216,26 @@ export function returnOrder(id: string, reason: string): Promise<Envelope<AdminO
 }
 
 /**
+ * Approves a manual Wallet/InstaPay transfer (D03). The ONLY operation that
+ * can mark a manual order PAID. `confirmedAmount` is in minor units and the
+ * API refuses unless it equals the order total exactly.
+ */
+export function verifyOrderPayment(
+  id: string,
+  confirmedAmount: number,
+): Promise<Envelope<AdminOrder>> {
+  return apiFetch(`/admin/orders/${id}/payment/verify`, {
+    method: 'POST',
+    body: { confirmedAmount },
+  });
+}
+
+/** Rejects a manual transfer. `reason` is required and shown to the customer. */
+export function rejectOrderPayment(id: string, reason: string): Promise<Envelope<AdminOrder>> {
+  return apiFetch(`/admin/orders/${id}/payment/reject`, { method: 'POST', body: { reason } });
+}
+
+/**
  * An optional note, or nothing at all.
  *
  * `{ note: undefined }` would serialise to `{}` anyway, but `{ note: '' }`

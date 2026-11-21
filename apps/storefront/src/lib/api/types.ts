@@ -379,8 +379,14 @@ export interface Order {
   pricing: PricingBreakdown;
   payment: {
     method: string;
-    status: 'PENDING' | 'PAID' | 'REFUNDED';
+    status: 'PENDING' | 'PENDING_VERIFICATION' | 'VERIFICATION_REJECTED' | 'PAID' | 'REFUNDED';
     collectedAt: string | null;
+    verification: {
+      transferSender: string | null;
+      submittedAt: string | null;
+      decidedAt: string | null;
+      decisionNote: string | null;
+    } | null;
   };
   shippingAddress: OrderShippingAddress;
   customerNote: string | null;

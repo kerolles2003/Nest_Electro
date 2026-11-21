@@ -74,12 +74,23 @@ export type OrderStatus =
   | 'CANCELLED'
   | 'RETURNED';
 
-export type PaymentStatus = 'PENDING' | 'PAID' | 'REFUNDED';
+export type PaymentStatus =
+  | 'PENDING'
+  | 'PENDING_VERIFICATION'
+  | 'VERIFICATION_REJECTED'
+  | 'PAID'
+  | 'REFUNDED';
 
 export interface OrderPayment {
-  method: 'COD';
+  method: 'COD' | 'WALLET' | 'INSTAPAY';
   status: PaymentStatus;
   collectedAt: string | null;
+  verification: {
+    transferSender: string | null;
+    submittedAt: string | null;
+    decidedAt: string | null;
+    decisionNote: string | null;
+  } | null;
 }
 
 export interface PricingBreakdown {

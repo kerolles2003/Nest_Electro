@@ -175,6 +175,41 @@ export async function returnOrderAction(
   return run(orderId, () => api.returnOrder(orderId, trimmed));
 }
 
+/**
+ * Approves a manual Wallet/InstaPay transfer (D03).
+ *
+ * The amount is typed by the operator from the actual transfer, in major
+ * units, and converted to the minor units the API compares against the
+ * order total. Approval is amount-matched server-side; a mismatch is a
+ * refusal, not a warning.
+ */
+export async function verifyPaymentAction(
+  orderId: string,
+  confirmedAmountMajor: number,
+): Promise<OrderActionResult> {
+  if (!Number.isFinite(confirmedAmountMajor) || confirmedAmountMajor < 0) {
+    return { ok: false, error: 'Enter the amount you actually received.' };
+  }
+
+  return run(orderId, () =>
+    api.verifyOrderPayment(orderId, Math.round(confirmedAmountMajor * 100)),
+  );
+}
+
+/** Rejects a manual transfer. The reason is shown to the customer (D03). */
+export async function rejectPaymentAction(
+  orderId: string,
+  reason: string,
+): Promise<OrderActionResult> {
+  const trimmed = reason.trim();
+
+  if (trimmed.length < 3) {
+    return { ok: false, error: 'Say why the transfer was rejected — the customer sees it.' };
+  }
+
+  return run(orderId, () => api.rejectOrderPayment(orderId, trimmed));
+}
+
 function noteOf(note: string | undefined): { note?: string } {
   const trimmed = note?.trim() ?? '';
 
