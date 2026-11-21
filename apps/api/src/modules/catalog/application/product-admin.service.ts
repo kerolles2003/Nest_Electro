@@ -376,7 +376,20 @@ export class ProductAdminService {
       entity: { type: AuditEntityType.PRODUCT, id: id, label: id.toHexString() },
       context: context.forensics,
     });
-    const current = await this.findById(id);
+    /*
+     * A05/A06 — the write, its version guard and its audit row now commit
+     * together, in one transaction, exactly as `softDelete`/`restore` in
+     * this file already did. Previously this method read, wrote and audited
+     * in separate unguarded steps: two operators editing the same product
+     * silently overwrote each other (both derived their `$set` from the
+     * same stale read, pricing included), and a failure after the write
+     * left the product changed with no audit row. The version predicate is
+     * the `updatedAt` this read observed — a concurrent writer moves it,
+     * the predicate then matches nothing, and the loser is told so with
+     * CONCURRENT_MODIFICATION instead of winning silently.
+     */
+    const { current, updated } = await this.transactions.run(async session => {
+    const current = await this.findById(id, session);
 
     if (current.deletedAt !== null) {
       throw AppException.productDeleted();
@@ -444,33 +457,23 @@ export class ProductAdminService {
     let updated: ProductLean;
 
     try {
-      updated =
-        (await this.products
-          .findOneAndUpdate({ _id: id }, { $set: set }, { new: true })
-          .lean<ProductLean>()
-          .exec()) ?? current;
-    } catch (error) {
-      throw this.translateDuplicate(error, current.sku, input.slug ?? current.slug);
-    }
+      const written = await this.products
+        .findOneAndUpdate(
+          { _id: id, updatedAt: current.updatedAt },
+          { $set: set },
+          { new: true, session },
+        )
+        .lean<ProductLean>()
+        .exec();
 
-    /*
-     * The redirect is written AFTER the product has actually been renamed, and
-     * only then. Writing it first would leave a redirect pointing at a slug
-     * nothing holds if the update were refused by the unique index — which is
-     * the single most likely way a rename fails.
-     *
-     * This is CATALOG-MODEL.md §2 rules 3–5, and it is the second half of
-     * legacy defect K4: the old system wrote this row faithfully and never read
-     * one, so every rename left a permanent 404 at the old URL with a database
-     * row recording exactly where the page had gone.
-     */
-    if (input.slug !== undefined && input.slug !== current.slug) {
-      await this.redirects.record({
-        entityType: SlugRedirectEntityType.PRODUCT,
-        entityId: id,
-        oldSlug: current.slug,
-        newSlug: input.slug,
-      });
+      // No fallback to `current`: a write that matched nothing did not
+      // happen, and reporting the pre-update snapshot as the result hid
+      // exactly the concurrent modification the predicate exists to catch.
+      if (!written) throw AppException.concurrentModification();
+      updated = written;
+    } catch (error) {
+      if (error instanceof AppException) throw error;
+      throw this.translateDuplicate(error, current.sku, input.slug ?? current.slug);
     }
 
     /*
@@ -483,11 +486,10 @@ export class ProductAdminService {
      *
      * `recordChange` writes NOTHING when the diff is empty, so saving a form
      * without altering anything leaves no row.
+     *
+     * It runs INSIDE the transaction (session threaded), so a price change
+     * and its audit row now exist together or not at all.
      */
-    // Moving a product between categories or brands changes two counts, and
-    // `recount` is given both states so the one it LEFT is corrected too.
-    await this.recount(current, updated);
-
     await this.audit.recordChange({
       actor: toAuditActor(actor),
       action: 'pricing' in set ? AuditAction.PRODUCT_PRICE_CHANGED : AuditAction.PRODUCT_UPDATED,
@@ -496,7 +498,40 @@ export class ProductAdminService {
       after: auditableProduct(updated),
       metadata: { operationId: auditOperationId, outcome: 'succeeded' },
       context: context.forensics,
+    }, session);
+
+    return { current, updated };
     });
+
+    /*
+     * The redirect is written AFTER the product update has committed, and
+     * only then. Writing it first would leave a redirect pointing at a slug
+     * nothing holds if the update were refused by the unique index — which is
+     * the single most likely way a rename fails.
+     *
+     * This is CATALOG-MODEL.md §2 rules 3–5, and it is the second half of
+     * legacy defect K4: the old system wrote this row faithfully and never read
+     * one, so every rename left a permanent 404 at the old URL with a database
+     * row recording exactly where the page had gone.
+     *
+     * `SlugRedirectService.record` stays outside the transaction by its own
+     * documented design: its operations are individually idempotent and a
+     * replay lands on the same state.
+     */
+    if (input.slug !== undefined && input.slug !== current.slug) {
+      await this.redirects.record({
+        entityType: SlugRedirectEntityType.PRODUCT,
+        entityId: id,
+        oldSlug: current.slug,
+        newSlug: input.slug,
+      });
+    }
+
+    // Moving a product between categories or brands changes two counts, and
+    // `recount` is given both states so the one it LEFT is corrected too.
+    // It recomputes from committed state, so it runs after the transaction,
+    // as in `softDelete`/`restore`.
+    await this.recount(current, updated);
 
     return updated;
   }
