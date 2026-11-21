@@ -16,7 +16,11 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # `muse/**` included deliberately: the A01 bootstrap failure lived on a
+    # long-lived feature branch that no gate ever ran against, because push
+    # triggers named only `main`. Long-lived engineering branches are where
+    # ungated defects accumulate; they are gated like `main` from now on.
+    branches: [main, 'muse/**']
   pull_request:
 
 # Least privilege. No job here writes anything back — they lint, type-check,
