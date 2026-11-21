@@ -142,3 +142,52 @@ Commits on `muse/autonomous-engineering`: 29bebff (A01), bbf2448
 adf7d4a (A07/F17/F18/F38), plus a docs/CI commit carrying this report,
 the execution log, the remaining-work list, and the CI trigger change.
 No merges, no force pushes, nothing committed to shared branches.
+
+---
+
+# Continuation session addendum (2026-11-21)
+
+Eight further commits (`56083be`…`effe039`), detailed in
+MUSE_EXECUTION_LOG.md. In short:
+
+- **Self-review found and fixed two defects in this report's own
+  payment work**: decisions were possible on CANCELLED/RETURNED orders,
+  and customer resubmissions wrote no audit row. Both are fixed with
+  regression tests; the rest of the payment review held.
+- **A05/A06 finished**: explicit `expectedUpdatedAt` optimistic-locking
+  token (sent automatically by the admin form) plus a deterministic
+  concurrency suite against real persistence — exactly one winner, one
+  409, no partial writes.
+- **All four previously failing Jest suites resolved** (one was a real
+  audit-trail defect). The full suite is green for the first time:
+  69/70 suites, 1433/1448 tests, 0 failures.
+- **CI gates repaired**: as committed, both Mongo-backed gates would
+  have failed before testing anything (missing test URI, replica-set
+  name mismatch, missing JWT_SECRET). Verified locally under a minimal
+  environment.
+- **Playwright executed** (it never had been): storefront 97/105,
+  admin 13/33. The runs found and fixed a real guest-cart doubling bug.
+  The admin failures trace to one pre-existing cause — the strict CSP
+  blocks Next.js dev chunk loads — and the storefront failures to a
+  dev-only JSON-LD nonce hydration error, the Supabase-less `/blog`
+  500, and an un-isolated catalogue-image opacity defect; all are
+  recorded in MUSE_REMAINING_WORK.md, none was hidden or
+  allowlisted away.
+- Type-checks and builds pass for all three apps; the built API boots
+  and reports `/health/ready` ok; secret scan clean (1016 blobs).
+
+## Updated scores (evidence-based)
+
+- **Overall: 7.5/10** (was 7). The entire automated test surface is
+  green, the payment workflow survived an adversarial self-review with
+  its two defects fixed, concurrency is proven against real
+  persistence, and browser-level evidence now exists for the
+  storefront. Held back by the admin e2e being red (pre-existing dev
+  CSP cause, unresolved), the unwritten wallet browser e2e, and the
+  open items in MUSE_REMAINING_WORK.md.
+- **Production readiness: 5/10** (was 4). Everything above, plus CI
+  that can actually run its gates. Still missing: the owner's inputs
+  (payment receiving details, shipping rate table, policy texts,
+  contact channel), a production database and deployment (both
+  explicitly out of scope), an admin e2e run that passes, and any
+  performance/accessibility measurement.
