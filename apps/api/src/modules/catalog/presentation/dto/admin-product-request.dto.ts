@@ -4,6 +4,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
+  IsDateString,
   IsEnum,
   IsInt,
   IsOptional,
@@ -302,6 +303,17 @@ export class UpdateProductDto {
   @IsOptional()
   @IsBoolean()
   isFeatured?: boolean;
+
+  @ApiPropertyOptional({
+    example: '2026-09-03T09:14:00.000Z',
+    description:
+      'Optimistic-locking token: the `updatedAt` of the product as the editor loaded it. ' +
+      'When present and the product has been modified since, the update is refused with ' +
+      'CONCURRENT_MODIFICATION (409) instead of silently overwriting the other edit.',
+  })
+  @IsOptional()
+  @IsDateString()
+  expectedUpdatedAt?: string;
 }
 
 /** What an admin list can be ordered by. Narrow on purpose. */

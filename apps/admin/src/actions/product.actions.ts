@@ -111,6 +111,12 @@ export interface ProductFormInput {
   seoDescription: string;
   isFeatured: boolean;
   specs: { key: string; label: string; value: string; unit: string; filterable: boolean }[];
+  /**
+   * Optimistic-locking token (A06): the `updatedAt` of the product as the
+   * form loaded it. Sent on update only; the API refuses with
+   * CONCURRENT_MODIFICATION when the product moved in the meantime.
+   */
+  expectedUpdatedAt?: string;
 }
 
 function toWriteBody(input: ProductFormInput): Omit<CreateProductBody, 'sku'> {
@@ -242,7 +248,12 @@ export async function updateProductAction(
 ): Promise<ProductActionResult> {
   await requireAdminActor();
 
-  const body: UpdateProductBody = toWriteBody(input);
+  const body: UpdateProductBody = {
+    ...toWriteBody(input),
+    ...(input.expectedUpdatedAt !== undefined
+      ? { expectedUpdatedAt: input.expectedUpdatedAt }
+      : {}),
+  };
   const res = await tryApi(() => api.updateProduct(id, body));
 
   if (!res.ok) {

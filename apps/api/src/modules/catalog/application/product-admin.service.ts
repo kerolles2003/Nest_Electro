@@ -79,6 +79,15 @@ export interface UpdateProductInput {
   readonly weight?: number | null;
   readonly dimensions?: { length: number; width: number; height: number } | null;
   readonly isFeatured?: boolean;
+  /**
+   * Optimistic-locking token (A06): the `updatedAt` the editor saw when
+   * they loaded the product. When present, the update is refused with
+   * CONCURRENT_MODIFICATION if the product has moved since — two admins
+   * editing the same product can no longer silently overwrite each other
+   * based on the same stale form. When absent, the internal read-time
+   * version predicate still guards the write itself.
+   */
+  readonly expectedUpdatedAt?: Date | string;
 }
 
 export interface AdminProductQuery {
@@ -393,6 +402,13 @@ export class ProductAdminService {
 
     if (current.deletedAt !== null) {
       throw AppException.productDeleted();
+    }
+
+    if (input.expectedUpdatedAt !== undefined) {
+      const expected = new Date(input.expectedUpdatedAt).getTime();
+      if (Number.isNaN(expected) || expected !== current.updatedAt.getTime()) {
+        throw AppException.concurrentModification();
+      }
     }
 
     /*

@@ -107,6 +107,7 @@ function initialInput(product?: AdminProduct): ProductFormInput {
     seoTitle: product?.seoTitle ?? '',
     seoDescription: product?.seoDescription ?? '',
     isFeatured: product?.isFeatured ?? false,
+    expectedUpdatedAt: product?.updatedAt,
     specs: (product?.specs ?? []).map((spec) => ({
       key: spec.key,
       label: spec.label,

@@ -550,7 +550,10 @@ export interface AdminProductSpecInput {
  * it is the warehouse identifier, printed on labels and quoted to suppliers.
  * `isActive` is absent because publishing is its own separately audited action.
  */
-export type UpdateProductBody = Omit<CreateProductBody, 'sku' | 'isActive'>;
+export type UpdateProductBody = Omit<CreateProductBody, 'sku' | 'isActive'> & {
+  /** Optimistic-locking token: the product `updatedAt` the editor loaded (A06). */
+  expectedUpdatedAt?: string;
+};
 
 export interface HardDeleteResult {
   sku: string;
