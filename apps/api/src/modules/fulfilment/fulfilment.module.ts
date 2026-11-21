@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DatabaseModule } from '../../database/database.module';
 import { AuditModule } from '../audit/audit.module';
 import { User, UserSchema } from '../users/infrastructure/schemas/user.schema';
 import { ShippingRatesAdminService } from './application/shipping-rates-admin.service';
@@ -29,6 +30,8 @@ import { AdminShippingRatesController } from './presentation/admin-shipping-rate
       { name: User.name, schema: UserSchema },
     ]),
     AuditModule,
+    // For TransactionService (ShippingRatesAdminService). See A01.
+    DatabaseModule,
   ],
   controllers: [AdminShippingRatesController],
   providers: [FulfilmentService, ShippingRateRepository, ShippingRatesAdminService],
