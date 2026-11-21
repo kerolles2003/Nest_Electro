@@ -27,6 +27,7 @@ import {
 import type { Response } from 'express';
 import { Types } from 'mongoose';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { Forensics, type ForensicContext } from '../../../common/decorators/forensics.decorator';
 import { IdempotencyKey } from '../../../common/decorators/idempotency-key.decorator';
 import { RequestLocale } from '../../../common/decorators/locale.decorator';
 import { Roles } from '../../../common/decorators/roles.decorator';
@@ -440,12 +441,14 @@ export class OrdersController {
     @Param() params: OrderIdParamDto,
     @Body() dto: ResubmitPaymentDto,
     @CurrentUser() principal: AuthenticatedUser,
+    @Forensics() forensics: ForensicContext,
     @RequestLocale() locale: Locale,
   ): Promise<OrderResponseDto> {
     const order = await this.paymentVerification.resubmit({
       orderId: new Types.ObjectId(params.id),
       userId: new Types.ObjectId(principal.id),
       transferSender: dto.transferSender,
+      context: forensics,
     });
 
     return { data: OrderDto.from(order, locale) };

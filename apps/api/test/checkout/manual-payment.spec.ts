@@ -350,6 +350,55 @@ describe('admin verification decisions', () => {
     expect(resubmitted.body.data.payment.verification.transferSender).toBe('01077776666');
     expect(resubmitted.body.data.payment.verification.decisionNote).toBeNull();
   });
+
+  it('records the rejection and the resubmission in the audit trail', async () => {
+    const placed = await placeManualOrder();
+    const id = placed.body.data!.id as string;
+
+    await http()
+      .post(`/api/v1/admin/orders/${id}/payment/reject`)
+      .set(...bearer(admin))
+      .send({ reason: 'Screenshot total does not match.' })
+      .expect(200);
+    await http()
+      .post(`/api/v1/orders/${id}/payment/resubmit`)
+      .set(...bearer(customer))
+      .send({ transferSender: '01077776666' })
+      .expect(200);
+
+    const logs = await http()
+      .get('/api/v1/admin/audit-logs')
+      .query({ entityType: 'ORDER', entityId: id, action: 'ORDER_PAYMENT_CHANGED' })
+      .set(...bearer(admin))
+      .expect(200);
+    const decisions = (logs.body.data as Array<{ metadata?: { decision?: string } }>).map(
+      row => row.metadata?.decision,
+    );
+    expect(decisions).toContain('reject');
+    expect(decisions).toContain('resubmitted');
+  });
+
+  it('refuses a payment decision on a cancelled order', async () => {
+    const placed = await placeManualOrder();
+    const id = placed.body.data!.id as string;
+    const total = (await orderRow(placed.body.data!.id)).pricing.grandTotal;
+
+    await http()
+      .post(`/api/v1/orders/${id}/cancel`)
+      .set(...bearer(customer))
+      .send({ reason: 'Changed my mind.' })
+      .expect(200);
+
+    const verify = await http()
+      .post(`/api/v1/admin/orders/${id}/payment/verify`)
+      .set(...bearer(admin))
+      .send({ confirmedAmount: total });
+    expect(verify.status).toBe(400);
+
+    const after = await http().get(`/api/v1/orders/${id}`).set(...bearer(customer)).expect(200);
+    expect(after.body.data.status).toBe('CANCELLED');
+    expect(after.body.data.payment.status).toBe('PENDING_VERIFICATION');
+  });
 });
 
 describe('delivery and COD interplay', () => {

@@ -7,7 +7,7 @@ import { AuditService, type AuditContext } from '../../audit/application/audit.s
 import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
 import { Role } from '../../users/infrastructure/schemas/user.schema';
 import { UsersService } from '../../users/application/users.service';
-import { isManualTransfer, PaymentStatus } from '../domain/order-status';
+import { isManualTransfer, OrderStatus, PaymentStatus } from '../domain/order-status';
 import { Order, type OrderLean } from '../infrastructure/schemas/order.schema';
 
 /**
@@ -101,6 +101,23 @@ export class PaymentVerificationService {
         ]);
       }
 
+      /*
+       * Cancellation and return deliberately do NOT touch payment state in
+       * the lifecycle service, so a cancelled order can still be sitting in
+       * PENDING_VERIFICATION. Deciding its payment would mark a dead order
+       * PAID (or rejected) — refuse: a terminal order has no payment to
+       * verify. Found in self-review of this service, 2026-11-21.
+       */
+      if (order.status === OrderStatus.CANCELLED || order.status === OrderStatus.RETURNED) {
+        throw AppException.validation([
+          {
+            field: 'orderStatus',
+            message: 'A cancelled or returned order cannot be verified for payment.',
+            code: 'STATE',
+          },
+        ]);
+      }
+
       if (order.payment.status !== PaymentStatus.PENDING_VERIFICATION) {
         throw AppException.concurrentModification();
       }
@@ -181,7 +198,11 @@ export class PaymentVerificationService {
     orderId: Types.ObjectId;
     userId: Types.ObjectId;
     transferSender: string;
+    context: AuditContext;
   }): Promise<OrderLean> {
+    const customer = await this.users.findById(input.userId);
+    if (customer === null) throw AppException.accountDisabled();
+
     return this.transactions.run(async session => {
       const updated = await this.orders
         .findOneAndUpdate(
@@ -214,6 +235,32 @@ export class PaymentVerificationService {
         if (exists === null) throw AppException.orderNotFound();
         throw AppException.concurrentModification();
       }
+
+      /*
+       * A resubmission is a payment-state change, so it belongs in the same
+       * audit trail as the decisions — without this row the trail showed a
+       * rejection followed by a decision on a round nobody recorded
+       * starting. Written in the same transaction as the state change.
+       */
+      await this.audit.record(
+        {
+          actor: {
+            id: customer._id,
+            role: customer.role,
+            name: customer.fullName,
+            email: customer.email,
+          },
+          action: AuditAction.ORDER_PAYMENT_CHANGED,
+          entity: { type: AuditEntityType.ORDER, id: input.orderId, label: updated.orderNumber },
+          changes: {
+            before: { paymentStatus: PaymentStatus.VERIFICATION_REJECTED },
+            after: { paymentStatus: PaymentStatus.PENDING_VERIFICATION },
+          },
+          metadata: { outcome: 'succeeded', decision: 'resubmitted', method: updated.payment.method },
+          context: input.context,
+        },
+        session,
+      );
 
       return updated;
     });
