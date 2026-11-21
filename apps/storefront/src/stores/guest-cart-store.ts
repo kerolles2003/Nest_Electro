@@ -59,6 +59,11 @@ interface GuestCartState {
 const clampQuantity = (quantity: number): number =>
   Math.min(Math.max(1, Math.trunc(quantity)), MAX_LINE_QUANTITY);
 
+/** The `localStorage` key the basket persists under. Exported because the
+ * merge coordinates concurrent invocations through the persisted value —
+ * see `lib/cart/merge-guest-cart.ts` — and two literals would drift. */
+export const GUEST_CART_STORAGE_KEY = 'nest-guest-cart';
+
 export const useGuestCartStore = create<GuestCartState>()(
   persist(
     (set, get) => ({
@@ -128,7 +133,7 @@ export const useGuestCartStore = create<GuestCartState>()(
        * legacy lines reference Supabase product ids that the API does not know,
        * so there is nothing in them worth carrying across.
        */
-      name: 'nest-guest-cart',
+      name: GUEST_CART_STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ items: state.items, pendingMerge: state.pendingMerge }),
 
