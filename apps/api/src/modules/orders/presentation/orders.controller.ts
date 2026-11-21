@@ -36,9 +36,12 @@ import type { Locale } from '../../../common/localization/locale';
 import type { AuthenticatedUser } from '../../auth/domain/authenticated-user';
 import { Role } from '../../users/infrastructure/schemas/user.schema';
 import { CheckoutService } from '../application/checkout.service';
+import { PaymentMethod } from '../domain/order-status';
 import { OrderLifecycleService } from '../application/order-lifecycle.service';
+import { PaymentVerificationService } from '../application/payment-verification.service';
 import { OrdersService } from '../application/orders.service';
 import { CancelOrderDto } from './dto/cancel-order.dto';
+import { ResubmitPaymentDto } from './dto/resubmit-payment.dto';
 import { PlaceOrderDto } from './dto/checkout-request.dto';
 import { OrderHistoryQueryDto, OrderIdParamDto } from './dto/order-query.dto';
 import { OrderDto, OrderResponseDto } from './dto/order-response.dto';
@@ -75,6 +78,7 @@ export class OrdersController {
     private readonly checkout: CheckoutService,
     private readonly orders: OrdersService,
     private readonly lifecycle: OrderLifecycleService,
+    private readonly paymentVerification: PaymentVerificationService,
   ) {}
 
   @Post()
@@ -205,6 +209,8 @@ export class OrdersController {
       // address at all.
       addressId: new Types.ObjectId(dto.addressId),
       customerNote: dto.customerNote ?? null,
+      paymentMethod: dto.paymentMethod ?? PaymentMethod.COD,
+      transferSender: dto.transferSender ?? null,
       // Chooses the language of the confirmation email, nothing else.
       locale,
     });
@@ -409,6 +415,38 @@ export class OrdersController {
       new Types.ObjectId(params.id),
       dto.reason,
     );
+
+    return { data: OrderDto.from(order, locale) };
+  }
+
+  @Post(':id/payment/resubmit')
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', NO_STORE)
+  @ApiOperation({
+    summary: 'Resubmit transfer evidence after a verification rejection',
+    description: [
+      'Only for YOUR OWN order whose manual payment is VERIFICATION_REJECTED. Records the',
+      'corrected sender account and returns the order to PENDING_VERIFICATION for a fresh',
+      'admin review. Resubmission NEVER marks an order paid (D03).',
+    ].join('\n'),
+  })
+  @ApiOkResponse({ type: OrderResponseDto, description: 'Resubmitted. `payment.status` is `PENDING_VERIFICATION`.' })
+  @ApiBadRequestResponse({ type: ErrorResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiForbiddenResponse({ type: ErrorResponseDto })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: 'ORDER_NOT_FOUND — no such order of yours.' })
+  @ApiConflictResponse({ type: ErrorResponseDto, description: 'CONCURRENT_MODIFICATION — the payment is not in VERIFICATION_REJECTED.' })
+  async resubmitPayment(
+    @Param() params: OrderIdParamDto,
+    @Body() dto: ResubmitPaymentDto,
+    @CurrentUser() principal: AuthenticatedUser,
+    @RequestLocale() locale: Locale,
+  ): Promise<OrderResponseDto> {
+    const order = await this.paymentVerification.resubmit({
+      orderId: new Types.ObjectId(params.id),
+      userId: new Types.ObjectId(principal.id),
+      transferSender: dto.transferSender,
+    });
 
     return { data: OrderDto.from(order, locale) };
   }

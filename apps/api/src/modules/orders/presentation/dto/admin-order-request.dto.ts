@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 const trim = ({ value }: { value: unknown }): unknown =>
   typeof value === 'string' ? value.trim() : value;
@@ -145,6 +145,38 @@ export class RetryShipmentDto {
   @Transform(trim)
   @MaxLength(500, { message: 'note must not exceed 500 characters' })
   note?: string;
+}
+
+/**
+ * Approve a manual Wallet/InstaPay transfer (D03).
+ *
+ * `confirmedAmount` is the amount the admin actually received, in integer
+ * minor units. It is REQUIRED and must equal the order's grand total
+ * exactly — approval is an amount-matched decision, not a checkbox.
+ */
+export class VerifyPaymentDto {
+  @ApiProperty({
+    example: 45000,
+    description: 'The received transfer amount, in integer minor units. Must equal the order total.',
+  })
+  @IsInt()
+  @Min(0)
+  @Max(Number.MAX_SAFE_INTEGER)
+  confirmedAmount!: number;
+}
+
+/** Reject a manual Wallet/InstaPay transfer (D03). Reason required and shown to the customer. */
+export class RejectPaymentDto {
+  @ApiProperty({
+    example: 'The transfer screenshot does not match the order total.',
+    minLength: 3,
+    maxLength: 500,
+  })
+  @IsString()
+  @Transform(trim)
+  @MinLength(3, { message: 'reason must be at least 3 characters' })
+  @MaxLength(500, { message: 'reason must not exceed 500 characters' })
+  reason!: string;
 }
 
 /** T8 / T9 `-> RETURNED`. Reason required; restores stock. */

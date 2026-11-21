@@ -74,6 +74,15 @@ export class OrderSummaryDto {
         method: row.payment.method,
         status: row.payment.status,
         collectedAt: row.payment.collectedAt?.toISOString() ?? null,
+        verification:
+          row.payment.verification == null
+            ? null
+            : {
+                transferSender: row.payment.verification.transferSender,
+                submittedAt: row.payment.verification.submittedAt?.toISOString() ?? null,
+                decidedAt: row.payment.verification.decidedAt?.toISOString() ?? null,
+                decisionNote: row.payment.verification.decisionNote,
+              },
       },
       pricing: PricingBreakdownDto.of(
         row.pricing,

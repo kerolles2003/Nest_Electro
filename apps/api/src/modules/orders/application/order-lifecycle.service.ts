@@ -9,7 +9,7 @@ import { InventoryService } from '../../inventory/application/inventory.service'
 import { InventoryEventType } from '../../inventory/infrastructure/schemas/inventory-event.schema';
 import { UsersService } from '../../users/application/users.service';
 import { Role } from '../../users/infrastructure/schemas/user.schema';
-import { OrderStatus, PaymentStatus } from '../domain/order-status';
+import { OrderStatus, PaymentMethod, PaymentStatus } from '../domain/order-status';
 import { checkTransition, RESTORES_STOCK } from '../domain/order-transitions';
 import { OrderRepository } from '../infrastructure/repositories/order.repository';
 import type {
@@ -406,10 +406,23 @@ export class OrderLifecycleService {
         return OrderLifecycleService.shippingEffects(command, order, at);
 
       case OrderStatus.DELIVERED:
-        // ADR-ORDER-002: DELIVERED IMPLIES PAID. Under COD the courier does not
-        // hand over goods without collecting, so delivery IS the payment event.
-        // Setting both in this one update is what makes "delivered but unpaid"
-        // — a combination that existed in live legacy data — unrepresentable.
+        // ADR-ORDER-002: DELIVERED IMPLIES PAID — for COD only. Under COD the
+        // courier does not hand over goods without collecting, so delivery IS
+        // the payment event, and setting both in this one update is what makes
+        // "delivered but unpaid" unrepresentable for cash orders.
+        //
+        // Manual transfers (D01/D03) are different: their payment state is
+        // owned exclusively by the verification workflow. Delivery must never
+        // mark a Wallet/InstaPay order PAID — an unverified order that gets
+        // delivered stays PENDING_VERIFICATION until an authorized admin
+        // approves the transfer, and a rejected one stays rejected.
+        if (order.payment.method !== PaymentMethod.COD) {
+          return {
+            set: {
+              ...(order.shipment !== null ? { 'shipment.deliveredAt': at } : {}),
+            },
+          };
+        }
         return {
           set: {
             'payment.status': PaymentStatus.PAID,

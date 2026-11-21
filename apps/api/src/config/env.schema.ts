@@ -295,6 +295,22 @@ export const envSchema = z.object({
    */
   FREE_SHIPPING_THRESHOLD: z.coerce.number().int().min(0).optional(),
 
+  // ---- Manual payments (Wallet / InstaPay, owner decisions D01/D03/D16) ----
+  // Receiving details are OWNER-SUPPLIED business inputs. All three are
+  // optional: while a value is absent, the corresponding manual payment
+  // method is simply not offered at checkout. Nothing here is invented,
+  // defaulted, or guessed — an unconfigured method refuses placement with
+  // a clear error rather than showing a placeholder number.
+
+  /** Mobile wallet number customers transfer to, when Wallet is offered. */
+  MANUAL_PAYMENT_WALLET_NUMBER: z.string().min(1).optional(),
+
+  /** InstaPay address/number customers transfer to, when InstaPay is offered. */
+  MANUAL_PAYMENT_INSTAPAY_ADDRESS: z.string().min(1).optional(),
+
+  /** WhatsApp number (international format) for transfer evidence/support. */
+  MANUAL_PAYMENT_WHATSAPP_NUMBER: z.string().min(1).optional(),
+
   // ---- Email provider selection (application level) ----
   // Selection only. NO SDK is initialised in this phase, and no business code
   // may ever branch on this value.

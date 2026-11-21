@@ -20,6 +20,7 @@ import { AuthService } from '../../modules/auth/application/auth.service';
 import { CartService } from '../../modules/cart/application/cart.service';
 import { Product } from '../../modules/catalog/infrastructure/schemas/product.schema';
 import { CheckoutService } from '../../modules/orders/application/checkout.service';
+import { PaymentMethod } from '../../modules/orders/domain/order-status';
 import { AddressesService } from '../../modules/users/application/addresses.service';
 import { User, type UserLean } from '../../modules/users/infrastructure/schemas/user.schema';
 
@@ -233,6 +234,8 @@ async function ensureOrder(services: Services, userId: Types.ObjectId): Promise<
     idempotencyKey: randomUUID(),
     addressId: home._id,
     customerNote: 'Seeded by sandbox:seed so the history is not empty.',
+    paymentMethod: PaymentMethod.COD,
+    transferSender: null,
     locale: 'en',
   });
 

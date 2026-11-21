@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import { IsEnum, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { OBJECT_ID_PATTERN } from '../../../../common/dto/object-id';
+import { PaymentMethod } from '../../domain/order-status';
 
 const trim = ({ value }: { value: unknown }): unknown =>
   typeof value === 'string' ? value.trim() : value;
@@ -75,6 +76,31 @@ export class PlaceOrderDto {
   @Transform(trim)
   @MaxLength(500, { message: 'customerNote must not exceed 500 characters' })
   customerNote?: string;
+
+  @ApiPropertyOptional({
+    enum: PaymentMethod,
+    default: PaymentMethod.COD,
+    description:
+      'How the customer will pay (D01). COD is the default. WALLET and INSTAPAY are manual ' +
+      'transfers: the order starts PENDING_VERIFICATION and only an authorized admin approval ' +
+      'can mark it PAID — choosing one here, or sending transfer evidence, never pays an order.',
+  })
+  @IsOptional()
+  @IsEnum(PaymentMethod)
+  paymentMethod?: PaymentMethod;
+
+  @ApiPropertyOptional({
+    type: String,
+    maxLength: 64,
+    description:
+      'Required for WALLET/INSTAPAY: the wallet number or InstaPay account the transfer was ' +
+      'sent FROM. Recorded as verification evidence for the reviewing admin.',
+  })
+  @IsOptional()
+  @IsString()
+  @Transform(trim)
+  @MaxLength(64, { message: 'transferSender must not exceed 64 characters' })
+  transferSender?: string;
 }
 
 /**

@@ -51,17 +51,43 @@ export const ORDER_STATUSES: readonly OrderStatus[] = Object.values(OrderStatus)
  */
 export enum PaymentStatus {
   PENDING = 'PENDING',
+  /**
+   * A manual Wallet/InstaPay transfer has been claimed by the customer and
+   * is waiting for an authorized admin to verify it (owner decisions
+   * D01/D03). This is NOT paid: no revenue, no fulfilment-as-paid treatment.
+   * Only `PaymentVerificationService.approve` may move it to PAID.
+   */
+  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
+  /**
+   * An admin reviewed a manual transfer and rejected it. Never means paid.
+   * The customer may resubmit evidence, which returns the order to
+   * PENDING_VERIFICATION (D03).
+   */
+  VERIFICATION_REJECTED = 'VERIFICATION_REJECTED',
   PAID = 'PAID',
   REFUNDED = 'REFUNDED',
 }
 
 /**
- * Cash on Delivery is the only method in the MVP, and the enum has one member
- * so a client renders the payment section from data rather than from an
- * assumption baked into its UI.
+ * The approved payment methods (D01): Cash on Delivery, plus manual
+ * electronic wallet and InstaPay transfers with mandatory authorized admin
+ * verification. No online gateway exists in this scope. The enum is data a
+ * client renders from, not an assumption baked into its UI.
  */
 export enum PaymentMethod {
   COD = 'COD',
+  WALLET = 'WALLET',
+  INSTAPAY = 'INSTAPAY',
+}
+
+/** True for the methods that go through manual admin verification. */
+export function isManualTransfer(method: PaymentMethod): boolean {
+  return method === PaymentMethod.WALLET || method === PaymentMethod.INSTAPAY;
+}
+
+/** The payment status a newly placed order starts in, per method. */
+export function initialPaymentStatusFor(method: PaymentMethod): PaymentStatus {
+  return isManualTransfer(method) ? PaymentStatus.PENDING_VERIFICATION : PaymentStatus.PENDING;
 }
 
 /**
