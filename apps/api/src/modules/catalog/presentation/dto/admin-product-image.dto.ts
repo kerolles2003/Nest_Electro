@@ -4,6 +4,8 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsInt,
+  Min,
   IsBoolean,
   IsOptional,
   IsString,
@@ -103,6 +105,11 @@ export class ArrangeImageEntryDto {
 }
 
 export class ArrangeImagesDto {
+  @ApiProperty({ minimum: 0, description: 'imageVersion read with the displayed arrangement; stale requests return 409.' })
+  @IsInt()
+  @Min(0)
+  expectedVersion!: number;
+
   @ApiProperty({
     type: [ArrangeImageEntryDto],
     description:
@@ -126,16 +133,14 @@ export class HardDeleteResultDto {
 
   @ApiProperty({
     type: [String],
-    description: 'Assets that fell to zero references and were destroyed in the store.',
+    description: 'Empty: physical deletion requires a separate, fenced media cleanup request.',
   })
   imagesDestroyed!: string[];
 
   @ApiProperty({
     type: [String],
     description:
-      'Assets ANOTHER product still shows, and which were therefore left alone. This is what ' +
-      'reference counting is for — legacy destroyed the object regardless and the other ' +
-      'product rendered a broken image with no indication of why (W4).',
+      'Assets retained for shared references or a separate explicit fenced cleanup request.',
   })
   imagesKept!: string[];
 }

@@ -228,6 +228,7 @@ afterAll(async () => {
   }
 
   if (createdUserIds.length > 0) {
+    await auditLogs.deleteMany({ 'actor.id': { $in: createdUserIds } }).exec();
     await refreshTokens.deleteMany({ userId: { $in: createdUserIds } }).exec();
     await users.deleteMany({ _id: { $in: createdUserIds } }).exec();
   }
@@ -535,7 +536,7 @@ describe('POST /admin/catalog/products — what it refuses', () => {
 describe('POST /admin/catalog/products — the audit trail', () => {
   async function auditFor(productId: string) {
     return auditLogs
-      .find({ 'entity.type': AuditEntityType.PRODUCT, 'entity.id': new Types.ObjectId(productId) })
+      .find({ 'entity.type': AuditEntityType.PRODUCT, 'entity.id': new Types.ObjectId(productId), action: { $ne: AuditAction.ADMIN_MUTATION_REQUESTED } })
       .sort({ createdAt: 1 })
       .lean()
       .exec();
@@ -570,18 +571,18 @@ describe('POST /admin/catalog/products — the audit trail', () => {
     expect(row?.metadata).toMatchObject({ basePrice: 44000, isActive: false });
   });
 
-  it('writes NO audit row when the create is refused', async () => {
+  it('writes no SUCCESS row when create is refused; requested intent is not success', async () => {
     /*
      * The half that proves the guarantee can fail. Without it, an
      * implementation that audited before the write — or one whose refusals
      * happened to land after it — would be indistinguishable from a correct one.
      */
-    const before = await auditLogs.countDocuments({ 'entity.type': AuditEntityType.PRODUCT }).exec();
+    const before = await auditLogs.countDocuments({ 'entity.type': AuditEntityType.PRODUCT, action: { $ne: AuditAction.ADMIN_MUTATION_REQUESTED } }).exec();
 
     await create(uniqueProduct({ basePrice: 10000, salePrice: 10000 }), 400);
     await create(uniqueProduct({ categoryId: new Types.ObjectId().toHexString() }), 404);
 
-    expect(await auditLogs.countDocuments({ 'entity.type': AuditEntityType.PRODUCT }).exec()).toBe(before);
+    expect(await auditLogs.countDocuments({ 'entity.type': AuditEntityType.PRODUCT, action: { $ne: AuditAction.ADMIN_MUTATION_REQUESTED } }).exec()).toBe(before);
   });
 });
 

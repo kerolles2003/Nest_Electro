@@ -28,44 +28,25 @@ import { SCRATCH_DATABASE, SCRATCH_SUITE } from './origin';
 /**
  * The namespace this suite owns.
  *
- * Fixed rather than per-run, so a crashed run's residue is collected by the
- * NEXT run rather than being orphaned forever. Nothing but the browser journey
- * creates addresses in it.
+ * Prefix matching is safe only inside the freshly claimed run database.
+ * Previous runs are never adopted or cleaned.
  */
 export const E2E_EMAIL_PREFIX = 'e2e-journey';
 
 /**
  * Runs inside `apps/api`, where Mongoose resolves.
  *
- * Reads `MONGODB_URI` out of the API's own `.env` rather than taking it from
+ * Uses only the explicit test URI and current run capability inherited from
  * this process, and never prints it — it is a credential.
  */
 const CLEANUP = `
-const fs = require('node:fs');
-const path = require('node:path');
 const mongoose = require('mongoose');
-
-function readUri() {
-  if (process.env.MONGODB_URI) return process.env.MONGODB_URI;
-
-  for (const name of ['.env.local', '.env']) {
-    const file = path.join(process.cwd(), name);
-    if (!fs.existsSync(file)) continue;
-
-    for (const line of fs.readFileSync(file, 'utf8').split(/\\r?\\n/)) {
-      const match = /^\\s*MONGODB_URI\\s*=\\s*(.*)$/.exec(line);
-      if (match) return match[1].trim().replace(/^["']|["']$/g, '');
-    }
-  }
-
-  throw new Error('MONGODB_URI not found — cannot clean up after the e2e run');
-}
+const { readScratchRun, testServerUri, assertOwnedDatabase } = require('./dist/database/testing/scratch-run');
 
 (async () => {
-  // The suite's OWN database, overriding whatever the URI names. Passed in
-  // rather than derived, so this script and the API under test cannot end up
-  // cleaning and writing two different databases.
-  await mongoose.connect(readUri(), { dbName: process.env.MONGODB_DB_NAME });
+  const run = readScratchRun('storefront-e2e');
+  await mongoose.connect(testServerUri(), { dbName: run.database, autoCreate: false, autoIndex: false });
+  await assertOwnedDatabase(mongoose.connection.db, run);
   const db = mongoose.connection.db;
 
   const pattern = new RegExp('^' + process.env.E2E_EMAIL_PREFIX + '\\\\.');

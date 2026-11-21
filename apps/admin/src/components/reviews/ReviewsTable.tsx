@@ -1,9 +1,13 @@
 'use client';
 
+import { TableScroll } from '@/components/ui/admin';
+
+
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { Pagination, StatusBadge } from '@nest/ui';
+import { Pagination } from '@nest/ui';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { useToast } from '@nest/ui';
 import { updateReviewStatusAction, deleteReviewAction } from '@/actions/review.actions';
 import type { Review } from '@nest/types';
@@ -175,13 +179,14 @@ export function ReviewsTable({ initialReviews, currentPage, totalPages, total, s
   return (
     <div className="space-y-5">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="admin-metric-filters grid grid-cols-2 md:grid-cols-5 gap-3">
         {statItems.map((item) => {
           const Icon = item.icon;
           const isActive = statusFilter === item.filter || (!statusFilter && !item.filter);
           return (
             <button
               key={item.label}
+              aria-pressed={isActive}
               onClick={() => updateQueryParam('status', item.filter)}
               className={`relative overflow-hidden rounded-xl border ${isActive ? 'border-primary ring-1 ring-primary/30' : 'border-border'} bg-card p-3 text-left transition-all hover:shadow-md`}
             >
@@ -207,6 +212,7 @@ export function ReviewsTable({ initialReviews, currentPage, totalPages, total, s
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
+              aria-label="Search reviews by product or customer"
               placeholder="Search by product or customer..."
               value={searchInput}
               className="h-10 w-full rounded-lg border border-border bg-background pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none"
@@ -226,7 +232,7 @@ export function ReviewsTable({ initialReviews, currentPage, totalPages, total, s
               <div className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs">
                 <Filter className="h-3 w-3 text-muted-foreground shrink-0" />
                 <span className="text-muted-foreground font-medium shrink-0 hidden sm:inline">Status</span>
-                <select
+                <select aria-label="Review status"
                   value={statusFilter}
                   onChange={(e) => updateQueryParam('status', e.target.value)}
                   className="bg-transparent border-none focus:ring-0 cursor-pointer text-foreground font-semibold text-xs outline-none appearance-none pr-4 min-w-[80px]"
@@ -271,7 +277,7 @@ export function ReviewsTable({ initialReviews, currentPage, totalPages, total, s
 
       {/* Table */}
       <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <TableScroll>
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/30 border-b border-border">
@@ -388,7 +394,7 @@ export function ReviewsTable({ initialReviews, currentPage, totalPages, total, s
               )}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         <div className="px-5 py-3 border-t border-border bg-muted/20 flex flex-wrap items-center justify-between gap-3">
           <span className="text-xs text-muted-foreground">
             Showing <span className="font-semibold text-foreground">{reviews.length}</span> of <span className="font-semibold text-foreground">{total}</span> reviews

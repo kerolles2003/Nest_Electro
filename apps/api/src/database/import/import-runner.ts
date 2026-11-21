@@ -6,6 +6,7 @@ import type { Model, Types } from 'mongoose';
 import { Brand } from '../../modules/catalog/infrastructure/schemas/brand.schema';
 import { Category } from '../../modules/catalog/infrastructure/schemas/category.schema';
 import { Product } from '../../modules/catalog/infrastructure/schemas/product.schema';
+import { writeProductImages } from '../../modules/catalog/application/write-product-images';
 import { CoercionError, coerce, slugify } from './coerce';
 import type { ImportReport, RowResult } from './import-report';
 import type { ImportableField, MappingProfile } from './mapping-profile';
@@ -342,7 +343,7 @@ export class ImportRunner {
      * It stays idempotent because `ImageImporter` skips any product that
      * already has images.
      */
-    const images = await this.importImages(productId, existingImages, input);
+    const images = await this.importImages(productId, existingImages, input, (existing['imageVersion'] ?? 0) as number);
 
     if (!differs(existing, changes)) {
       return { line: input.line, key: input.key, outcome: 'unchanged', ...withImages(images) };
@@ -361,7 +362,7 @@ export class ImportRunner {
    * Returns `undefined` when images are not being imported at all, which is
    * what keeps `--images` invisible in the report unless it was asked for.
    *
-   * The write is a separate `updateOne` rather than part of the row's `$set`,
+   * The versioned write is separate from the row's `$set`,
    * because the upload has to happen AFTER the product exists — its `_id` is
    * the folder the assets are stored under (MEDIA-MODEL.md §6), so ownership is
    * a property of the path rather than of a join.
@@ -376,6 +377,7 @@ export class ImportRunner {
     productId: Types.ObjectId | null,
     existingImages: readonly { publicId: string }[],
     input: { mapped: MappedRow; mappedFields: ReadonlySet<ImportableField>; dryRun: boolean },
+    expectedVersion = 0,
   ): Promise<ImageImportResult | undefined> {
     if (this.images === undefined || !input.mappedFields.has('imagePaths')) {
       return undefined;
@@ -419,26 +421,19 @@ export class ImportRunner {
          * this is the path the owner's real catalogue arrives on.
          *
          * Nothing external is inside the transaction: every upload already
-         * happened in `importFor` above, and the rollback that destroys them is
-         * below, outside it (CONSISTENCY-MODEL.md §7).
+         * happened in `importFor` above. Failure retains uploaded bytes for
+         * explicit fenced cleanup; rollback does not destroy provider objects.
          */
         await media.transactions.run(async (session) => {
-          await this.models.products
-            .updateOne({ _id: productId }, { $set: { images } }, { session })
-            .exec();
+          await writeProductImages(this.models.products, productId, images, expectedVersion, session);
 
           await media.importer.retainAll(publicIds, session);
         });
       } catch (error) {
         /*
-         * The assets are already in Cloudinary and the product does not
-         * reference them, which is the definition of an orphan. Roll them back
-         * rather than leave the account paying for images nothing points at.
-         *
-         * Safe to destroy precisely because the transaction rolled back: the
-         * reference count is still zero, so `destroy` will not refuse. Before
-         * the transaction this handler covered only the product write, because
-         * a failure in `retainAll` left counts it could not reason about.
+         * A stale arrangement or failed retain aborts the whole transaction.
+         * Uploaded bytes remain for explicit fenced cleanup. Do not infer
+         * destructive authority from a failed import or delete shared media.
          */
         await media.importer.rollback(publicIds);
         throw error;

@@ -1,0 +1,519 @@
+{
+  "mockedDependencies": true,
+  "rows": [
+    {
+      "test": "coupon validation",
+      "value": "",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "coupons"
+        },
+        {
+          "method": "update",
+          "args": [
+            {
+              "code": "AUDIT",
+              "type": "percentage",
+              "value": 0,
+              "min_order": null,
+              "max_discount": null,
+              "usage_limit": 1,
+              "starts_at": "not-a-date",
+              "expires_at": "yesterday",
+              "is_active": true
+            }
+          ]
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "nonexistent"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "coupon validation",
+      "value": " ",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "coupons"
+        },
+        {
+          "method": "update",
+          "args": [
+            {
+              "code": "AUDIT",
+              "type": "percentage",
+              "value": 0,
+              "min_order": null,
+              "max_discount": null,
+              "usage_limit": 1,
+              "starts_at": "not-a-date",
+              "expires_at": "yesterday",
+              "is_active": true
+            }
+          ]
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "nonexistent"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "coupon validation",
+      "value": "abc",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "coupons"
+        },
+        {
+          "method": "update",
+          "args": [
+            {
+              "code": "AUDIT",
+              "type": "percentage",
+              "value": 0,
+              "min_order": null,
+              "max_discount": null,
+              "usage_limit": 1,
+              "starts_at": "not-a-date",
+              "expires_at": "yesterday",
+              "is_active": true
+            }
+          ]
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "nonexistent"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "coupon validation",
+      "value": "12oops",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "coupons"
+        },
+        {
+          "method": "update",
+          "args": [
+            {
+              "code": "AUDIT",
+              "type": "percentage",
+              "value": 12,
+              "min_order": null,
+              "max_discount": null,
+              "usage_limit": 1,
+              "starts_at": "not-a-date",
+              "expires_at": "yesterday",
+              "is_active": true
+            }
+          ]
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "nonexistent"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "coupon validation",
+      "value": "-1",
+      "result": {
+        "success": false,
+        "error": "value: Number must be greater than or equal to 0"
+      },
+      "calls": []
+    },
+    {
+      "test": "coupon validation",
+      "value": "101",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "coupons"
+        },
+        {
+          "method": "update",
+          "args": [
+            {
+              "code": "AUDIT",
+              "type": "percentage",
+              "value": 101,
+              "min_order": null,
+              "max_discount": null,
+              "usage_limit": 1,
+              "starts_at": "not-a-date",
+              "expires_at": "yesterday",
+              "is_active": true
+            }
+          ]
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "nonexistent"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "coupon validation",
+      "value": "1e309",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "coupons"
+        },
+        {
+          "method": "update",
+          "args": [
+            {
+              "code": "AUDIT",
+              "type": "percentage",
+              "value": null,
+              "min_order": null,
+              "max_discount": null,
+              "usage_limit": 1,
+              "starts_at": "not-a-date",
+              "expires_at": "yesterday",
+              "is_active": true
+            }
+          ]
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "nonexistent"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "coupon validation",
+      "value": "12.34",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "coupons"
+        },
+        {
+          "method": "update",
+          "args": [
+            {
+              "code": "AUDIT",
+              "type": "percentage",
+              "value": 12.34,
+              "min_order": null,
+              "max_discount": null,
+              "usage_limit": 1,
+              "starts_at": "not-a-date",
+              "expires_at": "yesterday",
+              "is_active": true
+            }
+          ]
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "nonexistent"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "delete nonexistent coupon",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "coupons"
+        },
+        {
+          "method": "delete",
+          "args": []
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "not-an-id"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "delete nonexistent review",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "reviews"
+        },
+        {
+          "method": "delete",
+          "args": []
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "not-an-id"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "moderate nonexistent review",
+      "result": {
+        "success": true
+      },
+      "calls": [
+        {
+          "table": "reviews"
+        },
+        {
+          "method": "update",
+          "args": [
+            {
+              "moderation_status": "approved"
+            }
+          ]
+        },
+        {
+          "method": "eq",
+          "args": [
+            "id",
+            "00000000-0000-4000-8000-000000000001"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "product price normalization",
+      "value": "",
+      "result": {
+        "ok": true,
+        "product": {
+          "id": "000000000000000000000030"
+        }
+      },
+      "calls": [
+        {
+          "api": "createProduct",
+          "args": [
+            {
+              "sku": "AUDIT",
+              "slug": "audit",
+              "name": {
+                "en": "Audit",
+                "ar": null
+              },
+              "shortDescription": null,
+              "description": null,
+              "categoryId": "000000000000000000000010",
+              "brandId": null,
+              "basePrice": 0,
+              "salePrice": null,
+              "costPrice": null,
+              "specs": [],
+              "seo": null,
+              "weight": null,
+              "dimensions": null,
+              "isFeatured": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "test": "product price normalization",
+      "value": "abc",
+      "result": {
+        "ok": true,
+        "product": {
+          "id": "000000000000000000000030"
+        }
+      },
+      "calls": [
+        {
+          "api": "createProduct",
+          "args": [
+            {
+              "sku": "AUDIT",
+              "slug": "audit",
+              "name": {
+                "en": "Audit",
+                "ar": null
+              },
+              "shortDescription": null,
+              "description": null,
+              "categoryId": "000000000000000000000010",
+              "brandId": null,
+              "basePrice": 0,
+              "salePrice": null,
+              "costPrice": null,
+              "specs": [],
+              "seo": null,
+              "weight": null,
+              "dimensions": null,
+              "isFeatured": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "test": "product price normalization",
+      "value": "12oops",
+      "result": {
+        "ok": true,
+        "product": {
+          "id": "000000000000000000000030"
+        }
+      },
+      "calls": [
+        {
+          "api": "createProduct",
+          "args": [
+            {
+              "sku": "AUDIT",
+              "slug": "audit",
+              "name": {
+                "en": "Audit",
+                "ar": null
+              },
+              "shortDescription": null,
+              "description": null,
+              "categoryId": "000000000000000000000010",
+              "brandId": null,
+              "basePrice": 1200,
+              "salePrice": null,
+              "costPrice": null,
+              "specs": [],
+              "seo": null,
+              "weight": null,
+              "dimensions": null,
+              "isFeatured": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "test": "product price normalization",
+      "value": "1e309",
+      "result": {
+        "ok": true,
+        "product": {
+          "id": "000000000000000000000030"
+        }
+      },
+      "calls": [
+        {
+          "api": "createProduct",
+          "args": [
+            {
+              "sku": "AUDIT",
+              "slug": "audit",
+              "name": {
+                "en": "Audit",
+                "ar": null
+              },
+              "shortDescription": null,
+              "description": null,
+              "categoryId": "000000000000000000000010",
+              "brandId": null,
+              "basePrice": 0,
+              "salePrice": null,
+              "costPrice": null,
+              "specs": [],
+              "seo": null,
+              "weight": null,
+              "dimensions": null,
+              "isFeatured": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "test": "product price normalization",
+      "value": "12.345",
+      "result": {
+        "ok": true,
+        "product": {
+          "id": "000000000000000000000030"
+        }
+      },
+      "calls": [
+        {
+          "api": "createProduct",
+          "args": [
+            {
+              "sku": "AUDIT",
+              "slug": "audit",
+              "name": {
+                "en": "Audit",
+                "ar": null
+              },
+              "shortDescription": null,
+              "description": null,
+              "categoryId": "000000000000000000000010",
+              "brandId": null,
+              "basePrice": 1235,
+              "salePrice": null,
+              "costPrice": null,
+              "specs": [],
+              "seo": null,
+              "weight": null,
+              "dimensions": null,
+              "isFeatured": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "test": "actor refusal before data access",
+      "error": "DENIED",
+      "calls": []
+    }
+  ]
+}

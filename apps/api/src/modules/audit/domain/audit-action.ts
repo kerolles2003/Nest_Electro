@@ -17,6 +17,7 @@
  * customer logins are all excluded by that test and are excluded here.
  */
 export enum AuditAction {
+  ADMIN_MUTATION_REQUESTED = 'ADMIN_MUTATION_REQUESTED',
   // ---- Order interventions (§3) -----------------------------------------
   /**
    * An operator moved an order through the lifecycle.
@@ -72,6 +73,7 @@ export enum AuditAction {
   BRAND_UPDATED = 'BRAND_UPDATED',
   BRAND_DELETED = 'BRAND_DELETED',
   BRAND_RESTORED = 'BRAND_RESTORED',
+  MEDIA_DELETE_REQUESTED = 'MEDIA_DELETE_REQUESTED',
   MEDIA_DELETED = 'MEDIA_DELETED',
 
   // ---- Inventory (§3) ----------------------------------------------------

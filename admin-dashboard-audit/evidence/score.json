@@ -1,0 +1,159 @@
+{
+  "categories": [
+    [
+      "Functional Correctness",
+      3,
+      "A01, A03, A07"
+    ],
+    [
+      "Navigation & Information Architecture",
+      7,
+      "A08, A15"
+    ],
+    [
+      "Authentication",
+      6,
+      "A13, A14, A15"
+    ],
+    [
+      "Authorization & Permissions",
+      5,
+      "A04; real enforcement integration blocked"
+    ],
+    [
+      "Security",
+      3,
+      "A02, A04, A11"
+    ],
+    [
+      "Data Integrity",
+      4,
+      "A05, A06, A10"
+    ],
+    [
+      "Error Handling",
+      5,
+      "A06, A12, A22"
+    ],
+    [
+      "Failure Resilience",
+      4,
+      "A03, A12, A16"
+    ],
+    [
+      "Concurrency / Race Conditions",
+      3,
+      "A05, A14"
+    ],
+    [
+      "Forms & Validation",
+      5,
+      "A07, A09, A19"
+    ],
+    [
+      "Tables / Search / Filtering",
+      6,
+      "A08, A20, A21"
+    ],
+    [
+      "CRUD Workflows",
+      3,
+      "A01, A03, A10"
+    ],
+    [
+      "UX / Usability",
+      6,
+      "A08, A19, A22"
+    ],
+    [
+      "Visual Design",
+      8,
+      "A17; strong Concept 03 match"
+    ],
+    [
+      "Design System Consistency",
+      8,
+      "Legacy controls and fine text remain inconsistent"
+    ],
+    [
+      "Responsive Design",
+      8,
+      "153 checks without document overflow; table scrolling remains necessary"
+    ],
+    [
+      "Accessibility",
+      7,
+      "A17, A18; automated pass is not full conformance"
+    ],
+    [
+      "Performance",
+      6,
+      "A16, A20; limited fixture benchmark"
+    ],
+    [
+      "API Efficiency",
+      6,
+      "Legacy serial counts and redundant product count requests"
+    ],
+    [
+      "State Management / Caching",
+      5,
+      "A05, A08, A21"
+    ],
+    [
+      "Loading / Empty / Error States",
+      7,
+      "A03, A12; otherwise explicit fallbacks"
+    ],
+    [
+      "Browser Stability",
+      6,
+      "A03, A07, A12"
+    ],
+    [
+      "Testing & Test Coverage",
+      4,
+      "A01; successful real CRUD/role/concurrency suite unavailable"
+    ],
+    [
+      "Maintainability",
+      6,
+      "Centralized clients/primitives, but split legacy contracts and broad CSS overrides"
+    ],
+    [
+      "Production Readiness",
+      2,
+      "A01, A02, A03, A05, A06"
+    ]
+  ],
+  "weights": {
+    "Security": 10,
+    "Authorization & Permissions": 10,
+    "Functional Correctness": 10,
+    "Data Integrity": 8,
+    "UX / Usability": 7,
+    "Performance": 7,
+    "Responsive Design": 5,
+    "Accessibility": 5,
+    "Failure Resilience": 6,
+    "Maintainability": 5,
+    "Testing & Test Coverage": 7,
+    "Visual Design": 5,
+    "Navigation & Information Architecture": 4,
+    "Forms & Validation": 3,
+    "Tables / Search / Filtering": 3,
+    "State Management / Caching": 3,
+    "Browser Stability": 2,
+    "Loading / Empty / Error States": 3
+  },
+  "weightTotal": 103,
+  "weighted": 532,
+  "exact": 5.165048543689321,
+  "rounded": "5.2",
+  "counts": {
+    "P0": 1,
+    "P1": 5,
+    "P2": 14,
+    "P3": 2
+  }
+}

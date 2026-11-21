@@ -465,6 +465,7 @@ export interface AdminProductPricing {
 }
 
 export interface AdminProduct {
+  imageVersion: number;
   id: string;
   sku: string;
   slug: string;

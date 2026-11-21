@@ -550,7 +550,7 @@ export class AdminProductsController {
     type: ErrorResponseDto,
     description: 'PRODUCT_NOT_FOUND. PRODUCT_IMAGE_NOT_FOUND.',
   })
-  @ApiConflictResponse({ type: ErrorResponseDto, description: 'PRODUCT_DELETED.' })
+  @ApiConflictResponse({ type: ErrorResponseDto, description: 'PRODUCT_DELETED or CONCURRENT_MODIFICATION (stale expectedVersion); reload the arrangement.' })
   async arrangeImages(
     @Param() params: EntityIdParamDto,
     @Body() body: ArrangeImagesDto,
@@ -560,7 +560,7 @@ export class AdminProductsController {
     const updated = await this.images.arrange(new Types.ObjectId(params.id), body.images, {
       actorId: new Types.ObjectId(user.id),
       forensics,
-    });
+    }, body.expectedVersion);
 
     return { data: AdminProductDto.from(updated) };
   }
@@ -570,28 +570,13 @@ export class AdminProductsController {
   @Delete(':id/permanent')
   @Roles(Role.SUPER_ADMIN)
   @ApiOperation({
-    summary: 'Destroy a product permanently, and its images with it',
+    summary: 'Permanently delete a never-ordered product; retain media for explicit cleanup',
     description: [
-      'CATALOG-MODEL.md §9: "Hard delete exists only as a `SUPER_ADMIN` operation for a product',
-      '**never referenced by any order**, and it destroys the associated Cloudinary assets."',
-      'Every clause of that sentence is a separate guard.',
-      '',
-      '**SUPER_ADMIN only** — an ADMIN gets 403 here and 200 on the soft delete beside it.',
-      '',
-      '**Never ordered.** Orders embed product snapshots, so the commercial record survives',
-      'regardless — but every line keeps `productId` for traceability and reorder, and destroying',
-      'the document turns that into a dangling id that analytics and the reorder button both',
-      'follow to nothing. A referenced product is refused with a count, and soft delete is the',
-      'answer for it. That is what soft delete is for.',
-      '',
-      '**The images are destroyed — except the ones another product is showing.** Each is',
-      'released; only those that fall to zero references are destroyed in the store. Legacy',
-      'destroyed the object regardless of who else pointed at it, and the surviving product',
-      'rendered a broken image with no indication of why (W4). The response names both lists.',
-      '',
-      'The product’s `slugRedirects` rows are removed here and ONLY here: a soft delete keeps',
-      'them because the product is coming back, and this is the one operation after which the',
-      'destination genuinely no longer exists.',
+      'SUPER_ADMIN only. Ordered products must be archived instead.',
+      'Order-reference checks, deletion, image releases and audit evidence commit atomically.',
+      'Checkout writes the same product and conflicts safely with deletion.',
+      'Image bytes are retained. Explicit media cleanup separately claims unreferenced assets.',
+      'Slug redirects are removed in the same transaction. Soft deletion retains them.',
     ].join('\n'),
   })
   @ApiOkResponse({ type: HardDeleteResponseDto })

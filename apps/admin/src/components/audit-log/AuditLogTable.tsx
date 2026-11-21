@@ -167,8 +167,7 @@ export function AuditLogTable({ logs, actions, currentPage, totalPages, total }:
             Said rather than left to be discovered by an operator typing into a
             search box that is not there.
           */}
-          Filtered by action, entity and person — each served by an index. There is no free-text
-          search: no index answers one, and it would read two years of records per keystroke.
+          Filter by action or entity. Select a team member on any entry to see their activity.
         </p>
       </div>
 

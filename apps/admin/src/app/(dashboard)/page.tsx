@@ -1,595 +1,453 @@
-import { requireAdmin, getDashboardStats } from '@/lib/services';
-import { tryApi } from '@/lib/api/client';
-import * as api from '@/lib/api/endpoints';
-import { orderStatusCounts } from '@/lib/api/order-stats';
-import { DASHBOARD_WINDOWS, type DashboardWindowKey } from '@/lib/api/types';
-import Link from 'next/link';
-import { Suspense } from 'react';
+import Link from "next/link";
+import { Suspense } from "react";
 import {
-  Package, ShoppingBag, AlertTriangle, Users, Clock,
-  ArrowUpRight, Eye, Activity, CheckCircle2, Banknote,
-} from 'lucide-react';
+  Package,
+  ShoppingBag,
+  AlertTriangle,
+  Clock,
+  ArrowUpRight,
+  CheckCircle2,
+  Banknote,
+  Warehouse,
+} from "lucide-react";
+import { Button } from "@nest/ui";
+import { StatusBadge } from "@/components/ui/status-badge";
+import {
+  PageHeader,
+  SectionHeader,
+  AdminCard,
+  StatCard,
+  TableScroll,
+  ChartContainer,
+  ActivityItem,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/ui/admin";
+import { requireAdmin, getDashboardStats } from "@/lib/services";
+import { tryApi } from "@/lib/api/client";
+import * as api from "@/lib/api/endpoints";
+import { orderStatusCounts, ORDER_STATUSES } from "@/lib/api/order-stats";
+import { DASHBOARD_WINDOWS, type DashboardWindowKey } from "@/lib/api/types";
 
-/**
- * The dashboard.
- *
- * ## Its order numbers come from the API. All of them.
- *
- * Every order figure here used to be a Supabase query over the LEGACY tables —
- * total orders, pending orders, revenue, top products by units sold, the eight
- * most recent orders, and a status breakdown. The storefront has placed orders
- * through the API since T2, so those rows are discarded (D-6): the numbers were
- * stale or zero, and every row in "Recent Orders" linked to
- * `/orders/<supabase-uuid>`, which the API-backed detail page refuses because
- * it is not a 24-character hex id. It was a legacy-orders view in the most
- * literal sense — a table of orders nobody can act on.
- *
- * ## Two panels were removed rather than repointed
- *
- * **Total Revenue.** No API endpoint aggregates it, and the alternatives print
- * a number that is wrong. Replaced by "Awaiting confirmation", which is a real
- * count and is also the thing an operator opening this page actually needs.
- *
- * **Top Products by units sold.** Its only source was a join through
- * `order_items`, which is discarded, and the API has no sales-ranking endpoint.
- * A panel that can only be filled from a table nobody trusts is better absent
- * than plausible.
- *
- * ## Revenue is a trailing window, 30 days by default
- *
- * "Delivered revenue, last 30 days" is a question an operator has. "Since the
- * shop opened" is a number that only goes up and cannot be compared to
- * anything. All-time is still one click away — and it is also the query that
- * reads every order in the collection, so it is the right thing to ask for
- * deliberately rather than the right default.
- *
- * The picker governs the REVENUE tile and nothing else, and says so. The queue
- * counts beside it are deliberately unbounded: an order placed forty days ago
- * and still awaiting confirmation is precisely the one an operator must not
- * stop seeing because a period rolled over.
- *
- * The caption under the figure is the SERVER's `window.label`, printed
- * verbatim. A screen that formats its own period label is a screen that can
- * print "last 30 days" over a 90-day number.
- */
-import { StatusBadge, Card, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@nest/ui';
-
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                           */
-/* ------------------------------------------------------------------ */
-
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good Morning';
-  if (hour < 17) return 'Good Afternoon';
-  return 'Good Evening';
-}
-
-function formatRelativeTime(dateString: string) {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-/*
- * `formatCurrency` was here. It abbreviated a summed revenue figure to "EGP
- * 1.2M" — and nothing computes revenue any more, because no API endpoint
- * aggregates it and the Supabase sum was over discarded rows.
- *
- * It is deleted rather than left for later. Every money value this console
- * shows now comes pre-formatted from the server (`Money.formatted`), which is
- * the only way the console and the invoice cannot disagree about rounding.
- */
-function formatNumber(value: number) {
-  return value.toLocaleString('en-EG');
-}
-
-/* ------------------------------------------------------------------ */
-/*  The trailing window                                               */
-/* ------------------------------------------------------------------ */
-
-/**
- * What the operator picks between.
- *
- * The captions on the tiles are NOT written here — they come back from the
- * server in `data.window.label`. These are only the names on the buttons, and
- * they are short because a button is not a sentence.
- */
 const WINDOW_LABELS: Record<DashboardWindowKey, string> = {
-  '30d': '30 days',
-  '90d': '90 days',
-  all: 'All time',
+  "30d": "30 days",
+  "90d": "90 days",
+  all: "All time",
 };
-
-/**
- * The window asked for, or `undefined` to take the server's default.
- *
- * An unrecognised `?window=` is dropped rather than passed on. The API would
- * answer it with a 400, which is right for a client and wrong for a person who
- * edited a URL: the dashboard should render.
- */
-function requestedWindow(raw: string | string[] | undefined): DashboardWindowKey | undefined {
+function requestedWindow(
+  raw: string | string[] | undefined,
+): DashboardWindowKey | undefined {
   const value = Array.isArray(raw) ? raw[0] : raw;
-
   return DASHBOARD_WINDOWS.includes(value as DashboardWindowKey)
     ? (value as DashboardWindowKey)
     : undefined;
 }
-
-/**
- * The picker, and the sentence that says what it governs.
- *
- * That sentence matters as much as the buttons. The queue tiles beside it —
- * awaiting confirmation, ready to ship, delivery failed — are deliberately NOT
- * windowed: an order placed forty days ago and still unconfirmed is exactly the
- * one an operator must not stop seeing. So the picker names its own scope
- * rather than letting the reader assume it covers the row.
- */
+function getGreeting() {
+  const hour = new Date().getHours();
+  return hour < 12
+    ? "Good morning"
+    : hour < 17
+      ? "Good afternoon"
+      : "Good evening";
+}
+function formatRelativeTime(value: string) {
+  const date = new Date(value);
+  const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1440) return `${Math.floor(mins / 60)}h ago`;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 function WindowPicker({ active }: { active: DashboardWindowKey | null }) {
   return (
-    <div className="flex flex-col items-start gap-1 md:items-end">
-      <div className="inline-flex rounded-lg border border-border bg-card p-0.5">
-        {DASHBOARD_WINDOWS.map((key) => {
-          const selected = key === active;
-
-          return (
-            <Link
-              key={key}
-              href={`/?window=${key}`}
-              aria-current={selected ? 'true' : undefined}
-              className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-                selected
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-surface-high'
-              }`}
-            >
-              {WINDOW_LABELS[key]}
-            </Link>
-          );
-        })}
-      </div>
-      <p className="text-[10px] text-foreground-subtle">
+    <div className="space-y-2">
+      <nav
+        aria-label="Revenue period"
+        className="inline-flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1"
+      >
+        {DASHBOARD_WINDOWS.map((key) => (
+          <Link
+            key={key}
+            href={`/?window=${key}`}
+            aria-current={key === active ? "true" : undefined}
+            className={`rounded-md px-3 py-2 text-xs ${key === active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+          >
+            {WINDOW_LABELS[key]}
+          </Link>
+        ))}
+      </nav>
+      <p className="text-xs text-muted-foreground">
         Applies to revenue only. The queue counts are live and unbounded.
       </p>
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ */
-/*  Async Components (streamed via Suspense)                          */
-/* ------------------------------------------------------------------ */
-
-/** `PRODUCT_PRICE_CHANGED` → `Product price changed`. */
-function humaniseAction(action: string): string {
-  const words = action.toLowerCase().split('_');
-  const first = words[0] ?? '';
-
-  return [first.charAt(0).toUpperCase() + first.slice(1), ...words.slice(1)].join(' ');
-}
-
-/**
- * The real audit trail, eight most recent.
- *
- * ## What this replaced, and why it was worse than empty
- *
- * Supabase `admin_audit_logs` — a table with zero rows that can no longer
- * receive any, because its `admin_id` has a foreign key to Supabase `profiles`
- * and the acting admin is an API account. The panel rendered "No recent
- * activity" on a console where an operator had just confirmed three orders.
- *
- * A panel that says nothing happened is not neutral. It is a claim, and it was
- * false every time it was read.
- */
 async function ActivityFeed() {
   const result = await tryApi(() => api.listAuditLogs({ limit: 8 }));
-
   return (
-    <Card>
-      <CardHeader className="py-3 flex flex-row items-center justify-between">
-        <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-          <Activity className="h-4 w-4 text-primary" />
-          Recent Activity
-        </CardTitle>
-        <Link href="/audit-log" className="text-xs font-semibold text-primary hover:text-primary-hover transition-colors flex items-center gap-1">
-          Audit log <ArrowUpRight className="h-3 w-3" />
-        </Link>
-      </CardHeader>
-      <div className="px-0">
-        {!result.ok && (
-          /*
-            NOT "no recent activity". The trail could not be read, and saying
-            nothing happened because a request failed is the exact lie this
-            panel used to tell every time it rendered.
-          */
-          <div className="flex flex-col items-center justify-center py-8 text-center px-5">
-            <AlertTriangle className="h-6 w-6 text-destructive/60 mb-2" />
-            <p className="text-xs font-medium text-foreground">Activity could not be loaded</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{result.error.message}</p>
-          </div>
-        )}
-
-        {result.ok && result.data.data.length > 0 && (
-          <div className="divide-y divide-border">
-            {result.data.data.map((entry) => (
-              <div key={entry.id} className="flex items-start gap-3 px-5 py-2.5 hover:bg-surface-high/30 transition-colors duration-150">
-                <div className="mt-0.5 rounded-full p-1.5 shrink-0 bg-purple/10">
-                  <Activity className="h-3 w-3 text-purple" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-foreground truncate">
-                    {humaniseAction(entry.action)}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    {entry.entity.label} · {entry.actor.name}
-                  </p>
-                  <p className="text-[10px] text-foreground-subtle mt-0.5">
-                    {formatRelativeTime(entry.createdAt)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {result.ok && result.data.data.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-8 text-center px-5">
-            <Clock className="h-6 w-6 text-muted-foreground/40 mb-2" />
-            <p className="text-xs font-medium text-muted-foreground">No recent activity</p>
-          </div>
-        )}
-      </div>
-    </Card>
+    <AdminCard>
+      <SectionHeader
+        title="Recent activity"
+        description="The people and actions behind your store."
+        action={
+          <Link href="/audit-log" className="admin-link">
+            Audit log <ArrowUpRight size={14} />
+          </Link>
+        }
+      />
+      {!result.ok ? (
+        <ErrorState
+          title="Activity could not be loaded"
+          description={result.error.message}
+        />
+      ) : result.data.data.length === 0 ? (
+        <EmptyState
+          title="No recent activity"
+          description="Administrative actions will appear here as your team works."
+        />
+      ) : (
+        <ol className="admin-activity-list">
+          {result.data.data.map((entry) => (
+            <ActivityItem
+              key={entry.id}
+              title={
+                entry.action.charAt(0) +
+                entry.action.slice(1).toLowerCase().replace(/_/g, " ")
+              }
+              description={
+                <>
+                  {entry.entity.label} · {entry.actor.name}
+                </>
+              }
+              time={formatRelativeTime(entry.createdAt)}
+            />
+          ))}
+        </ol>
+      )}
+    </AdminCard>
   );
 }
-
-function ActivitySkeleton() {
-  return (
-    <Card>
-      <CardHeader className="py-3">
-        <div className="h-4 w-32 bg-muted rounded animate-pulse" />
-      </CardHeader>
-      <div className="px-5 pb-4 space-y-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex items-start gap-3">
-            <div className="h-6 w-6 rounded-full bg-muted shrink-0 animate-pulse" />
-            <div className="flex-1 space-y-1.5">
-              <div className="h-3 w-3/4 bg-muted rounded animate-pulse" />
-              <div className="h-2.5 w-1/2 bg-muted rounded animate-pulse" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Page                                                              */
-/* ------------------------------------------------------------------ */
 
 export default async function AdminPage(props: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireAdmin();
-
+  const identity = await requireAdmin();
   const sp = await props.searchParams;
-  const window = requestedWindow(sp['window']);
-
+  const window = requestedWindow(sp["window"]);
+  // Preserve the existing request boundaries and server-owned money formatting.
   const [stats, orderCounts, recentOrders] = await Promise.all([
     getDashboardStats(window),
     orderStatusCounts(),
     tryApi(() => api.listOrders({ limit: 8 })),
   ]);
-
-  const now = new Date();
-  const currentDate = now.toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+  const show = (value: number | null | undefined) =>
+    value == null ? "—" : value.toLocaleString("en-EG");
+  const placed = orderCounts.counts["PLACED"];
+  const ready = orderCounts.counts["CONFIRMED"];
+  const failed = orderCounts.counts["DELIVERY_FAILED"];
+  const peak = Math.max(
+    1,
+    ...Object.values(orderCounts.counts).filter((n): n is number => n !== null),
+  );
+  const date = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
-  /*
-   * `null` renders as an em dash, never as 0. A dashboard that says "0 orders"
-   * because a request failed is worse than one that admits it does not know.
-   */
-  const show = (value: number | null) => (value === null ? '—' : formatNumber(value));
-
-  const statItems = [
-    {
-      label: 'Delivered Revenue',
-      display: stats.revenue ? stats.revenue.delivered.formatted : '—',
-      icon: Banknote,
-      color: 'success' as const,
-      sub: stats.revenue
-        ? `${stats.revenue.deliveredCount} paid · ${stats.revenue.pipeline.formatted} pipeline`
-        : 'Counted at delivery',
-      /*
-       * Two facts, and both are the server's rather than this file's.
-       *
-       * The window label says "orders placed in…" because the bound is on
-       * `placedAt` while revenue is recognised at delivery — an order placed 32
-       * days ago and delivered yesterday is outside a 30-day figure. Printing
-       * the server's string is what stops this caption drifting from the query
-       * that produced the number above it.
-       */
-      caption: stats.window
-        ? `${stats.window.label}. Net of returns — recognised at delivery, removed retroactively if returned.`
-        : 'Net of returns: recognised at delivery, removed retroactively if returned.',
-    },
-    {
-      label: 'Total Orders',
-      display: show(orderCounts.total),
-      icon: ShoppingBag,
-      color: 'primary' as const,
-      // Explicitly all-time, so the picker above cannot be read as governing it.
-      sub: 'Across every status · all time',
-    },
-    {
-      label: 'Awaiting confirmation',
-      display: show(orderCounts.counts['PLACED'] ?? null),
-      icon: Clock,
-      color: 'warning' as const,
-      sub: 'Call the customer to confirm',
-    },
-    {
-      label: 'Ready to ship',
-      display: show(orderCounts.counts['CONFIRMED'] ?? null),
-      icon: CheckCircle2,
-      color: 'success' as const,
-      sub: 'Confirmed, not yet dispatched',
-    },
-    {
-      label: 'Delivery failed',
-      display: show(orderCounts.counts['DELIVERY_FAILED'] ?? null),
-      icon: AlertTriangle,
-      color: 'destructive' as const,
-      sub: 'Re-dispatch or return',
-    },
-    {
-      label: 'Products',
-      display: formatNumber(stats.productCount),
-      icon: Package,
-      color: 'purple' as const,
-      sub: stats.lowStock.length > 0 ? `${stats.lowStock.length} low stock` : 'All stocked',
-    },
-    {
-      label: 'Customers',
-      display: formatNumber(stats.customerCount),
-      icon: Users,
-      color: 'warning' as const,
-      sub: 'Registered accounts',
-    },
-  ];
-
-  const colorMap: Record<string, { bg: string; icon: string; border: string; glow: string; hoverBorder: string }> = {
-    success: { bg: 'bg-success/10', icon: 'text-success', border: 'border-success/20', glow: 'bg-success/20', hoverBorder: 'hover:border-success/50' },
-    primary: { bg: 'bg-primary/10', icon: 'text-primary', border: 'border-primary/20', glow: 'bg-primary/20', hoverBorder: 'hover:border-primary/50' },
-    purple: { bg: 'bg-purple/10', icon: 'text-purple', border: 'border-purple/20', glow: 'bg-purple/20', hoverBorder: 'hover:border-purple/50' },
-    warning: { bg: 'bg-warning/10', icon: 'text-warning', border: 'border-warning/20', glow: 'bg-warning/20', hoverBorder: 'hover:border-warning/50' },
-    destructive: { bg: 'bg-destructive/10', icon: 'text-destructive', border: 'border-destructive/20', glow: 'bg-destructive/20', hoverBorder: 'hover:border-destructive/50' },
-  };
-
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">{currentDate}</p>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground font-heading">{getGreeting()}, Admin</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Here&apos;s what&apos;s happening with Nest Electronics today.</p>
+    <div className="admin-page">
+      <PageHeader
+        context={date}
+        title={`${getGreeting()}${identity ? `, ${identity.fullName.split(" ")[0]}` : ""}.`}
+        description="A little clarity for a busy day at Nest."
+        actions={
+          <Button asChild>
+            <Link href="/orders">
+              <ShoppingBag className="mr-2 h-4 w-4" />
+              Manage Orders
+            </Link>
+          </Button>
+        }
+      />
+      <section className="admin-attention" aria-label="Needs attention">
+        <div className="admin-attention-intro">
+          <span className="admin-attention-icon">
+            <Warehouse size={20} />
+          </span>
+          <div>
+            <h2>
+              {placed == null || failed == null
+                ? "Start with your order queue."
+                : placed + failed > 0
+                  ? "A few things need your attention."
+                  : "Your order queue is in good shape."}
+            </h2>
+            <p>
+              {placed == null || failed == null
+                ? "Some queue counts are unavailable. Review orders for the latest details."
+                : `${show(placed)} awaiting confirmation · ${show(failed)} delivery failures to follow up.`}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-3 md:flex-row md:items-start shrink-0">
-          <WindowPicker active={stats.window?.key ?? null} />
-          <Link href="/orders" className="inline-flex h-fit items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover transition-colors shrink-0">
-            <ShoppingBag className="h-4 w-4" />
-            Manage Orders
-          </Link>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-7">
-        {statItems.map((stat) => {
-          const Icon = stat.icon;
-          const colors = colorMap[stat.color];
-          const displayValue = stat.display;
-          return (
-            <div key={stat.label} className={`group relative overflow-hidden rounded-xl border ${colors.border} bg-card/40 backdrop-blur-md p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated ${colors.hoverBorder}`}>
-              {/* Glow effect */}
-              <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full ${colors.glow} blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-100 opacity-40`} />
-              
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3">
-                  <div className={`rounded-xl p-2 ${colors.bg} ring-1 ring-inset ${colors.border}`}>
-                    <Icon className={`h-4 w-4 ${colors.icon}`} />
+        <Link href="/orders?status=PLACED" className="admin-link">
+          Review the queue <ArrowUpRight size={15} />
+        </Link>
+      </section>
+      <section className="admin-stats" aria-label="Store metrics">
+        <StatCard
+          tone="peach"
+          label="Delivered Revenue"
+          value={stats.revenue?.delivered.formatted ?? "—"}
+          icon={<Banknote />}
+          description={
+            <>
+              {stats.window?.label ?? "Period unavailable"}
+              <br />
+              {stats.revenue
+                ? `${stats.revenue.deliveredCount} paid orders`
+                : "Counted at delivery"}
+            </>
+          }
+        />
+        <StatCard
+          tone="sage"
+          label="Awaiting confirmation"
+          value={show(placed)}
+          icon={<Clock />}
+          description="Call the customer to confirm · all time"
+        />
+        <StatCard
+          tone="slate"
+          label="Ready to ship"
+          value={show(ready)}
+          icon={<CheckCircle2 />}
+          description="Confirmed, not yet dispatched · all time"
+        />
+        <StatCard
+          tone="rose"
+          label="Delivery failed"
+          value={show(failed)}
+          icon={<AlertTriangle />}
+          description="Re-dispatch or return · all time"
+        />
+      </section>
+      <div className="admin-overview">
+        <ChartContainer
+          title="The bigger picture"
+          description="Order status distribution · all time"
+          action={
+            <Link href="/orders" className="admin-link">
+              View orders <ArrowUpRight size={14} />
+            </Link>
+          }
+        >
+          <div
+            className="admin-status-chart"
+            role="group"
+            aria-label="All-time order counts by status"
+          >
+            {ORDER_STATUSES.map((status) => {
+              const count = orderCounts.counts[status];
+              return (
+                <div className="admin-status-row" key={status}>
+                  <span>
+                    {status.charAt(0) +
+                      status.slice(1).toLowerCase().replace(/_/g, " ")}
+                  </span>
+                  <div className="admin-status-track" aria-hidden="true">
+                    <span
+                      style={{
+                        width: `${count == null ? 0 : (count / peak) * 100}%`,
+                      }}
+                    />
                   </div>
+                  <strong>{show(count)}</strong>
                 </div>
-                <div>
-                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{stat.label}</p>
-                  <p className="text-2xl font-bold tracking-tight text-foreground mt-1 font-heading">{displayValue}</p>
-                  <p className="text-[11px] text-foreground-subtle mt-1 truncate font-medium">{stat.sub}</p>
-                  {stat.caption && (
-                    <p className="text-[10px] text-muted-foreground/80 mt-1 leading-tight">{stat.caption}</p>
-                  )}
-                </div>
+              );
+            })}
+          </div>
+          <div className="admin-catalog-summary">
+            <Link href="/orders">
+              <strong>{show(orderCounts.total)}</strong>Total Orders
+            </Link>
+            <Link href="/products">
+              <strong>{stats.products ? show(stats.productCount) : "—"}</strong>
+              Products
+            </Link>
+            <Link href="/customers">
+              <strong>
+                {stats.customers ? show(stats.customerCount) : "—"}
+              </strong>
+              Customers
+            </Link>
+          </div>
+        </ChartContainer>
+        <AdminCard>
+          <SectionHeader
+            title="Revenue, with context"
+            description={stats.window?.label ?? "Revenue unavailable"}
+          />
+          <div className="space-y-5 px-6 pb-6">
+            <WindowPicker active={stats.window?.key ?? null} />
+            <dl className="space-y-4">
+              <div className="flex flex-wrap justify-between gap-3 border-b border-border pb-4">
+                <dt className="text-sm text-muted-foreground">Delivered</dt>
+                <dd className="font-medium tabular-nums">
+                  {stats.revenue?.delivered.formatted ?? "—"}
+                </dd>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Main Grid */}
-      <div className="grid gap-5 lg:grid-cols-12">
-        {/* Left Column */}
-        <div className="lg:col-span-8 space-y-5">
-          {/* Recent Orders */}
-          <Card>
-            <CardHeader className="py-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                <Clock className="h-4 w-4 text-primary" />
-                Recent Orders
-              </CardTitle>
-              <Link href="/orders" className="text-xs font-semibold text-primary hover:text-primary-hover transition-colors flex items-center gap-1">
-                View all <ArrowUpRight className="h-3 w-3" />
-              </Link>
-            </CardHeader>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Items</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentOrders.ok &&
-                    recentOrders.data.data.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell>
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-mono text-[11px] font-bold text-primary">
-                              {order.orderNumber}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">
-                              {formatRelativeTime(order.placedAt)}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-xs text-foreground">
-                            {order.itemCount} line{order.itemCount === 1 ? '' : 's'}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          {/* The SERVER's formatted string. Never re-derived here. */}
-                          <span className="font-bold text-foreground text-xs tabular-nums font-mono">
-                            {order.pricing.grandTotal.formatted}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            <StatusBadge status={order.status} />
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Link href={`/orders/${order.id}`} className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold bg-surface-high text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                            <Eye className="h-3 w-3" /> View
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  {!recentOrders.ok && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="py-12 text-center">
-                        {/*
-                          NOT "no orders". The queue could not be read, and
-                          saying the shop has no orders because a request failed
-                          is the most expensive lie this console could tell.
-                        */}
-                        <div className="flex flex-col items-center gap-2">
-                          <AlertTriangle className="h-8 w-8 text-destructive/60" />
-                          <p className="text-sm font-medium text-foreground">
-                            Recent orders could not be loaded
-                          </p>
-                          <p className="text-xs text-muted-foreground">{recentOrders.error.message}</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {recentOrders.ok && recentOrders.data.data.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="py-12 text-center">
-                        <div className="flex flex-col items-center gap-2">
-                          <Package className="h-8 w-8 text-muted-foreground/40" />
-                          <p className="text-sm font-medium text-muted-foreground">No orders yet</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </Card>
-        </div>
-
-        {/* Right Column */}
-        <div className="lg:col-span-4 space-y-5">
-          {/* Low Stock Alerts */}
-          <Card>
-            <CardHeader className="py-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-warning" />
-                Low Stock
-              </CardTitle>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
-                {stats.lowStock.length}
-              </span>
-            </CardHeader>
-            <div>
-              {stats.lowStock.length > 0 ? (
-                <div className="divide-y divide-border">
-                  {stats.lowStock.map((item) => {
-                    const available = item.stock_quantity - (item.reserved_quantity ?? 0);
-                    return (
-                      <div key={item.sku} className="flex items-center justify-between px-5 py-2.5 hover:bg-surface-high/30 transition-colors duration-150 group">
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-xs font-semibold text-foreground truncate group-hover:text-warning transition-colors">{item.name_en}</span>
-                          <span className="text-[10px] text-foreground-subtle font-mono">{item.sku}</span>
-                        </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                          <div className="flex flex-col items-end">
-                            <span className="text-sm font-bold text-destructive tabular-nums font-mono">{available}</span>
-                            <span className="text-[9px] text-muted-foreground uppercase">available</span>
-                          </div>
-                          <Link href="/inventory" className="p-1 rounded-md hover:bg-surface-high transition-colors opacity-0 group-hover:opacity-100" title="Manage inventory">
-                            <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
-                          </Link>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center px-5">
-                  <Package className="h-6 w-6 text-success/60 mb-2" />
-                  <p className="text-xs font-medium text-muted-foreground">Stock levels are healthy</p>
-                </div>
-              )}
-            </div>
-            {stats.lowStock.length > 0 && (
-              <div className="px-5 py-2.5 border-t border-border">
-                <Link href="/inventory" className="w-full inline-flex items-center justify-center rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-semibold hover:bg-surface-high transition-colors">
-                  Manage Inventory
-                </Link>
+              <div className="flex flex-wrap justify-between gap-3">
+                <dt className="text-sm text-muted-foreground">Pipeline</dt>
+                <dd className="font-medium tabular-nums">
+                  {stats.revenue?.pipeline.formatted ?? "—"}
+                </dd>
               </div>
+            </dl>
+            <p className="text-xs text-muted-foreground">
+              Net of returns — recognised at delivery, removed retroactively if
+              returned.
+            </p>
+            {stats.revenue === null && (
+              <ErrorState
+                title="Revenue could not be loaded"
+                description="Try again to retrieve the selected period."
+              />
             )}
-          </Card>
-
-          {/*
-            "Top Products" was HERE and is deliberately gone.
-
-            Its only source was a join through `order_items` — legacy order
-            rows, discarded by D-6 — and the API has no sales-ranking endpoint.
-            The choice was between a panel filled from a table nobody trusts and
-            no panel; a plausible ranking of products by sales that never
-            happened is worse than an absence somebody notices.
-          */}
-
-          {/* Recent Activity — streamed via Suspense */}
-          <Suspense fallback={<ActivitySkeleton />}>
-            <ActivityFeed />
-          </Suspense>
+          </div>
+        </AdminCard>
+      </div>
+      <div className="admin-overview">
+        <div className="space-y-6">
+          <AdminCard>
+            <SectionHeader
+              title="Recent orders"
+              description="Every order, a new project in the making."
+              action={
+                <Link href="/orders" className="admin-link">
+                  View all <ArrowUpRight size={14} />
+                </Link>
+              }
+            />
+            {!recentOrders.ok ? (
+              <ErrorState
+                title="Recent orders could not be loaded"
+                description={recentOrders.error.message}
+              />
+            ) : recentOrders.data.data.length === 0 ? (
+              <EmptyState
+                title="No orders yet"
+                description="New customer orders will appear here. Your catalog is ready to explore."
+                action={
+                  <Link href="/products" className="admin-link">
+                    Review products <ArrowUpRight size={14} />
+                  </Link>
+                }
+              />
+            ) : (
+              <TableScroll label="Recent orders">
+                <table>
+                  <thead>
+                    <tr>
+                      <th className="px-6 text-left">Order</th>
+                      <th className="text-left">Items</th>
+                      <th className="text-right">Amount</th>
+                      <th className="px-4 text-left">Status</th>
+                      <th className="px-6 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {recentOrders.data.data.map((order) => (
+                      <tr key={order.id}>
+                        <td className="px-6">
+                          <Link
+                            href={`/orders/${order.id}`}
+                            className="font-medium text-primary"
+                          >
+                            {order.orderNumber}
+                          </Link>
+                          <p className="text-xs text-muted-foreground">
+                            {formatRelativeTime(order.placedAt)}
+                          </p>
+                        </td>
+                        <td>
+                          {order.itemCount} line
+                          {order.itemCount === 1 ? "" : "s"}
+                        </td>
+                        <td className="text-right tabular-nums whitespace-nowrap">
+                          {order.pricing.grandTotal.formatted}
+                        </td>
+                        <td className="px-4">
+                          <StatusBadge status={order.status} />
+                        </td>
+                        <td className="px-6 text-right">
+                          <Link
+                            href={`/orders/${order.id}`}
+                            className="admin-link"
+                          >
+                            View <ArrowUpRight size={14} />
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </TableScroll>
+            )}
+          </AdminCard>
+          <AdminCard>
+            <SectionHeader
+              title="Low stock"
+              description="A quick check before the next dispatch."
+              action={
+                <Link href="/inventory" className="admin-link">
+                  Manage Inventory <ArrowUpRight size={14} />
+                </Link>
+              }
+            />
+            {!stats.products ? (
+              <ErrorState
+                title="Stock levels could not be loaded"
+                description="Retry to check the inventory snapshot."
+              />
+            ) : stats.lowStock.length === 0 ? (
+              <EmptyState
+                title="Stock levels are healthy"
+                description="No products are currently below their stock threshold."
+                icon={<Package />}
+              />
+            ) : (
+              <ul className="divide-y divide-border">
+                {stats.lowStock.map((item) => (
+                  <li
+                    key={item.sku}
+                    className="flex items-center justify-between gap-4 px-6 py-4"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">{item.name_en}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.sku}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <strong className="text-destructive tabular-nums">
+                        {item.stock_quantity - (item.reserved_quantity ?? 0)}
+                      </strong>
+                      <p className="text-xs text-muted-foreground">available</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </AdminCard>
         </div>
+        <Suspense
+          fallback={<LoadingState title="Loading recent activity" rows={4} />}
+        >
+          <ActivityFeed />
+        </Suspense>
       </div>
     </div>
   );

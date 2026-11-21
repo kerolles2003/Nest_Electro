@@ -109,6 +109,9 @@ export class AdminProductStockDto {
 }
 
 export class AdminProductDto {
+  @ApiProperty({ minimum: 0 })
+  imageVersion!: number;
+
   @ApiProperty({ example: '652f1a9b3c4d5e6f7a8b9c0d' }) id!: string;
   @ApiProperty({ example: 'ESP32-WROOM-32' }) sku!: string;
   @ApiProperty({ example: 'esp32-devkit-v1' }) slug!: string;
@@ -199,6 +202,7 @@ export class AdminProductDto {
       },
       currency: product.currency,
       stock: { onHand: product.stock.onHand, lowStockThreshold: product.stock.lowStockThreshold },
+      imageVersion: product.imageVersion ?? 0,
       images: product.images.map((image) => ({
         publicId: image.publicId,
         version: image.version,

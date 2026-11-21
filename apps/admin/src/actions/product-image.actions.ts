@@ -168,10 +168,11 @@ export async function detachProductImageAction(
 export async function arrangeProductImagesAction(
   productId: string,
   images: { publicId: string; alt?: string | null; isPrimary?: boolean }[],
+  expectedVersion: number,
 ): Promise<ImageActionResult> {
   await requireAdminActor();
 
-  const res = await tryApi(() => api.arrangeProductImages(productId, images));
+  const res = await tryApi(() => api.arrangeProductImages(productId, images, expectedVersion));
 
   if (!res.ok) return { ok: false, error: operatorMessage(res.error) };
 

@@ -1,5 +1,8 @@
 'use client';
 
+import { AdminDialog } from '@/components/ui/admin-dialog';
+
+
 import { useState, useTransition } from 'react';
 import { X, Loader2, Minus, Plus, Box, AlertTriangle, CheckCircle2, PackagePlus, Wrench, Trash2 } from 'lucide-react';
 import { adjustStockAction } from '@/actions/inventory.actions';
@@ -89,7 +92,7 @@ export function InventoryAdjustDialog({ level, onClose, onAdjusted }: InventoryA
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <AdminDialog title="Adjust stock" onClose={onClose}>
       <div className="w-full max-w-md rounded-xl border border-border bg-card shadow-elevated">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
@@ -260,6 +263,6 @@ export function InventoryAdjustDialog({ level, onClose, onAdjusted }: InventoryA
           </button>
         </div>
       </div>
-    </div>
+    </AdminDialog>
   );
 }

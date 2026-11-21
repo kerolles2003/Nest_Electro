@@ -1,5 +1,8 @@
 'use client';
 
+import { TableScroll, StatCard } from '@/components/ui/admin';
+
+
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
@@ -45,9 +48,9 @@ interface CustomersTableProps {
   total: number;
   stats: {
     total: number;
-    newThisWeek: number;
+    newThisWeek: number | null;
     /** Customers who ordered INSIDE the window — not "have ever ordered". */
-    withOrders: number;
+    withOrders: number | null;
     /**
      * The SERVER's formatted money string, never an amount to format here.
      *
@@ -124,22 +127,11 @@ export function CustomersTable({ initialCustomers, orderMap, currentPage, totalP
   return (
     <div className="space-y-5">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         {statItems.map((item) => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="rounded-xl border border-border bg-card p-3">
-              <div className="flex items-center justify-between mb-2">
-                <div className={`rounded-lg p-1.5 bg-${item.color}/10`}>
-                  <Icon className={`h-3.5 w-3.5 text-${item.color}`} />
-                </div>
-              </div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{item.label}</p>
-              <p className="text-lg font-bold tracking-tight text-foreground mt-0.5">{item.value}</p>
-              {item.caption && (
-                <p className="text-[10px] text-foreground-subtle mt-0.5 leading-tight">{item.caption}</p>
-              )}
-            </div>
+            <StatCard key={item.label} label={item.label} value={item.value ?? "—"} icon={<Icon />} description={item.caption} tone="sage" />
           );
         })}
       </div>
@@ -151,6 +143,7 @@ export function CustomersTable({ initialCustomers, orderMap, currentPage, totalP
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
+              aria-label="Search customers by name or phone"
               placeholder="Search by name or phone..."
               value={searchInput}
               className="h-10 w-full rounded-lg border border-border bg-background pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none"
@@ -181,7 +174,7 @@ export function CustomersTable({ initialCustomers, orderMap, currentPage, totalP
 
       {/* Table */}
       <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <TableScroll>
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/30 border-b border-border">
@@ -254,7 +247,7 @@ export function CustomersTable({ initialCustomers, orderMap, currentPage, totalP
               )}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         <div className="px-5 py-3 border-t border-border bg-muted/20 flex flex-wrap items-center justify-between gap-3">
           <span className="text-xs text-muted-foreground">
             Showing <span className="font-semibold text-foreground">{initialCustomers.length}</span> of <span className="font-semibold text-foreground">{total}</span> customers

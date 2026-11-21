@@ -18,7 +18,7 @@
   Swagger UI is vendored alongside this file rather than loaded from a CDN,
   so the whole page works with no server and no network.
 -->
-<meta name="openapi-artifact-sha256" content="287d8159c9bb6af3d5801b1204607f3eac8be9f5b44026d8516c36007876a79e">
+<meta name="openapi-artifact-sha256" content="1405c3f5c6a94dc4113d60576e0023c2fa51403d387f7baf7184a5a770e296fc">
 <meta name="swagger-ui-version" content="5.17.14">
 <meta name="vendored-asset-sha256" content="swagger-ui-bundle.js c2e4a9ef08144839ff47c14202063ecfe4e59e70a4e7154a26bd50d880c88ba1">
 <meta name="vendored-asset-sha256" content="swagger-ui.css 40170f0ee859d17f92131ba707329a88a070e4f66874d11365e9a77d232f6117">
@@ -1045,6 +1045,7 @@
             "schema": {
               "type": "string",
               "enum": [
+                "ADMIN_MUTATION_REQUESTED",
                 "ORDER_STATUS_CHANGED",
                 "ORDER_PAYMENT_CHANGED",
                 "PRODUCT_PRICE_CHANGED",
@@ -1062,6 +1063,7 @@
                 "BRAND_UPDATED",
                 "BRAND_DELETED",
                 "BRAND_RESTORED",
+                "MEDIA_DELETE_REQUESTED",
                 "MEDIA_DELETED",
                 "INVENTORY_ADJUSTED",
                 "USER_ROLE_CHANGED",
@@ -3320,7 +3322,7 @@
             }
           },
           "409": {
-            "description": "PRODUCT_DELETED.",
+            "description": "PRODUCT_DELETED or CONCURRENT_MODIFICATION (stale expectedVersion); reload the arrangement.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3343,7 +3345,7 @@
     },
     "/api/v1/admin/catalog/products/{id}/permanent": {
       "delete": {
-        "description": "CATALOG-MODEL.md §9: \"Hard delete exists only as a `SUPER_ADMIN` operation for a product\n**never referenced by any order**, and it destroys the associated Cloudinary assets.\"\nEvery clause of that sentence is a separate guard.\n\n**SUPER_ADMIN only** — an ADMIN gets 403 here and 200 on the soft delete beside it.\n\n**Never ordered.** Orders embed product snapshots, so the commercial record survives\nregardless — but every line keeps `productId` for traceability and reorder, and destroying\nthe document turns that into a dangling id that analytics and the reorder button both\nfollow to nothing. A referenced product is refused with a count, and soft delete is the\nanswer for it. That is what soft delete is for.\n\n**The images are destroyed — except the ones another product is showing.** Each is\nreleased; only those that fall to zero references are destroyed in the store. Legacy\ndestroyed the object regardless of who else pointed at it, and the surviving product\nrendered a broken image with no indication of why (W4). The response names both lists.\n\nThe product’s `slugRedirects` rows are removed here and ONLY here: a soft delete keeps\nthem because the product is coming back, and this is the one operation after which the\ndestination genuinely no longer exists.",
+        "description": "SUPER_ADMIN only. Ordered products must be archived instead.\nOrder-reference checks, deletion, image releases and audit evidence commit atomically.\nCheckout writes the same product and conflicts safely with deletion.\nImage bytes are retained. Explicit media cleanup separately claims unreferenced assets.\nSlug redirects are removed in the same transaction. Soft deletion retains them.",
         "operationId": "AdminProductsController_hardDelete_v1",
         "parameters": [
           {
@@ -3414,7 +3416,7 @@
             "bearer": []
           }
         ],
-        "summary": "Destroy a product permanently, and its images with it",
+        "summary": "Permanently delete a never-ordered product; retain media for explicit cleanup",
         "tags": [
           "admin · catalogue"
         ]
@@ -8161,6 +8163,7 @@
           "action": {
             "type": "string",
             "enum": [
+              "ADMIN_MUTATION_REQUESTED",
               "ORDER_STATUS_CHANGED",
               "ORDER_PAYMENT_CHANGED",
               "PRODUCT_PRICE_CHANGED",
@@ -8178,6 +8181,7 @@
               "BRAND_UPDATED",
               "BRAND_DELETED",
               "BRAND_RESTORED",
+              "MEDIA_DELETE_REQUESTED",
               "MEDIA_DELETED",
               "INVENTORY_ADJUSTED",
               "USER_ROLE_CHANGED",
@@ -9796,6 +9800,10 @@
       "AdminProductDto": {
         "type": "object",
         "properties": {
+          "imageVersion": {
+            "type": "number",
+            "minimum": 0
+          },
           "id": {
             "type": "string",
             "example": "652f1a9b3c4d5e6f7a8b9c0d"
@@ -9930,6 +9938,7 @@
           }
         },
         "required": [
+          "imageVersion",
           "id",
           "sku",
           "slug",
@@ -10350,6 +10359,11 @@
       "ArrangeImagesDto": {
         "type": "object",
         "properties": {
+          "expectedVersion": {
+            "type": "number",
+            "minimum": 0,
+            "description": "imageVersion read with the displayed arrangement; stale requests return 409."
+          },
           "images": {
             "description": "The product’s images, IN THE ORDER THEY SHOULD APPEAR. The list must name exactly the images the product already has — no additions, no removals. That restriction is what makes this operation incapable of changing a reference count: attach and detach are the only two endpoints that touch the ledger.",
             "type": "array",
@@ -10359,6 +10373,7 @@
           }
         },
         "required": [
+          "expectedVersion",
           "images"
         ]
       },
@@ -10374,14 +10389,14 @@
             "example": "esp32-devkit-v1"
           },
           "imagesDestroyed": {
-            "description": "Assets that fell to zero references and were destroyed in the store.",
+            "description": "Empty: physical deletion requires a separate, fenced media cleanup request.",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "imagesKept": {
-            "description": "Assets ANOTHER product still shows, and which were therefore left alone. This is what reference counting is for — legacy destroyed the object regardless and the other product rendered a broken image with no indication of why (W4).",
+            "description": "Assets retained for shared references or a separate explicit fenced cleanup request.",
             "type": "array",
             "items": {
               "type": "string"
@@ -10801,6 +10816,10 @@
       "UnreferencedAssetDto": {
         "type": "object",
         "properties": {
+          "deletionPending": {
+            "type": "boolean",
+            "description": "Deletion is claimed; attachment is forbidden. Repeat explicit deletion to recover an uncertain provider outcome."
+          },
           "publicId": {
             "type": "string",
             "example": "nest/products/68b000000000000000000001/kK3nQ8vRb2Xf"
@@ -10815,6 +10834,7 @@
           }
         },
         "required": [
+          "deletionPending",
           "publicId",
           "bytes",
           "createdAt"

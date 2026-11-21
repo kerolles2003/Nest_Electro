@@ -1,3 +1,4 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin, getAdminServices } from '@/lib/services';
 import { DomainNotLiveNotice } from '@/components/system/DomainNotLiveNotice';
 import { Suspense } from 'react';
@@ -44,7 +45,7 @@ export default async function CouponsPage(props: {
     query = query.lt('expires_at', new Date().toISOString());
   }
 
-  const { data, count } = await query
+  const { data, count, error } = await query
     .range((page - 1) * limit, page * limit - 1)
     .order('created_at', { ascending: false });
 
@@ -89,12 +90,9 @@ export default async function CouponsPage(props: {
     <div className="space-y-5">
       <DomainNotLiveNotice domain="coupons" />
 
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Coupons</h1>
-        <p className="text-sm text-muted-foreground mt-1">Create and manage promotional coupon codes.</p>
-      </div>
+      <PageHeader title={<>Coupons</>} description={<>Create and manage promotional coupon codes.</>} />
 
-      <Suspense fallback={<CouponsSkeleton />}>
+      {error ? <ErrorState title="Coupons could not be loaded" description="The legacy service did not respond. Try again in a moment." /> : <Suspense fallback={<CouponsSkeleton />}>
         <CouponsTable
           initialCoupons={coupons}
           currentPage={page}
@@ -107,7 +105,7 @@ export default async function CouponsPage(props: {
             used: totalUsed,
           }}
         />
-      </Suspense>
+      </Suspense>}
     </div>
   );
 }

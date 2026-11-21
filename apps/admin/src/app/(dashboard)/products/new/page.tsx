@@ -1,9 +1,10 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin } from '@/lib/services';
 import { ProductForm } from '@/components/products/ProductForm';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
 import { operatorMessage } from '@/lib/api/errors';
-import { AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
 
 /**
  * A new product.
@@ -29,30 +30,17 @@ export default async function NewProductPage() {
   if (!categoriesRes.ok || categories.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="font-heading text-2xl font-bold text-foreground">New product</h1>
-        <div className="rounded-xl border border-warning/30 bg-warning/5 p-8 text-center">
-          <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-warning/80" />
-          <h2 className="text-base font-bold text-foreground">
-            {categoriesRes.ok ? 'There are no categories yet' : 'Categories could not be loaded'}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {categoriesRes.ok
+        <PageHeader title="New product" description="Start with the right category for your product." />
+        <ErrorState title={categoriesRes.ok ? 'There are no categories yet' : 'Categories could not be loaded'} description={<>{categoriesRes.ok
               ? 'Every product belongs to a category, so one has to exist before a product can be created.'
-              : operatorMessage(categoriesRes.error)}
-          </p>
-        </div>
+              : operatorMessage(categoriesRes.error)}</>}><Link className="admin-link" href="/categories">Manage categories</Link></ErrorState>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-foreground">New product</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Saved as a draft. Images and stock come next, then publish.
-        </p>
-      </div>
+      <PageHeader title={<>New product</>} description={<>Saved as a draft. Images and stock come next, then publish.</>} />
       <ProductForm mode="create" categories={categories} brands={brands} />
     </div>
   );

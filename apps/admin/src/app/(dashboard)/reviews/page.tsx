@@ -1,3 +1,4 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin, getAdminServices } from '@/lib/services';
 import { DomainNotLiveNotice } from '@/components/system/DomainNotLiveNotice';
 import { Suspense } from 'react';
@@ -43,7 +44,7 @@ export default async function ReviewsPage(props: {
     query = query.eq('moderation_status', statusFilter);
   }
 
-  const { data, count } = await query
+  const { data, count, error } = await query
     .range((page - 1) * limit, page * limit - 1)
     .order('created_at', { ascending: false });
 
@@ -80,12 +81,9 @@ export default async function ReviewsPage(props: {
     <div className="space-y-5">
       <DomainNotLiveNotice domain="reviews" />
 
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Reviews</h1>
-        <p className="text-sm text-muted-foreground mt-1">Moderate product reviews and manage the approval queue.</p>
-      </div>
+      <PageHeader title={<>Reviews</>} description={<>Moderate product reviews and manage the approval queue.</>} />
 
-      <Suspense fallback={<ReviewsSkeleton />}>
+      {error ? <ErrorState title="Reviews could not be loaded" description="The legacy service did not respond. Try again in a moment." /> : <Suspense fallback={<ReviewsSkeleton />}>
         <ReviewsTable
           initialReviews={reviews}
           currentPage={page}
@@ -99,7 +97,7 @@ export default async function ReviewsPage(props: {
             verified: verifiedCount ?? 0,
           }}
         />
-      </Suspense>
+      </Suspense>}
     </div>
   );
 }

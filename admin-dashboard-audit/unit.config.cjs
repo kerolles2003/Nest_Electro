@@ -1,0 +1,2 @@
+const path=require('node:path');
+module.exports={rootDir:path.resolve(__dirname,'../apps/api'),testEnvironment:'node',testMatch:['**/test/auth/roles-guard.spec.ts','**/test/auth/password-policy.spec.ts','**/test/audit/audit-diff.spec.ts','**/test/orders/pricing-dto.spec.ts'],transform:{'^.+\\.ts$':[require.resolve('../apps/api/node_modules/ts-jest'),{tsconfig:path.resolve(__dirname,'../apps/api/tsconfig.json')}]},maxWorkers:1};

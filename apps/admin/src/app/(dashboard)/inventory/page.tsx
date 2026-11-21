@@ -1,10 +1,10 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin } from '@/lib/services';
 import { Suspense } from 'react';
 import { InventoryTable } from '@/components/inventory/InventoryTable';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
 import { operatorMessage } from '@/lib/api/errors';
-import { AlertTriangle } from 'lucide-react';
 
 /**
  * Stock, from the API.
@@ -97,15 +97,8 @@ export default async function InventoryPage(props: {
   if (!levelsRes.ok) {
     return (
       <div className="space-y-5">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Inventory</h1>
-          <p className="text-sm text-muted-foreground mt-1">Stock levels and movements, from the API.</p>
-        </div>
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
-          <AlertTriangle className="h-8 w-8 text-destructive/70 mx-auto mb-3" />
-          <h2 className="text-base font-bold text-foreground">Stock levels could not be loaded</h2>
-          <p className="text-sm text-muted-foreground mt-1">{operatorMessage(levelsRes.error)}</p>
-        </div>
+        <PageHeader title={<>Inventory</>} description="Track stock, review low quantities, and record inventory movements." />
+        <ErrorState title="Stock levels could not be loaded" description={<>{operatorMessage(levelsRes.error)}</>} />
       </div>
     );
   }
@@ -137,13 +130,7 @@ export default async function InventoryPage(props: {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Inventory</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Stock levels and movements. Scarcest first — the order is the server&apos;s, because the
-          list exists to be worked down.
-        </p>
-      </div>
+      <PageHeader title={<>Inventory</>} description="Track stock, review low quantities, and record inventory movements." />
 
       <Suspense fallback={<InventorySkeleton />}>
         <InventoryTable

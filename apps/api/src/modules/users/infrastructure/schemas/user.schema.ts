@@ -202,6 +202,10 @@ export const MAX_ADDRESSES_PER_USER = 10;
  */
 @Schema({ collection: 'users', timestamps: true, strict: 'throw' })
 export class User {
+  /** Transaction write fence for the active SUPER_ADMIN set; not a session version. */
+  @Prop({ type: Number, default: 0 })
+  roleMutationVersion!: number;
+
   /** Unique, lowercase. The natural key, and the login identifier. */
   @Prop({ type: String, required: true, lowercase: true, trim: true })
   email!: string;

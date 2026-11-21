@@ -127,10 +127,10 @@ export function ProductSpecsEditor({
           </div>
 
           <div className="md:col-span-3">
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor={`products-label-${index}`} className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Label
             </label>
-            <input
+            <input id={`products-label-${index}`}
               value={spec.label}
               onChange={(event) => {
                 const label = event.target.value;
@@ -145,10 +145,10 @@ export function ProductSpecsEditor({
           </div>
 
           <div className="md:col-span-3">
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor={`products-key-${index}`} className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Key
             </label>
-            <input
+            <input id={`products-key-${index}`}
               value={spec.key}
               onChange={(event) => update(index, { key: event.target.value })}
               placeholder="operating-voltage"
@@ -157,10 +157,10 @@ export function ProductSpecsEditor({
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor={`products-value-${index}`} className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Value
             </label>
-            <input
+            <input id={`products-value-${index}`}
               value={spec.value}
               onChange={(event) => update(index, { value: event.target.value })}
               placeholder="3.3"
@@ -169,10 +169,10 @@ export function ProductSpecsEditor({
           </div>
 
           <div className="md:col-span-1">
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor={`products-unit-${index}`} className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Unit
             </label>
-            <input
+            <input id={`products-unit-${index}`}
               value={spec.unit}
               onChange={(event) => update(index, { unit: event.target.value })}
               placeholder="V"

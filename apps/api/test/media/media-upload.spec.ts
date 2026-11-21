@@ -7,6 +7,7 @@ import { Model, Types } from 'mongoose';
 import { randomUUID } from 'node:crypto';
 import sharp from 'sharp';
 import request from 'supertest';
+import { AuditLog } from '../../src/modules/audit/infrastructure/schemas/audit-log.schema';
 import { AppModule } from '../../src/app.module';
 import { validationExceptionFactory } from '../../src/common/pipes/validation-exception.factory';
 import { mediaConfig, type MediaConfig } from '../../src/config/media.config';
@@ -180,6 +181,7 @@ afterAll(async () => {
      * a teardown that compares the result against the state preparation
      * recorded; residue with no visible symptom is still residue.
      */
+    await app.get<Model<AuditLog>>(getModelToken(AuditLog.name)).deleteMany({ 'actor.id': { $in: createdUserIds } }).exec();
     await refreshTokens.deleteMany({ userId: { $in: createdUserIds } }).exec();
     await users.deleteMany({ _id: { $in: createdUserIds } }).exec();
   }
@@ -491,7 +493,7 @@ describe('rejections — the paths that keep this endpoint honest', () => {
 });
 
 describe('destroy', () => {
-  it('removes an unreferenced asset from both the store and the ledger', async () => {
+  it('removes bytes while retaining an attachment-fencing tombstone', async () => {
     const uploaded = await upload(admin, await image('png'));
     const publicId = uploaded.body.data.publicId as string;
 
@@ -502,7 +504,7 @@ describe('destroy', () => {
       .expect(204);
 
     expect(await storage.list('nest')).toEqual([]);
-    expect(await assets.countDocuments({ publicId }).exec()).toBe(0);
+    expect(await assets.countDocuments({ publicId, deleting: true, destroyedAt: { $ne: null } }).exec()).toBe(1);
   });
 
   it('REFUSES to destroy an asset something still references, and names the count', async () => {

@@ -1,5 +1,10 @@
 'use client';
 
+import { FormField as Field } from '@/components/ui/form-field';
+
+import { AdminDialog } from '@/components/ui/admin-dialog';
+
+
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -346,7 +351,7 @@ function BrandDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4">
+    <AdminDialog title="Brand details" onClose={onClose}>
       <form
         onSubmit={submit}
         className="my-8 w-full max-w-lg rounded-xl border border-border bg-card shadow-elevated"
@@ -468,7 +473,7 @@ function BrandDialog({
           </button>
         </div>
       </form>
-    </div>
+    </AdminDialog>
   );
 }
 
@@ -482,7 +487,7 @@ function ConfirmDeleteBrand({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <AdminDialog title="Delete brand" onClose={onCancel}>
       <div className="w-full max-w-md rounded-xl border border-border bg-card shadow-elevated">
         <div className="flex items-start gap-3 border-b border-border px-5 py-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
@@ -529,7 +534,7 @@ function ConfirmDeleteBrand({
           </button>
         </div>
       </div>
-    </div>
+    </AdminDialog>
   );
 }
 
@@ -538,27 +543,4 @@ const fieldBase =
 
 function fieldClass(error: string | undefined): string {
   return `${fieldBase} ${error === undefined ? 'border-border' : 'border-destructive'}`;
-}
-
-function Field({
-  label,
-  required,
-  error,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
-        {label}
-        {required === true && <span className="ml-0.5 text-destructive">*</span>}
-      </span>
-      {children}
-      {error !== undefined && <p className="mt-1 text-[11px] font-medium text-destructive">{error}</p>}
-    </div>
-  );
 }

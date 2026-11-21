@@ -58,11 +58,12 @@ export function LoginForm() {
           required
           autoComplete="username"
           aria-invalid={state.fieldErrors['email'] !== undefined}
+          aria-describedby={state.fieldErrors['email'] !== undefined ? 'email-error' : undefined}
           className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-foreground placeholder:text-foreground-subtle focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
           placeholder="operations@example.com"
         />
         {state.fieldErrors['email'] !== undefined && (
-          <p className="text-xs text-destructive">{state.fieldErrors['email']}</p>
+          <p id="email-error" className="text-xs text-destructive">{state.fieldErrors['email']}</p>
         )}
       </div>
 
@@ -77,11 +78,12 @@ export function LoginForm() {
           required
           autoComplete="current-password"
           aria-invalid={state.fieldErrors['password'] !== undefined}
+          aria-describedby={state.fieldErrors['password'] !== undefined ? 'password-error' : undefined}
           className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-foreground placeholder:text-foreground-subtle focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
           placeholder="••••••••"
         />
         {state.fieldErrors['password'] !== undefined && (
-          <p className="text-xs text-destructive">{state.fieldErrors['password']}</p>
+          <p id="password-error" className="text-xs text-destructive">{state.fieldErrors['password']}</p>
         )}
       </div>
 

@@ -1,0 +1,828 @@
+{
+  "productionBuild": true,
+  "fixtureBackend": true,
+  "measurements": [
+    {
+      "route": "/admin",
+      "slow4GApproximation": false,
+      "cpu": 1,
+      "networkIdleMs": 1640,
+      "navigation": {
+        "name": "http://127.0.0.1:3413/admin",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 496.60000002384186,
+        "navigationId": 310,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.30000001192092896,
+        "domainLookupStart": 2.800000011920929,
+        "domainLookupEnd": 5.100000023841858,
+        "connectStart": 5.100000023841858,
+        "secureConnectionStart": 0,
+        "connectEnd": 5.9000000059604645,
+        "requestStart": 6.100000023841858,
+        "responseStart": 389.60000002384186,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 389.60000002384186,
+        "responseEnd": 452.7000000178814,
+        "transferSize": 19952,
+        "encodedBodySize": 19652,
+        "decodedBodySize": 86976,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 493.10000002384186,
+        "domContentLoadedEventStart": 493.10000002384186,
+        "domContentLoadedEventEnd": 493.30000001192093,
+        "domComplete": 496.60000002384186,
+        "loadEventStart": 496.60000002384186,
+        "loadEventEnd": 496.60000002384186,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "high"
+        }
+      },
+      "js": [
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0~6zv4r3e-xfc.js",
+          "bytes": 637,
+          "decoded": 337
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/16zqckr4_el7w.js",
+          "bytes": 9094,
+          "decoded": 27778
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09djyfh0k1ag8.js",
+          "bytes": 9219,
+          "decoded": 31086
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0nfmcrkgkg9aa.js",
+          "bytes": 29245,
+          "decoded": 109073
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_9x5-r7fpm1e.js",
+          "bytes": 9575,
+          "decoded": 44833
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05s.6lg9ial0e.js",
+          "bytes": 72940,
+          "decoded": 232562
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/turbopack-0wpyuv~flba4z.js",
+          "bytes": 4482,
+          "decoded": 10652
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/004bv42ug9yf1.js",
+          "bytes": 2334,
+          "decoded": 4567
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0de~b9k2vteh~.js",
+          "bytes": 45361,
+          "decoded": 145905
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09s5_6c4yp62j.js",
+          "bytes": 1108,
+          "decoded": 808
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/1736cpwpgdbqm.js",
+          "bytes": 13179,
+          "decoded": 54646
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_5xvnjhz042b.js",
+          "bytes": 7001,
+          "decoded": 18886
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05998pvec~zjz.js",
+          "bytes": 1247,
+          "decoded": 1997
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0cal~kw8xlc9v.js",
+          "bytes": 1149,
+          "decoded": 849
+        }
+      ],
+      "domNodes": 530
+    },
+    {
+      "route": "/admin/products",
+      "slow4GApproximation": false,
+      "cpu": 1,
+      "networkIdleMs": 789,
+      "navigation": {
+        "name": "http://127.0.0.1:3413/admin/products",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 97,
+        "navigationId": 4065,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.20000001788139343,
+        "domainLookupStart": 0.20000001788139343,
+        "domainLookupEnd": 0.20000001788139343,
+        "connectStart": 0.20000001788139343,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.20000001788139343,
+        "requestStart": 1.100000023841858,
+        "responseStart": 26.5,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 26.5,
+        "responseEnd": 39.60000002384186,
+        "transferSize": 12685,
+        "encodedBodySize": 12385,
+        "decodedBodySize": 79842,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 38.20000001788139,
+        "unloadEventEnd": 38.20000001788139,
+        "domInteractive": 52.70000001788139,
+        "domContentLoadedEventStart": 52.70000001788139,
+        "domContentLoadedEventEnd": 52.900000005960464,
+        "domComplete": 97,
+        "loadEventStart": 97,
+        "loadEventEnd": 97,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "low"
+        }
+      },
+      "js": [
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0~6zv4r3e-xfc.js",
+          "bytes": 637,
+          "decoded": 337
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/16zqckr4_el7w.js",
+          "bytes": 9094,
+          "decoded": 27778
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09djyfh0k1ag8.js",
+          "bytes": 9219,
+          "decoded": 31086
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_9x5-r7fpm1e.js",
+          "bytes": 9575,
+          "decoded": 44833
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0nfmcrkgkg9aa.js",
+          "bytes": 29245,
+          "decoded": 109073
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05s.6lg9ial0e.js",
+          "bytes": 72940,
+          "decoded": 232562
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/turbopack-0wpyuv~flba4z.js",
+          "bytes": 4482,
+          "decoded": 10652
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/004bv42ug9yf1.js",
+          "bytes": 2334,
+          "decoded": 4567
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/1736cpwpgdbqm.js",
+          "bytes": 13179,
+          "decoded": 54646
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0de~b9k2vteh~.js",
+          "bytes": 45361,
+          "decoded": 145905
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_5xvnjhz042b.js",
+          "bytes": 7001,
+          "decoded": 18886
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05998pvec~zjz.js",
+          "bytes": 1247,
+          "decoded": 1997
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0b47w2646qm6e.js",
+          "bytes": 11947,
+          "decoded": 35550
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0cal~kw8xlc9v.js",
+          "bytes": 1149,
+          "decoded": 849
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09s5_6c4yp62j.js",
+          "bytes": 1108,
+          "decoded": 808
+        }
+      ],
+      "domNodes": 514
+    },
+    {
+      "route": "/admin/products/new",
+      "slow4GApproximation": false,
+      "cpu": 1,
+      "networkIdleMs": 685,
+      "navigation": {
+        "name": "http://127.0.0.1:3413/admin/products/new",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 83.69999998807907,
+        "navigationId": 2147,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.19999998807907104,
+        "domainLookupStart": 0.19999998807907104,
+        "domainLookupEnd": 0.19999998807907104,
+        "connectStart": 0.19999998807907104,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.19999998807907104,
+        "requestStart": 1.199999988079071,
+        "responseStart": 21.099999994039536,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 21.099999994039536,
+        "responseEnd": 24.5,
+        "transferSize": 11166,
+        "encodedBodySize": 10866,
+        "decodedBodySize": 54422,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 31,
+        "unloadEventEnd": 31,
+        "domInteractive": 45.69999998807907,
+        "domContentLoadedEventStart": 45.69999998807907,
+        "domContentLoadedEventEnd": 45.69999998807907,
+        "domComplete": 83.69999998807907,
+        "loadEventStart": 83.69999998807907,
+        "loadEventEnd": 83.69999998807907,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "high"
+        }
+      },
+      "js": [
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0~6zv4r3e-xfc.js",
+          "bytes": 637,
+          "decoded": 337
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/16zqckr4_el7w.js",
+          "bytes": 9094,
+          "decoded": 27778
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09djyfh0k1ag8.js",
+          "bytes": 9219,
+          "decoded": 31086
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0nfmcrkgkg9aa.js",
+          "bytes": 29245,
+          "decoded": 109073
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_9x5-r7fpm1e.js",
+          "bytes": 9575,
+          "decoded": 44833
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05s.6lg9ial0e.js",
+          "bytes": 72940,
+          "decoded": 232562
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/turbopack-0wpyuv~flba4z.js",
+          "bytes": 4482,
+          "decoded": 10652
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/004bv42ug9yf1.js",
+          "bytes": 2334,
+          "decoded": 4567
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/1736cpwpgdbqm.js",
+          "bytes": 13179,
+          "decoded": 54646
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_5xvnjhz042b.js",
+          "bytes": 7001,
+          "decoded": 18886
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0de~b9k2vteh~.js",
+          "bytes": 45361,
+          "decoded": 145905
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0gdg~1-hng4jq.js",
+          "bytes": 7712,
+          "decoded": 19557
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0u.7qmcx5hi9_.js",
+          "bytes": 9475,
+          "decoded": 33438
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05998pvec~zjz.js",
+          "bytes": 1247,
+          "decoded": 1997
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0cal~kw8xlc9v.js",
+          "bytes": 1149,
+          "decoded": 849
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09s5_6c4yp62j.js",
+          "bytes": 1108,
+          "decoded": 808
+        }
+      ],
+      "domNodes": 373
+    },
+    {
+      "route": "/admin",
+      "slow4GApproximation": true,
+      "cpu": 4,
+      "networkIdleMs": 3996,
+      "navigation": {
+        "name": "http://127.0.0.1:3413/admin",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 1713,
+        "navigationId": 912,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.09999999403953552,
+        "domainLookupStart": 1.0999999940395355,
+        "domainLookupEnd": 1.0999999940395355,
+        "connectStart": 1.0999999940395355,
+        "secureConnectionStart": 0,
+        "connectEnd": 1.699999988079071,
+        "requestStart": 1.699999988079071,
+        "responseStart": 21.900000005960464,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 21.900000005960464,
+        "responseEnd": 268.80000001192093,
+        "transferSize": 19412,
+        "encodedBodySize": 19112,
+        "decodedBodySize": 86976,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 906.3000000119209,
+        "domContentLoadedEventStart": 906.3000000119209,
+        "domContentLoadedEventEnd": 906.3000000119209,
+        "domComplete": 1712.9000000059605,
+        "loadEventStart": 1713,
+        "loadEventEnd": 1713,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "low"
+        }
+      },
+      "js": [
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0~6zv4r3e-xfc.js",
+          "bytes": 637,
+          "decoded": 337
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/16zqckr4_el7w.js",
+          "bytes": 9094,
+          "decoded": 27778
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09djyfh0k1ag8.js",
+          "bytes": 9219,
+          "decoded": 31086
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0nfmcrkgkg9aa.js",
+          "bytes": 29245,
+          "decoded": 109073
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_9x5-r7fpm1e.js",
+          "bytes": 9575,
+          "decoded": 44833
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05s.6lg9ial0e.js",
+          "bytes": 72940,
+          "decoded": 232562
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/turbopack-0wpyuv~flba4z.js",
+          "bytes": 4482,
+          "decoded": 10652
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/004bv42ug9yf1.js",
+          "bytes": 2334,
+          "decoded": 4567
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0de~b9k2vteh~.js",
+          "bytes": 45361,
+          "decoded": 145905
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/1736cpwpgdbqm.js",
+          "bytes": 13179,
+          "decoded": 54646
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_5xvnjhz042b.js",
+          "bytes": 7001,
+          "decoded": 18886
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09s5_6c4yp62j.js",
+          "bytes": 1108,
+          "decoded": 808
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05998pvec~zjz.js",
+          "bytes": 1247,
+          "decoded": 1997
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0cal~kw8xlc9v.js",
+          "bytes": 1149,
+          "decoded": 849
+        }
+      ],
+      "domNodes": 530
+    },
+    {
+      "route": "/admin/products",
+      "slow4GApproximation": true,
+      "cpu": 4,
+      "networkIdleMs": 3913,
+      "navigation": {
+        "name": "http://127.0.0.1:3413/admin/products",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 1630.199999988079,
+        "navigationId": 7324,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.09999999403953552,
+        "domainLookupStart": 0.09999999403953552,
+        "domainLookupEnd": 0.09999999403953552,
+        "connectStart": 0.09999999403953552,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.09999999403953552,
+        "requestStart": 1,
+        "responseStart": 21.30000001192093,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 21.30000001192093,
+        "responseEnd": 226.19999998807907,
+        "transferSize": 12685,
+        "encodedBodySize": 12385,
+        "decodedBodySize": 79842,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 186.59999999403954,
+        "unloadEventEnd": 186.59999999403954,
+        "domInteractive": 749.3000000119209,
+        "domContentLoadedEventStart": 749.3000000119209,
+        "domContentLoadedEventEnd": 749.5,
+        "domComplete": 1630.199999988079,
+        "loadEventStart": 1630.199999988079,
+        "loadEventEnd": 1630.199999988079,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "high"
+        }
+      },
+      "js": [
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0~6zv4r3e-xfc.js",
+          "bytes": 637,
+          "decoded": 337
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/16zqckr4_el7w.js",
+          "bytes": 9094,
+          "decoded": 27778
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09djyfh0k1ag8.js",
+          "bytes": 9219,
+          "decoded": 31086
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0nfmcrkgkg9aa.js",
+          "bytes": 29245,
+          "decoded": 109073
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_9x5-r7fpm1e.js",
+          "bytes": 9575,
+          "decoded": 44833
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05s.6lg9ial0e.js",
+          "bytes": 72940,
+          "decoded": 232562
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/turbopack-0wpyuv~flba4z.js",
+          "bytes": 4482,
+          "decoded": 10652
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/004bv42ug9yf1.js",
+          "bytes": 2334,
+          "decoded": 4567
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0de~b9k2vteh~.js",
+          "bytes": 45361,
+          "decoded": 145905
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/1736cpwpgdbqm.js",
+          "bytes": 13179,
+          "decoded": 54646
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_5xvnjhz042b.js",
+          "bytes": 7001,
+          "decoded": 18886
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0b47w2646qm6e.js",
+          "bytes": 11947,
+          "decoded": 35550
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05998pvec~zjz.js",
+          "bytes": 1247,
+          "decoded": 1997
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0cal~kw8xlc9v.js",
+          "bytes": 1149,
+          "decoded": 849
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09s5_6c4yp62j.js",
+          "bytes": 1108,
+          "decoded": 808
+        }
+      ],
+      "domNodes": 514
+    },
+    {
+      "route": "/admin/products/new",
+      "slow4GApproximation": true,
+      "cpu": 4,
+      "networkIdleMs": 3361,
+      "navigation": {
+        "name": "http://127.0.0.1:3413/admin/products/new",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 1658.800000011921,
+        "navigationId": 9151,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.20000001788139343,
+        "domainLookupStart": 0.20000001788139343,
+        "domainLookupEnd": 0.20000001788139343,
+        "connectStart": 0.20000001788139343,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.20000001788139343,
+        "requestStart": 0.9000000059604645,
+        "responseStart": 15.099999994039536,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 15.099999994039536,
+        "responseEnd": 215.90000000596046,
+        "transferSize": 11785,
+        "encodedBodySize": 11485,
+        "decodedBodySize": 54422,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 184,
+        "unloadEventEnd": 184,
+        "domInteractive": 757,
+        "domContentLoadedEventStart": 757,
+        "domContentLoadedEventEnd": 757.3000000119209,
+        "domComplete": 1658.5999999940395,
+        "loadEventStart": 1658.800000011921,
+        "loadEventEnd": 1658.800000011921,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "low"
+        }
+      },
+      "js": [
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0~6zv4r3e-xfc.js",
+          "bytes": 637,
+          "decoded": 337
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/16zqckr4_el7w.js",
+          "bytes": 9094,
+          "decoded": 27778
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09djyfh0k1ag8.js",
+          "bytes": 9219,
+          "decoded": 31086
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0nfmcrkgkg9aa.js",
+          "bytes": 29245,
+          "decoded": 109073
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_9x5-r7fpm1e.js",
+          "bytes": 9575,
+          "decoded": 44833
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05s.6lg9ial0e.js",
+          "bytes": 72940,
+          "decoded": 232562
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/turbopack-0wpyuv~flba4z.js",
+          "bytes": 4482,
+          "decoded": 10652
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/004bv42ug9yf1.js",
+          "bytes": 2334,
+          "decoded": 4567
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0de~b9k2vteh~.js",
+          "bytes": 45361,
+          "decoded": 145905
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/1736cpwpgdbqm.js",
+          "bytes": 13179,
+          "decoded": 54646
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0_5xvnjhz042b.js",
+          "bytes": 7001,
+          "decoded": 18886
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0gdg~1-hng4jq.js",
+          "bytes": 7712,
+          "decoded": 19557
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0u.7qmcx5hi9_.js",
+          "bytes": 9475,
+          "decoded": 33438
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/05998pvec~zjz.js",
+          "bytes": 1247,
+          "decoded": 1997
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/0cal~kw8xlc9v.js",
+          "bytes": 1149,
+          "decoded": 849
+        },
+        {
+          "name": "http://127.0.0.1:3413/admin/_next/static/chunks/09s5_6c4yp62j.js",
+          "bytes": 1108,
+          "decoded": 808
+        }
+      ],
+      "domNodes": 373
+    }
+  ]
+}

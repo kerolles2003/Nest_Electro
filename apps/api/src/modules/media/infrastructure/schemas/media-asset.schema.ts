@@ -43,6 +43,16 @@ import { HydratedDocument, Types } from 'mongoose';
   versionKey: false,
 })
 export class MediaAsset {
+  @Prop({ type: String, default: null })
+  deletionId!: string | null;
+
+  /** Permanent attachment fence. Never cleared, including after provider failure. */
+  @Prop({ type: Boolean, default: false })
+  deleting!: boolean;
+
+  @Prop({ type: Date, default: null })
+  destroyedAt!: Date | null;
+
   /**
    * The provider-relative identifier — never a URL (ADR-MEDIA-002).
    *

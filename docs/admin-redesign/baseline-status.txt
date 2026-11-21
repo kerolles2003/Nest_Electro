@@ -1,0 +1,65 @@
+ M apps/admin/e2e/global-teardown.ts
+ M apps/admin/e2e/origin.ts
+ M apps/admin/playwright.shared.ts
+ M apps/admin/src/actions/product-image.actions.ts
+ M apps/admin/src/components/products/ProductImageManager.tsx
+ M apps/admin/src/lib/api/endpoints.ts
+ M apps/admin/src/lib/api/types.ts
+ M apps/api/scripts/cloudinary-tests.js
+ M apps/api/src/database/import/image-importer.ts
+ M apps/api/src/database/testing/scratch-database.cli.ts
+ M apps/api/src/database/testing/scratch-database.ts
+ M apps/api/src/database/testing/scratch-databases.ts
+ M apps/api/src/modules/audit/application/audit.service.ts
+ M apps/api/src/modules/audit/domain/audit-action.ts
+ M apps/api/src/modules/audit/domain/audit-diff.ts
+ M apps/api/src/modules/catalog/application/product-admin.service.ts
+ M apps/api/src/modules/catalog/application/product-image.service.ts
+ M apps/api/src/modules/catalog/application/slug-redirect.service.ts
+ M apps/api/src/modules/catalog/infrastructure/schemas/product.schema.ts
+ M apps/api/src/modules/catalog/presentation/admin-products.controller.ts
+ M apps/api/src/modules/catalog/presentation/dto/admin-product-image.dto.ts
+ M apps/api/src/modules/catalog/presentation/dto/admin-product-response.dto.ts
+ M apps/api/src/modules/inventory/application/inventory-admin.service.ts
+ M apps/api/src/modules/media/application/media.service.ts
+ M apps/api/src/modules/media/infrastructure/repositories/media-asset.repository.ts
+ M apps/api/src/modules/media/infrastructure/schemas/media-asset.schema.ts
+ M apps/api/src/modules/media/media.module.ts
+ M apps/api/src/modules/media/presentation/media.controller.ts
+ M apps/api/src/modules/orders/application/order-lifecycle.service.ts
+ M apps/api/src/modules/users/application/customers-admin.service.ts
+ M apps/api/src/modules/users/infrastructure/schemas/user.schema.ts
+ M apps/api/test/catalog/product-images.spec.ts
+ M apps/api/test/database/scratch-databases.spec.ts
+ M apps/api/test/infrastructure/index-health.spec.ts
+ M apps/api/test/media/cloudinary-integration.spec.ts
+ M apps/api/test/media/media-upload.spec.ts
+ M apps/api/test/setup/email-isolation.spec.ts
+ M apps/api/test/setup/email-isolation.ts
+ M apps/api/test/setup/prepare-scratch-database.ts
+ M apps/api/test/setup/scratch-database.ts
+ M apps/storefront/e2e/global-teardown.ts
+ M apps/storefront/e2e/origin.ts
+ M apps/storefront/playwright.config.ts
+ M apps/storefront/src/app/blog/[slug]/page.tsx
+ M apps/storefront/src/app/products/[slug]/page.tsx
+ M apps/storefront/src/components/blog/BlogContent.tsx
+?? AUDIT.md
+?? G_ENTRY_OWNER_ACTIONS.md
+?? G_ENTRY_SCOPE_DECISION_2026-10-07.md
+?? G_ENTRY_SCOPE_REBASELINE_REPORT.md
+?? G_ENTRY_UNBLOCK_REPORT.md
+?? MASTER_IMPLEMENTATION_PLAN.md
+?? OA01_COMPLETION_REPORT.md
+?? OWNER_DECISIONS_2026-10-07.md
+?? P0_COMPLETION_REPORT.md
+?? admin-redesign-exploration/
+?? apps/api/jest.p0.config.js
+?? apps/api/jest.p1.config.js
+?? apps/api/src/database/testing/scratch-run.ts
+?? apps/api/src/database/testing/test-providers.ts
+?? apps/api/test/database/scratch-run.spec.ts
+?? apps/api/test/p1/
+?? apps/storefront/scripts/
+?? apps/storefront/src/lib/safe-content.ts
+?? docs/P0_DECISIONS.md

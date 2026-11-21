@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Role } from '../../users/infrastructure/schemas/user.schema';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, type ClientSession } from 'mongoose';
 import { AppException } from '../../../common/errors/app.exception';
@@ -10,6 +11,7 @@ import { MediaService } from '../../media/application/media.service';
 import { MediaAssetRepository } from '../../media/infrastructure/repositories/media-asset.repository';
 import { UsersService, type UserProfile } from '../../users/application/users.service';
 import { Product, type ProductLean } from '../infrastructure/schemas/product.schema';
+import { writeProductImages } from './write-product-images';
 
 /**
  * The bound from CATALOG-MODEL.md §8.
@@ -102,8 +104,6 @@ export interface ArrangeEntry {
  */
 @Injectable()
 export class ProductImageService {
-  private readonly logger = new Logger(ProductImageService.name);
-
   constructor(
     @InjectModel(Product.name) private readonly products: Model<Product>,
     private readonly media: MediaService,
@@ -137,7 +137,7 @@ export class ProductImageService {
      * from must come from the same snapshot the write lands on, or two
      * concurrent attaches can each read seven images and each write an eighth.
      */
-    const { before, updated, refCount } = await this.transactions.run(async (session) => {
+    const updated = await this.transactions.run(async (session) => {
       const product = await this.load(productId, session);
 
       if (product.images.length >= MAX_PRODUCT_IMAGES) {
@@ -177,7 +177,7 @@ export class ProductImageService {
         },
       ];
 
-      const written = await this.writeImages(productId, images, session);
+      const written = await this.writeImages(productId, images, product.imageVersion ?? 0, session);
 
       /*
        * The document and the count, in ONE commit. If this throws — the ledger
@@ -187,25 +187,19 @@ export class ProductImageService {
        */
       const count = await this.media.retain(publicId, session);
 
-      return { before: product, updated: written, refCount: count };
-    });
+      await this.audit.record({
+        actor: toAuditActor(actor),
+        action: AuditAction.PRODUCT_UPDATED,
+        entity: { type: AuditEntityType.PRODUCT, id: productId, label: written.sku },
+        changes: {
+          before: { imageCount: product.images.length },
+          after: { imageCount: written.images.length },
+        },
+        metadata: { attached: publicId, refCount: count },
+        context: context.forensics,
+      }, session);
 
-    const product = before;
-
-    this.logger.log(
-      `image attached  product=${productId.toHexString()}  publicId=${publicId}  refCount=${String(refCount)}`,
-    );
-
-    await this.audit.record({
-      actor: toAuditActor(actor),
-      action: AuditAction.PRODUCT_UPDATED,
-      entity: { type: AuditEntityType.PRODUCT, id: productId, label: updated.sku },
-      changes: {
-        before: { imageCount: product.images.length },
-        after: { imageCount: updated.images.length },
-      },
-      metadata: { attached: publicId, refCount },
-      context: context.forensics,
+      return written;
     });
 
     return updated;
@@ -227,7 +221,7 @@ export class ProductImageService {
   ): Promise<ProductLean> {
     const actor = await this.resolveActor(context.actorId);
 
-    const { before, updated, refCount } = await this.transactions.run(async (session) => {
+    const updated = await this.transactions.run(async (session) => {
       const product = await this.load(productId, session);
 
       if (!product.images.some((image) => image.publicId === publicId)) {
@@ -248,7 +242,7 @@ export class ProductImageService {
         remaining[0] = { ...remaining[0], isPrimary: true } as (typeof remaining)[number];
       }
 
-      const written = await this.writeImages(productId, remaining, session);
+      const written = await this.writeImages(productId, remaining, product.imageVersion ?? 0, session);
 
       /*
        * This direction already failed safe — a lost decrement leaves an asset
@@ -259,25 +253,19 @@ export class ProductImageService {
        */
       const count = await this.media.release(publicId, session);
 
-      return { before: product, updated: written, refCount: count };
-    });
+      await this.audit.record({
+        actor: toAuditActor(actor),
+        action: AuditAction.PRODUCT_UPDATED,
+        entity: { type: AuditEntityType.PRODUCT, id: productId, label: written.sku },
+        changes: {
+          before: { imageCount: product.images.length },
+          after: { imageCount: written.images.length },
+        },
+        metadata: { detached: publicId, refCount: count },
+        context: context.forensics,
+      }, session);
 
-    const product = before;
-
-    this.logger.log(
-      `image detached  product=${productId.toHexString()}  publicId=${publicId}  refCount=${String(refCount)}`,
-    );
-
-    await this.audit.record({
-      actor: toAuditActor(actor),
-      action: AuditAction.PRODUCT_UPDATED,
-      entity: { type: AuditEntityType.PRODUCT, id: productId, label: updated.sku },
-      changes: {
-        before: { imageCount: product.images.length },
-        after: { imageCount: updated.images.length },
-      },
-      metadata: { detached: publicId, refCount },
-      context: context.forensics,
+      return written;
     });
 
     return updated;
@@ -300,79 +288,85 @@ export class ProductImageService {
     productId: Types.ObjectId,
     entries: readonly ArrangeEntry[],
     context: AdminWriteContext,
+    expectedVersion: number,
   ): Promise<ProductLean> {
     const actor = await this.resolveActor(context.actorId);
-    const product = await this.load(productId);
+    return this.transactions.run(async session => {
+      const product = await this.load(productId, session);
+      if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 0 || (product.imageVersion ?? 0) !== expectedVersion) {
+        throw AppException.concurrentModification();
+      }
 
-    const existing = new Map(product.images.map((image) => [image.publicId, image]));
+      const existing = new Map(product.images.map((image) => [image.publicId, image]));
 
-    if (entries.length !== existing.size) {
-      throw AppException.validation([
-        {
-          field: 'images',
-          message:
-            `This product has ${String(existing.size)} image(s) and the request listed ` +
-            `${String(entries.length)}. Arranging cannot add or remove — use the attach and ` +
-            'detach endpoints, which are the only two that touch the reference count.',
-          code: 'SET_MISMATCH',
-        },
-      ]);
-    }
-
-    const seen = new Set<string>();
-
-    for (const entry of entries) {
-      if (!existing.has(entry.publicId)) throw AppException.productImageNotFound();
-      if (seen.has(entry.publicId)) {
+      if (entries.length !== existing.size) {
         throw AppException.validation([
           {
             field: 'images',
-            message: `${entry.publicId} appears more than once.`,
-            code: 'DUPLICATE',
+            message:
+              `This product has ${String(existing.size)} image(s) and the request listed ` +
+              `${String(entries.length)}. Arranging cannot add or remove — use the attach and ` +
+              'detach endpoints, which are the only two that touch the reference count.',
+            code: 'SET_MISMATCH',
           },
         ]);
       }
-      seen.add(entry.publicId);
-    }
 
-    const primaryCount = entries.filter((entry) => entry.isPrimary === true).length;
+      const seen = new Set<string>();
 
-    if (primaryCount > 1) {
-      throw AppException.validation([
-        {
-          field: 'images',
-          message: 'Exactly one image may be the primary.',
-          code: 'PRIMARY',
-        },
-      ]);
-    }
+      for (const entry of entries) {
+        if (!existing.has(entry.publicId)) throw AppException.productImageNotFound();
+        if (seen.has(entry.publicId)) {
+          throw AppException.validation([
+            {
+              field: 'images',
+              message: `${entry.publicId} appears more than once.`,
+              code: 'DUPLICATE',
+            },
+          ]);
+        }
+        seen.add(entry.publicId);
+      }
 
-    const images = entries.map((entry, index) => {
-      const current = existing.get(entry.publicId) as NonNullable<ReturnType<typeof existing.get>>;
+      const primaryCount = entries.filter((entry) => entry.isPrimary === true).length;
 
-      return {
-        ...current,
-        alt: entry.alt === undefined ? current.alt : entry.alt,
-        sortOrder: index,
-        // No primary named? The first one is it. §8's invariant is not optional
-        // and a client that omits the flag must not be able to produce a
-        // product with none.
-        isPrimary: primaryCount === 0 ? index === 0 : entry.isPrimary === true,
-      };
+      if (primaryCount > 1) {
+        throw AppException.validation([
+          {
+            field: 'images',
+            message: 'Exactly one image may be the primary.',
+            code: 'PRIMARY',
+          },
+        ]);
+      }
+
+      const images = entries.map((entry, index) => {
+        const current = existing.get(entry.publicId) as NonNullable<ReturnType<typeof existing.get>>;
+
+        return {
+          ...current,
+          alt: entry.alt === undefined ? current.alt : entry.alt,
+          sortOrder: index,
+          // No primary named? The first one is it. §8's invariant is not optional
+          // and a client that omits the flag must not be able to produce a
+          // product with none.
+          isPrimary: primaryCount === 0 ? index === 0 : entry.isPrimary === true,
+        };
+      });
+
+      const updated = await this.writeImages(productId, images, expectedVersion, session);
+
+      await this.audit.recordChange({
+        actor: toAuditActor(actor),
+        action: AuditAction.PRODUCT_UPDATED,
+        entity: { type: AuditEntityType.PRODUCT, id: productId, label: updated.sku },
+        before: { images: summarise(product), imageVersion: product.imageVersion ?? 0 },
+        after: { images: summarise(updated), imageVersion: updated.imageVersion },
+        context: context.forensics,
+      }, session);
+
+      return updated;
     });
-
-    const updated = await this.writeImages(productId, images);
-
-    await this.audit.recordChange({
-      actor: toAuditActor(actor),
-      action: AuditAction.PRODUCT_UPDATED,
-      entity: { type: AuditEntityType.PRODUCT, id: productId, label: updated.sku },
-      before: { images: summarise(product) },
-      after: { images: summarise(updated) },
-      context: context.forensics,
-    });
-
-    return updated;
   }
 
   /**
@@ -384,11 +378,11 @@ export class ProductImageService {
    * reporting rather than deleting is easier to keep when only one place
    * destroys anything.
    */
-  async releaseAll(product: ProductLean): Promise<readonly string[]> {
+  async releaseAll(product: ProductLean, session: ClientSession): Promise<readonly string[]> {
     const unreferenced: string[] = [];
 
     for (const image of product.images) {
-      const refCount = await this.media.release(image.publicId);
+      const refCount = await this.media.release(image.publicId, session);
 
       if (refCount === 0) unreferenced.push(image.publicId);
     }
@@ -397,7 +391,7 @@ export class ProductImageService {
   }
 
   /**
-   * The one write path for `images`, and deliberately the only one.
+   * Admin entry to the shared image-array compare-and-swap, also used by imports.
    *
    * Whole-array `$set`, always. K9 and K10 are both "the array was written in
    * pieces"; a codebase with one function that writes it whole cannot
@@ -406,16 +400,10 @@ export class ProductImageService {
   private async writeImages(
     productId: Types.ObjectId,
     images: readonly object[],
+    expectedVersion: number,
     session?: ClientSession,
   ): Promise<ProductLean> {
-    const updated = await this.products
-      .findOneAndUpdate({ _id: productId }, { $set: { images } }, { new: true, session: session ?? null })
-      .lean<ProductLean>()
-      .exec();
-
-    if (updated === null) throw AppException.productNotFound();
-
-    return updated;
+    return writeProductImages(this.products, productId, images, expectedVersion, session);
   }
 
   private async load(productId: Types.ObjectId, session?: ClientSession): Promise<ProductLean> {
@@ -436,11 +424,12 @@ export class ProductImageService {
 
     if (profile === null) throw AppException.accountDisabled();
 
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(profile.role)) throw AppException.forbidden();
     return profile;
   }
 }
 
 /** The order and the primary flag, which is all an arrange can change. */
-function summarise(product: ProductLean): { publicId: string; isPrimary: boolean }[] {
-  return product.images.map((image) => ({ publicId: image.publicId, isPrimary: image.isPrimary }));
+function summarise(product: ProductLean): { publicId: string; isPrimary: boolean; alt: string | null }[] {
+  return product.images.map((image) => ({ publicId: image.publicId, isPrimary: image.isPrimary, alt: image.alt }));
 }

@@ -1,9 +1,9 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin } from '@/lib/services';
 import { BrandsManager } from '@/components/brands/BrandsManager';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
 import { operatorMessage } from '@/lib/api/errors';
-import { AlertTriangle } from 'lucide-react';
 
 /**
  * Brands, from the API.
@@ -19,21 +19,12 @@ export default async function BrandsPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Brands</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Optional on a product. Deleting one un-brands its products rather than refusing.
-        </p>
-      </div>
+      <PageHeader title={<>Brands</>} description="Manage the brands represented in your store." />
 
       {res.ok ? (
         <BrandsManager brands={res.data.data} />
       ) : (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
-          <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-destructive/70" />
-          <h2 className="text-base font-bold text-foreground">Brands could not be loaded</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{operatorMessage(res.error)}</p>
-        </div>
+        <ErrorState title="Brands could not be loaded" description={<>{operatorMessage(res.error)}</>} />
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { logAuthFailure } from '@/lib/logger';
+import { cspRequest } from '../../../packages/config/src/content-security-policy';
 
 /**
  * The navigation guard.
@@ -65,6 +66,13 @@ const REFRESH_COOKIE = 'nest_rt';
 const NEXT_ACTION_HEADER = 'next-action';
 
 export function proxy(request: NextRequest): NextResponse {
+  const { forwarded, policy } = cspRequest(request.headers, request.url, process.env.NODE_ENV === 'development');
+  const response = navigationProxy(request, forwarded);
+  response.headers.set('Content-Security-Policy', policy);
+  return response;
+}
+
+function navigationProxy(request: NextRequest, forwarded: Headers): NextResponse {
   const { pathname } = request.nextUrl;
 
   /**
@@ -101,7 +109,7 @@ export function proxy(request: NextRequest): NextResponse {
    * reintroduce a redirect on this path.
    */
   if (request.headers.get(NEXT_ACTION_HEADER) !== null) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: forwarded } });
   }
 
   const hasSession = request.cookies.has(REFRESH_COOKIE);
@@ -131,7 +139,7 @@ export function proxy(request: NextRequest): NextResponse {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  return NextResponse.next();
+  return NextResponse.next({ request: { headers: forwarded } });
 }
 
 /**
@@ -149,18 +157,10 @@ function isUnder(pathname: string, prefix: string): boolean {
 export const config = {
   matcher: [
     /*
-     * Only the routes the navigation guard actually cares about:
-     * - Protected areas an anonymous visitor is sent away from (/account, /checkout)
-     * - Auth pages a signed-in customer is redirected away from (/login, /register, /forgot-password)
-     *
-     * Everything else (/, /shop, catalogue reads, static assets) skips the
-     * proxy entirely, removing middleware overhead from general browsing.
+     * Every rendered page needs a request nonce, including public and error pages.
+     * API handlers and Next static/image responses are not HTML documents.
      */
-    '/account/:path*',
-    '/checkout/:path*',
-    '/login',
-    '/register',
-    '/forgot-password/:path*',
+    '/((?!api(?:/|$)|_next/static|_next/image|favicon.ico).*)',
   ],
 };
 

@@ -130,6 +130,7 @@ export function ProductImageManager({ product }: { product: AdminProduct }) {
           alt: image.alt,
           isPrimary: image.isPrimary,
         })),
+        product.imageVersion,
       );
 
       if (!result.ok) {

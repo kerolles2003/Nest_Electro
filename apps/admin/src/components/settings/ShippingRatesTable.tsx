@@ -1,5 +1,8 @@
 'use client';
 
+import { TableScroll } from '@/components/ui/admin';
+
+
 import { useState, useTransition } from 'react';
 import { Search, Truck, Check, X, Pencil, Loader2 } from 'lucide-react';
 import { useToast, Input, Button, Badge } from '@nest/ui';
@@ -62,12 +65,10 @@ export function ShippingRatesTable({ initialRates }: ShippingRatesTableProps) {
       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-foreground space-y-2">
         <div className="flex items-center gap-2 font-medium text-primary">
           <Truck className="h-4 w-4" />
-          <span>Governorate Shipping Rates Policy (D-8 Invariant)</span>
+          <span>Delivery rates</span>
         </div>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          The rate table covers all 27 official Egyptian governorates. Missing rows cause checkout quoting failures,
-          so rate deletion is permanently forbidden. Free shipping is configured by setting a rate to 0.00 EGP.
-          Every fee modification is recorded in the immutable audit log and takes effect immediately at checkout.
+          Keep a rate for every governorate so customers can check out. Set a fee to 0.00 EGP for free delivery. Changes take effect immediately and are recorded in the audit log.
         </p>
       </div>
 
@@ -75,7 +76,7 @@ export function ShippingRatesTable({ initialRates }: ShippingRatesTableProps) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
+        <Input aria-label="Search shipping rates by governorate"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search governorates..."
@@ -89,7 +90,7 @@ export function ShippingRatesTable({ initialRates }: ShippingRatesTableProps) {
 
       {/* Table */}
       <div className="rounded-xl border border-border bg-card overflow-hidden shadow-subtle">
-        <div className="overflow-x-auto">
+        <TableScroll>
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/40 border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
               <tr>
@@ -124,6 +125,7 @@ export function ShippingRatesTable({ initialRates }: ShippingRatesTableProps) {
                         {isEditing ? (
                           <div className="flex items-center gap-2 max-w-[160px]">
                             <Input
+                              aria-label={`Shipping fee for ${rate.governorate} in EGP`}
                               type="number"
                               step="0.5"
                               min="0"
@@ -186,6 +188,7 @@ export function ShippingRatesTable({ initialRates }: ShippingRatesTableProps) {
                               size="sm"
                               variant="ghost"
                               disabled={isPending}
+                              aria-label="Cancel fee edit"
                               onClick={cancelEdit}
                               className="h-8 px-2"
                             >
@@ -210,7 +213,7 @@ export function ShippingRatesTable({ initialRates }: ShippingRatesTableProps) {
               )}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
       </div>
     </div>
   );

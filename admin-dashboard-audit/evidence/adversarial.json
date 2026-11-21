@@ -1,0 +1,705 @@
+{
+  "fixtureOnly": true,
+  "tests": [
+    {
+      "name": "slug wrong basePath",
+      "result": {
+        "url": "http://127.0.0.1:3410/api/check-slug?type=product&slug=audit-scripttestscript",
+        "status": 404,
+        "text": [
+          "Could not check — saving may still be refused as a duplicate."
+        ]
+      }
+    },
+    {
+      "name": "clear customer search",
+      "result": {
+        "before": "http://127.0.0.1:3410/admin/customers?search=Salma&page=1",
+        "after": "http://127.0.0.1:3410/admin/customers?search=Salma&page=1",
+        "input": "Salma"
+      }
+    },
+    {
+      "name": "unauthenticated direct routes",
+      "result": [
+        {
+          "route": "/admin",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/login",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/unauthorized",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/unauthorized"
+        },
+        {
+          "route": "/admin/audit-log",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/brands",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/categories",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/coupons",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/customers",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/inventory",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/orders",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/products",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/reviews",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/settings",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/orders/000000000000000000000050",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/products/new",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/products/000000000000000000000030/edit",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/api/check-slug?slug=a",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        },
+        {
+          "route": "/admin/session/renew?next=https://example.test",
+          "status": 200,
+          "final": "http://127.0.0.1:3410/admin/login"
+        }
+      ]
+    },
+    {
+      "name": "customer role denied",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/login",
+        "text": "Welcome back.\n\nSign in to your Nest Electronics workspace.\n\nEmail Address\nPassword\nSign In\n\n© 2026 Nest Electronics - Secure Access Only"
+      }
+    },
+    {
+      "name": "slug route correctly prefixed",
+      "result": {
+        "status": 200,
+        "body": "{\"slug\":\"audit-safe\",\"available\":true,\"suggestion\":null}"
+      }
+    },
+    {
+      "name": "redirect hostile next values",
+      "result": [
+        {
+          "next": "https://example.test",
+          "status": 303,
+          "location": "/admin/"
+        },
+        {
+          "next": "//example.test",
+          "status": 303,
+          "location": "/admin/"
+        },
+        {
+          "next": "/\\example.test",
+          "status": 303,
+          "location": "/admin/"
+        },
+        {
+          "next": "/%2f%2fexample.test",
+          "status": 303,
+          "location": "/admin/%2f%2fexample.test"
+        },
+        {
+          "next": "/orders?q=abc",
+          "status": 303,
+          "location": "/admin/orders?q=abc"
+        }
+      ]
+    },
+    {
+      "name": "products GET 400",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/products",
+        "alerts": [
+          "The catalogue could not be loadedControlled audit failureTry again",
+          ""
+        ],
+        "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nControlled audit failure\nTry again"
+      }
+    },
+    {
+      "name": "products GET 401",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/products",
+        "alerts": [
+          "The catalogue could not be loadedYour session has ended. Sign in again.Try again",
+          ""
+        ],
+        "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nYour session has ended. Sign in again.\nTry again"
+      }
+    },
+    {
+      "name": "products GET 403",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/products",
+        "alerts": [
+          "The catalogue could not be loadedYour account does not have permission to do that.Try again",
+          ""
+        ],
+        "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nYour account does not have permission to do that.\nTry again"
+      }
+    },
+    {
+      "name": "products GET 404",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/products",
+        "alerts": [
+          "The catalogue could not be loadedThat order no longer exists.Try again",
+          ""
+        ],
+        "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nThat order no longer exists.\nTry again"
+      }
+    },
+    {
+      "name": "products GET 409",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/products",
+        "alerts": [
+          "The catalogue could not be loadedControlled audit failure Reload the order to see its current state.Try again",
+          ""
+        ],
+        "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nControlled audit failure Reload the order to see its current state.\nTry again"
+      }
+    },
+    {
+      "name": "products GET 422",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/products",
+        "alerts": [
+          "The catalogue could not be loadedControlled audit failureTry again",
+          ""
+        ],
+        "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nControlled audit failure\nTry again"
+      }
+    },
+    {
+      "name": "products GET 429",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/products",
+        "alerts": [
+          "The catalogue could not be loadedToo many requests. Wait a moment and try again.Try again",
+          ""
+        ],
+        "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nToo many requests. Wait a moment and try again.\nTry again"
+      }
+    },
+    {
+      "name": "products GET 500",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/products",
+        "alerts": [
+          "The catalogue could not be loadedThe API failed to process that. Nothing was changed.Try again",
+          ""
+        ],
+        "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nThe API failed to process that. Nothing was changed.\nTry again"
+      }
+    },
+    {
+      "name": "malformed 200 product response",
+      "result": {
+        "text": "This page could not be loaded\n\nYour workspace is still available. Try loading this page again.\n\nTry again"
+      }
+    },
+    {
+      "name": "identity 429",
+      "result": {
+        "url": "http://127.0.0.1:3410/admin/login",
+        "cookies": [
+          "nest_admin_at",
+          "nest_admin_rt",
+          "nest_admin_renewed"
+        ],
+        "requests": [
+          {
+            "path": "/auth/me",
+            "method": "GET",
+            "query": ""
+          },
+          {
+            "path": "/auth/refresh",
+            "method": "POST",
+            "query": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "identity unavailable legacy read",
+      "result": {
+        "text": "Coupons are not live at checkout yet\n\nCodes managed here cannot currently be redeemed by customers. Coupon entry is not available at checkout.\n\nCoupons\n\nCreate and manage promotional coupon codes.\n\nActive\n\nTotal\n\n1\n\nActive\n\n1\n\nExpired\n\n1\n\nUsed\n\n12\n\nAdd Coupon\nCode\tType\tValue\tUsage\tValidity\tStatus\tActions\n\nQA-WELCOME\n\t\nPercentage\t10%\t\n12 / 100\n\t\nFrom Oct 8, 2026\nNo expiry\n\tactive\t\nShowing 1 of 1 coupons",
+        "requests": [
+          {
+            "path": "/auth/me",
+            "method": "GET",
+            "query": ""
+          },
+          {
+            "path": "/rest/v1/coupons",
+            "method": "GET",
+            "query": "?select=*&offset=0&limit=25&order=created_at.desc"
+          },
+          {
+            "path": "/rest/v1/coupons",
+            "method": "HEAD",
+            "query": "?select=*"
+          },
+          {
+            "path": "/rest/v1/coupons",
+            "method": "HEAD",
+            "query": "?select=*&is_active=eq.true"
+          },
+          {
+            "path": "/rest/v1/coupons",
+            "method": "HEAD",
+            "query": "?select=*&expires_at=lt.2026-10-07T22%3A40%3A31.790Z"
+          },
+          {
+            "path": "/rest/v1/coupons",
+            "method": "GET",
+            "query": "?select=used_count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "disconnected API",
+      "result": {
+        "alerts": [
+          "The catalogue could not be loadedThe API could not be reached. Nothing was changed.Try again",
+          ""
+        ]
+      }
+    },
+    {
+      "name": "slow API 5 seconds",
+      "result": {
+        "ms": 5769,
+        "requests": [
+          {
+            "path": "/auth/me",
+            "method": "GET",
+            "query": ""
+          },
+          {
+            "path": "/admin/catalog/categories",
+            "method": "GET",
+            "query": ""
+          },
+          {
+            "path": "/admin/catalog/brands",
+            "method": "GET",
+            "query": ""
+          },
+          {
+            "path": "/admin/catalog/products",
+            "method": "GET",
+            "query": "?page=1&limit=20"
+          },
+          {
+            "path": "/admin/catalog/products",
+            "method": "GET",
+            "query": "?limit=1&state=published"
+          },
+          {
+            "path": "/admin/catalog/products",
+            "method": "GET",
+            "query": "?limit=1&state=draft"
+          },
+          {
+            "path": "/admin/catalog/products",
+            "method": "GET",
+            "query": "?limit=1&state=deleted"
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate identity calls and browser payload",
+      "result": {
+        "requests": [
+          {
+            "path": "/auth/me",
+            "method": "GET",
+            "query": ""
+          },
+          {
+            "path": "/admin/dashboard/stats",
+            "method": "GET",
+            "query": ""
+          },
+          {
+            "path": "/admin/orders/stats",
+            "method": "GET",
+            "query": ""
+          },
+          {
+            "path": "/admin/orders",
+            "method": "GET",
+            "query": "?limit=8"
+          },
+          {
+            "path": "/admin/audit-logs",
+            "method": "GET",
+            "query": "?limit=8"
+          }
+        ],
+        "resources": [
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_10-dqv3._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/0ife_next_dist_compiled_next-devtools_index_05js.qq.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/0ife_next_dist_compiled_react-dom_05f6ywk._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/0ife_next_dist_compiled_react-server-dom-turbopack_0nnc2ig._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/0ife_next_dist_compiled_0c-uct0._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/0ife_next_dist_client_0ki5ol0._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/0ife_next_dist_0rmw6qw._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/apps_admin_0rqeker._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/0i4a_%40swc_helpers_cjs_0hvz.20._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/turbopack-apps_admin_0d1utic._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/_0owe88r._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/node_modules__pnpm_0-653km._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/apps_admin_src_app_layout_tsx_13_~otm._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/_0jrw3dm._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/apps_admin_src_app_(dashboard)_layout_tsx_03-gdty._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/_0kzu~lx._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/apps_admin_src_app_global-error_tsx_0vkusnm._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/apps_admin_src_app_(dashboard)_page_tsx_0l_9f6h._.js",
+            "transfer": 541,
+            "decoded": 241
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/apps_admin_src_app_global-error_tsx_03-gdty._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/_0-5~9jf._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/apps_admin_src_app_(dashboard)_error_tsx_0l_9f6h._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/apps_admin_src_app_(dashboard)_loading_tsx_0l_9f6h._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0yjw1oe._.js",
+            "transfer": 300,
+            "decoded": 0
+          },
+          {
+            "url": "http://127.0.0.1:3410/admin/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_0se3g~v._.js",
+            "transfer": 300,
+            "decoded": 0
+          }
+        ],
+        "navigation": {
+          "name": "http://127.0.0.1:3410/admin",
+          "entryType": "navigation",
+          "startTime": 0,
+          "duration": 255.69999998807907,
+          "navigationId": 4626,
+          "initiatorType": "navigation",
+          "deliveryType": "",
+          "nextHopProtocol": "http/1.1",
+          "renderBlockingStatus": "non-blocking",
+          "contentType": "text/html",
+          "contentEncoding": "gzip",
+          "workerStart": 0,
+          "workerRouterEvaluationStart": 0,
+          "workerCacheLookupStart": 0,
+          "workerMatchedSourceType": "",
+          "workerFinalSourceType": "",
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 1.699999988079071,
+          "domainLookupStart": 1.699999988079071,
+          "domainLookupEnd": 1.699999988079071,
+          "connectStart": 1.699999988079071,
+          "secureConnectionStart": 0,
+          "connectEnd": 1.699999988079071,
+          "requestStart": 2.300000011920929,
+          "responseStart": 164.19999998807907,
+          "firstInterimResponseStart": 0,
+          "finalResponseHeadersStart": 164.19999998807907,
+          "responseEnd": 227.30000001192093,
+          "transferSize": 24462,
+          "encodedBodySize": 24162,
+          "decodedBodySize": 108343,
+          "responseStatus": 200,
+          "serverTiming": [],
+          "unloadEventStart": 176.5,
+          "unloadEventEnd": 176.5,
+          "domInteractive": 248.59999999403954,
+          "domContentLoadedEventStart": 248.59999999403954,
+          "domContentLoadedEventEnd": 248.59999999403954,
+          "domComplete": 255.5,
+          "loadEventStart": 255.69999998807907,
+          "loadEventEnd": 255.69999998807907,
+          "type": "navigate",
+          "redirectCount": 0,
+          "activationStart": 0,
+          "criticalCHRestart": 0,
+          "notRestoredReasons": null,
+          "confidence": {
+            "randomizedTriggerRate": 0.4994798,
+            "value": "low"
+          }
+        }
+      }
+    },
+    {
+      "name": "coupon malformed native validity",
+      "result": [
+        {
+          "id": "",
+          "type": "hidden",
+          "min": "",
+          "max": "",
+          "required": false,
+          "inForm": true
+        },
+        {
+          "id": "",
+          "type": "search",
+          "min": "",
+          "max": "",
+          "required": false,
+          "inForm": true
+        },
+        {
+          "id": "",
+          "type": "text",
+          "min": "",
+          "max": "",
+          "required": false,
+          "inForm": false
+        },
+        {
+          "id": "coupons-code-",
+          "type": "text",
+          "min": "",
+          "max": "",
+          "required": false,
+          "inForm": false
+        },
+        {
+          "id": "coupons-value-",
+          "type": "number",
+          "min": "0",
+          "max": "",
+          "required": false,
+          "inForm": false
+        },
+        {
+          "id": "coupons-usage-limit",
+          "type": "number",
+          "min": "0",
+          "max": "",
+          "required": false,
+          "inForm": false
+        },
+        {
+          "id": "coupons-min-order",
+          "type": "number",
+          "min": "0",
+          "max": "",
+          "required": false,
+          "inForm": false
+        },
+        {
+          "id": "coupons-max-discount",
+          "type": "number",
+          "min": "0",
+          "max": "",
+          "required": false,
+          "inForm": false
+        },
+        {
+          "id": "coupons-starts-at",
+          "type": "date",
+          "min": "",
+          "max": "",
+          "required": false,
+          "inForm": false
+        },
+        {
+          "id": "coupons-expires-at",
+          "type": "date",
+          "min": "",
+          "max": "",
+          "required": false,
+          "inForm": false
+        },
+        {
+          "id": "",
+          "type": "checkbox",
+          "min": "",
+          "max": "",
+          "required": false,
+          "inForm": false
+        }
+      ]
+    },
+    {
+      "name": "keyboard mobile menu",
+      "result": {
+        "inside": true,
+        "closed": 0,
+        "focus": "<button type=\"button\" class=\"admin-mobile-nav-trigger admin-icon-button\" aria-label=\"Open navigation\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"radix-_R_1airdlb_\" data-state=\"closed\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-menu\" aria-hidden=\"true\"><line x1=\"4\" x2=\"20\" y1=\"12\" y2=\"12\"></line><line x1=\"4\" x2=\"20\" y1=\"6\" y2=\"6\"></line><line x1=\"4\" x2=\"20\" y1=\"18\" y2=\"18\"></line></svg></button>"
+      }
+    },
+    {
+      "name": "partial JavaScript absent",
+      "result": {
+        "forms": [
+          {
+            "action": "",
+            "method": "POST"
+          },
+          {
+            "action": null,
+            "method": null
+          },
+          {
+            "action": null,
+            "method": null
+          }
+        ],
+        "interpretation": "Client onSubmit workflow requires hydration; submission not attempted without JS."
+      }
+    },
+    {
+      "name": "CPU 4x warm dashboard",
+      "result": {
+        "ms": 1004,
+        "devMode": true
+      }
+    }
+  ],
+  "errors": []
+}

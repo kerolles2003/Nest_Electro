@@ -5,6 +5,7 @@ import { Test } from '@nestjs/testing';
 import { getStorageToken, type ThrottlerStorage } from '@nestjs/throttler';
 import mongoose, { Connection, Model, Schema } from 'mongoose';
 import { randomUUID } from 'node:crypto';
+import { assertOwnedDatabase, readScratchRun } from '../../src/database/testing/scratch-run';
 import request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { databaseConfig, type DatabaseConfig } from '../../src/config/database.config';
@@ -35,7 +36,7 @@ import { User } from '../../src/modules/users/infrastructure/schemas/user.schema
  *
  * ## Why one index is dropped for real
  *
- * The HTTP cases drop `brand_visibility` from the live development database and
+ * The HTTP cases drop `brand_visibility` from this run-owned test database and
  * put it back. That is the mechanism actually being claimed, so mocking the
  * check would leave the claim untested.
  *
@@ -48,7 +49,7 @@ import { User } from '../../src/modules/users/infrastructure/schemas/user.schema
  */
 
 const RUN_ID = randomUUID().slice(0, 8);
-const SCRATCH_DB = `nest_index_health_${RUN_ID}`;
+
 const DROPPED_INDEX = 'brand_visibility';
 
 let app: INestApplication;
@@ -382,7 +383,7 @@ describe('the invariants that depend on an index existing', () => {
 
 describe('IndexHealthService, against a scratch collection', () => {
   /*
-   * A separate connection and a throwaway database, because these cases need
+   * A separate connection and a run-unique collection, because these cases need
    * index states that must never exist in the development database — including
    * a unique constraint that is not enforced.
    */
@@ -391,7 +392,7 @@ describe('IndexHealthService, against a scratch collection', () => {
 
   beforeAll(async () => {
     /*
-     * The same server, a database of its own, and its OWN client.
+     * The same owned database, a unique collection, and its OWN client.
      *
      * `connection.useDb()` would be shorter and shares the application's
      * client — which means it cannot be closed without taking the application's
@@ -399,12 +400,14 @@ describe('IndexHealthService, against a scratch collection', () => {
      * of the run. `dbName` overrides the database in the URI without parsing
      * it, so the two connections still cannot drift onto different servers.
      */
-    scratch = mongoose.createConnection(uri, { dbName: SCRATCH_DB, autoIndex: false });
+    scratch = mongoose.createConnection(uri, { dbName: readScratchRun('api-jest').database, autoIndex: false, autoCreate: false });
     await scratch.asPromise();
+    if (!scratch.db) throw new Error('No test connection');
+    await assertOwnedDatabase(scratch.db, readScratchRun('api-jest'));
 
     const schema = new Schema<{ email: string; note: string }>(
       { email: String, note: String },
-      { collection: 'scratch_things', autoIndex: false },
+      { collection: `scratch_things_${RUN_ID}`, autoIndex: false },
     );
     schema.index({ email: 1 }, { unique: true, name: 'scratch_email_unique' });
     schema.index({ note: 1 }, { name: 'scratch_note' });
@@ -413,12 +416,13 @@ describe('IndexHealthService, against a scratch collection', () => {
   });
 
   afterAll(async () => {
-    await scratch.dropDatabase();
     await scratch.close();
   });
 
   afterEach(async () => {
-    await model.collection.drop().catch(() => undefined);
+    if (!scratch.db) throw new Error('No test connection');
+    await assertOwnedDatabase(scratch.db, readScratchRun('api-jest'));
+    await model.collection.drop().catch((error: { code?: number }) => { if (error.code !== 26) throw error; });
   });
 
   function service(): IndexHealthService {

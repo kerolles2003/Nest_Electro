@@ -1,0 +1,6 @@
+{"timestamp":"00:04:23.279","source":"Server","level":"ERROR","message":"⨯ TypeError: Cannot read properties of null (reading 'data')"}
+{"timestamp":"00:06:49.572","source":"Server","level":"ERROR","message":"Error: Body exceeded 1 MB limit.\nTo configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit"}
+{"timestamp":"00:06:49.816","source":"Server","level":"ERROR","message":"⨯ \"uncaughtException:\" Error: Body exceeded 1 MB limit.\nTo configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit"}
+{"timestamp":"00:06:50.043","source":"Server","level":"ERROR","message":"⨯ \"uncaughtException: \" Error: Body exceeded 1 MB limit.\nTo configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit"}
+{"timestamp":"00:06:50.306","source":"Server","level":"ERROR","message":"⨯ Error: Body exceeded 1 MB limit.\nTo configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit"}
+{"timestamp":"00:07:30.023","source":"Server","level":"ERROR","message":"⨯ TypeError: Cannot read properties of null (reading 'data')"}

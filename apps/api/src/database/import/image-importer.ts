@@ -92,7 +92,7 @@ export class ImageImporter {
     readonly productId: Types.ObjectId;
     readonly paths: readonly string[];
     readonly existing: readonly { publicId: string }[];
-  }): Promise<{ images: unknown[] | null; result: ImageImportResult }> {
+  }): Promise<{ images: object[] | null; result: ImageImportResult }> {
     if (input.paths.length === 0) {
       return { images: null, result: NO_IMAGES };
     }
@@ -204,27 +204,14 @@ export class ImageImporter {
     }
   }
 
-  /**
-   * Destroys assets uploaded for a product whose row then failed to save.
-   *
-   * Without this a row that uploads three photographs and then trips the
-   * schema leaves three paid-for orphans in the account for every run. The
-   * ledger row goes with them, so the reconciliation report stays honest.
-   */
+  /** Failed imports retain uploaded bytes for explicit, attributable fenced cleanup.
+   * No migration/import is executed by this change. */
   async rollback(publicIds: readonly string[]): Promise<void> {
     for (const publicId of publicIds) {
-      try {
-        await this.media.destroy(publicId);
-      } catch (error) {
-        // Reported, never rethrown: the caller is already handling a failure,
-        // and losing that failure behind a cleanup error would hide the cause.
-        this.logger.warn(
-          `could not roll back ${publicId}: ` +
-            (error instanceof Error ? error.message : String(error)),
-        );
-      }
+      this.logger.warn(`import asset retained for explicit media cleanup: ${publicId}`);
     }
   }
+
 }
 
 /**

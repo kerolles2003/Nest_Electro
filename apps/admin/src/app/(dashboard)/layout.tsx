@@ -44,14 +44,13 @@ export default async function DashboardLayout({
   const identity = await readAdminIdentity();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="admin-shell">
+      <a className="admin-skip" href="#admin-main">Skip to main content</a>
       <AdminSidebar identity={identity} />
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="admin-workspace">
         <AdminHeader identity={identity} />
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-[1400px]">
-            {children}
-          </div>
+        <main id="admin-main" className="admin-main" tabIndex={-1}>
+          {children}
         </main>
       </div>
     </div>

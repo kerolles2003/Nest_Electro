@@ -65,6 +65,9 @@ export class MediaAssetResponseDto {
 
 /** One unreferenced asset in the reconciliation report. */
 export class UnreferencedAssetDto {
+  @ApiProperty({ description: 'Deletion is claimed; attachment is forbidden. Repeat explicit deletion to recover an uncertain provider outcome.' })
+  deletionPending!: boolean;
+
   @ApiProperty({ example: 'nest/products/68b000000000000000000001/kK3nQ8vRb2Xf' })
   publicId!: string;
 

@@ -1,10 +1,10 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin } from '@/lib/services';
 import { Suspense } from 'react';
 import { AuditLogTable } from '@/components/audit-log/AuditLogTable';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
 import { operatorMessage } from '@/lib/api/errors';
-import { AlertTriangle } from 'lucide-react';
 
 /**
  * The audit trail, from the API.
@@ -60,13 +60,7 @@ export default async function AuditLogPage(props: {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Audit log</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Every administrative action, with who did it and which fields changed. Append-only, kept
-          for two years.
-        </p>
-      </div>
+      <PageHeader title={<>Audit log</>} description="A clear record of your team’s changes, with who, what and when." />
 
       {logsRes.ok ? (
         <Suspense fallback={<AuditSkeleton />}>
@@ -84,15 +78,7 @@ export default async function AuditLogPage(props: {
          * the exact shape of the failure this screen exists to have stopped
          * repeating.
          */
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
-          <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-destructive/70" />
-          <h2 className="text-base font-bold text-foreground">The audit trail could not be read</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{operatorMessage(logsRes.error)}</p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            This is not the same as an empty log. Nothing has been lost — the records are written by
-            the API and are still there.
-          </p>
-        </div>
+        <ErrorState title="The audit trail could not be read" description={operatorMessage(logsRes.error)} />
       )}
     </div>
   );

@@ -1,0 +1,366 @@
+{
+  "fixtureOnly": true,
+  "results": [
+    {
+      "width": 320,
+      "route": "categories",
+      "button": "New category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 320,
+      "route": "brands",
+      "button": "New brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 320,
+      "route": "categories",
+      "button": "Delete category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 320,
+      "route": "brands",
+      "button": "Delete brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 320,
+      "route": "inventory",
+      "button": "Adjust",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 320,
+      "route": "inventory",
+      "button": "Movement history",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 320,
+      "route": "products",
+      "button": "Delete (recoverable)",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 320,
+      "mobileNavigation": true
+    },
+    {
+      "width": 375,
+      "route": "categories",
+      "button": "New category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 375,
+      "route": "brands",
+      "button": "New brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 375,
+      "route": "categories",
+      "button": "Delete category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 375,
+      "route": "brands",
+      "button": "Delete brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 375,
+      "route": "inventory",
+      "button": "Adjust",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 375,
+      "route": "inventory",
+      "button": "Movement history",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 375,
+      "route": "products",
+      "button": "Delete (recoverable)",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 375,
+      "mobileNavigation": true
+    },
+    {
+      "width": 768,
+      "route": "categories",
+      "button": "New category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 768,
+      "route": "brands",
+      "button": "New brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 768,
+      "route": "categories",
+      "button": "Delete category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 768,
+      "route": "brands",
+      "button": "Delete brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 768,
+      "route": "inventory",
+      "button": "Adjust",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 768,
+      "route": "inventory",
+      "button": "Movement history",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 768,
+      "route": "products",
+      "button": "Delete (recoverable)",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 768,
+      "mobileNavigation": true
+    },
+    {
+      "width": 1024,
+      "route": "categories",
+      "button": "New category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1024,
+      "route": "brands",
+      "button": "New brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1024,
+      "route": "categories",
+      "button": "Delete category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1024,
+      "route": "brands",
+      "button": "Delete brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1024,
+      "route": "inventory",
+      "button": "Adjust",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1024,
+      "route": "inventory",
+      "button": "Movement history",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1024,
+      "route": "products",
+      "button": "Delete (recoverable)",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1280,
+      "route": "categories",
+      "button": "New category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1280,
+      "route": "brands",
+      "button": "New brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1280,
+      "route": "categories",
+      "button": "Delete category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1280,
+      "route": "brands",
+      "button": "Delete brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1280,
+      "route": "inventory",
+      "button": "Adjust",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1280,
+      "route": "inventory",
+      "button": "Movement history",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1280,
+      "route": "products",
+      "button": "Delete (recoverable)",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1440,
+      "route": "categories",
+      "button": "New category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1440,
+      "route": "brands",
+      "button": "New brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1440,
+      "route": "categories",
+      "button": "Delete category",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1440,
+      "route": "brands",
+      "button": "Delete brand",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1440,
+      "route": "inventory",
+      "button": "Adjust",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1440,
+      "route": "inventory",
+      "button": "Movement history",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "width": 1440,
+      "route": "products",
+      "button": "Delete (recoverable)",
+      "focusTrap": true,
+      "escape": true,
+      "focusReturn": true
+    },
+    {
+      "searchShortcut": true,
+      "searchQuery": true,
+      "sortQuery": true,
+      "statusQuery": true
+    },
+    {
+      "specLabels": true,
+      "specAddRemove": true
+    },
+    {
+      "shippingInlineEditor": true
+    }
+  ]
+}

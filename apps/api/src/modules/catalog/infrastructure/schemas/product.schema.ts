@@ -192,6 +192,10 @@ const ProductDimensionsSchema = SchemaFactory.createForClass(ProductDimensions);
 
 @Schema({ collection: 'products', timestamps: true, strict: 'throw' })
 export class Product {
+  /** Every image-array mutation increments this optimistic concurrency token. */
+  @Prop({ type: Number, default: 0, min: 0 })
+  imageVersion!: number;
+
   /** Unique, uppercase-normalised, immutable after creation. */
   @Prop({ type: String, required: true, uppercase: true, trim: true })
   sku!: string;

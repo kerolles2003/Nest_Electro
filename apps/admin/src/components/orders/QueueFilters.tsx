@@ -1,4 +1,5 @@
 'use client';
+import { FilterBar } from '@/components/ui/admin';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
@@ -75,8 +76,8 @@ export default function QueueFilters({ q, placedFrom, placedTo, sort }: QueueFil
   const hasFilters = q !== '' || placedFrom !== '' || placedTo !== '';
 
   return (
-    <div className="rounded-xl border border-border bg-card p-3 space-y-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <FilterBar className="admin-queue-filters">
+      <div className="flex flex-wrap gap-3 items-end">
         {/*
           A FORM, so Enter submits and the control works before React has
           hydrated. The queue is the first screen an operator opens; it should
@@ -181,6 +182,6 @@ export default function QueueFilters({ q, placedFrom, placedTo, sort }: QueueFil
           <X className="h-3.5 w-3.5" /> Clear search and dates
         </button>
       )}
-    </div>
+    </FilterBar>
   );
 }

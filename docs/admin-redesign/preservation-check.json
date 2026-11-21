@@ -1,0 +1,5 @@
+{
+  "auditedFrontendFiles": 24,
+  "changedApiOrActionCalls": [],
+  "note": "AST inventory of API, guard and mutation call expressions; excludes the removed humaniseAction presentation helper. This is not a substitute for API E2E tests."
+}

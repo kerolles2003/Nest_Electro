@@ -8,6 +8,8 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { OwnedTestMedia, testCloudinaryCredentials } from '../../src/database/testing/test-providers';
+import type { MediaUploadRequest, StoredMediaAsset } from '../../src/modules/media/application/ports/media-storage.port';
 import sharp from 'sharp';
 import request from 'supertest';
 import { AppModule } from '../../src/app.module';
@@ -60,7 +62,7 @@ import { CloudinaryMediaStorage } from '../../src/providers/media/cloudinary/clo
  * value, so the whole suite is redirected by overriding one namespace, and no
  * test can reach the `nest/` prefix real content will use.
  *
- * `afterAll` lists that prefix from Cloudinary and destroys whatever is left,
+ * `afterAll` destroys only IDs recorded from successful uploads in this process,
  * so a run that fails half way still cleans up after itself. It asserts the
  * prefix is empty afterwards: a cleanup nobody checks is how a test account
  * fills up.
@@ -68,7 +70,7 @@ import { CloudinaryMediaStorage } from '../../src/providers/media/cloudinary/clo
 
 const INTEGRATION = process.env['CLOUDINARY_INTEGRATION'] === '1';
 
-const RUN_ID = randomUUID().slice(0, 8);
+const RUN_ID = randomUUID().replaceAll('-', '');
 const TEST_ROOT = `dev-test/${RUN_ID}`;
 const PASSWORD = 'brass thermionic valve';
 const ENTITY_ID = '68b000000000000000000001';
@@ -130,19 +132,18 @@ function upload(
  * output the day the account arrived. `test/infrastructure/secret-hygiene.spec.ts`
  * now fails if any credential value reaches a tracked file.
  */
-function credentials(): { cloudName: string; apiKey: string; apiSecret: string } {
-  const cloudName = process.env['CLOUDINARY_CLOUD_NAME'];
-  const apiKey = process.env['CLOUDINARY_API_KEY'];
-  const apiSecret = process.env['CLOUDINARY_API_SECRET'];
-
-  if (cloudName === undefined || apiKey === undefined || apiSecret === undefined) {
-    throw new Error(
-      'CLOUDINARY_INTEGRATION=1 but no credentials in the environment. ' +
-        'Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET.',
-    );
+const ownedMedia = new OwnedTestMedia(TEST_ROOT);
+class RunOwnedCloudinaryStorage extends CloudinaryMediaStorage {
+  override async upload(request: MediaUploadRequest): Promise<StoredMediaAsset> {
+    ownedMedia.assertPrefix(request.publicId);
+    const result = await super.upload(request);
+    ownedMedia.record(result.publicId);
+    return result;
   }
-
-  return { cloudName, apiKey, apiSecret };
+  override async destroy(publicId: string): Promise<void> {
+    ownedMedia.assertCreated(publicId);
+    await super.destroy(publicId);
+  }
 }
 
 const suite = INTEGRATION ? describe : describe.skip;
@@ -157,7 +158,9 @@ if (!INTEGRATION) {
 
 suite('the media pipeline, against the real Cloudinary account', () => {
   beforeAll(async () => {
-    storage = new CloudinaryMediaStorage(credentials());
+    storage = new RunOwnedCloudinaryStorage(testCloudinaryCredentials());
+
+    if ((await storage.list(TEST_ROOT)).length !== 0) throw new Error('Test media namespace already exists; refusing adoption.');
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       /*
@@ -240,13 +243,13 @@ suite('the media pipeline, against the real Cloudinary account', () => {
 
   afterAll(async () => {
     /*
-     * Remote first, then local. Destroying by what Cloudinary ACTUALLY holds
-     * rather than by what the ledger recorded is the only cleanup that also
+     * Remote first, then local. Destroying only successfully uploaded IDs
+     * rather than adopting the contents of a remote prefix also
      * removes assets from a case that failed between the upload and the ledger
      * write — which is exactly the state the orphan report exists to describe.
      */
     if (storage !== undefined) {
-      for (const publicId of await storage.list(TEST_ROOT)) {
+      for (const publicId of ownedMedia.ids()) {
         await storage.destroy(publicId);
       }
 

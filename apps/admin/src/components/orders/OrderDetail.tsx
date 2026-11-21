@@ -1,8 +1,12 @@
 'use client';
 
+import { TableScroll } from '@/components/ui/admin';
+
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast, StatusBadge } from '@nest/ui';
+import { useToast } from '@nest/ui';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   Package, CreditCard, Clock, MapPin, Phone, User, Printer, AlertCircle, Loader2, Route,
   StickyNote, Truck, CheckCircle2, RotateCcw, XCircle, Ban,
@@ -322,7 +326,8 @@ export default function OrderDetail({ order }: OrderDetailProps) {
                     data-testid="note"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    placeholder="Optional note, recorded on the status history…"
+                    aria-label="Optional order history note"
+              placeholder="Optional note, recorded on the status history…"
                     className="flex-1 h-8 rounded-md border border-border bg-background px-2 text-xs focus:ring-1 focus:ring-primary/20 outline-none"
                   />
                 </div>
@@ -339,7 +344,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
               </h2>
               <span className="text-[11px] text-muted-foreground">{order.items.length} lines</span>
             </div>
-            <div className="overflow-x-auto">
+            <TableScroll>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-muted/30 border-b border-border">
@@ -367,7 +372,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableScroll>
           </div>
         </div>
 

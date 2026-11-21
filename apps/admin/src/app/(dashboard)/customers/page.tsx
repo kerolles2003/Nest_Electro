@@ -1,3 +1,4 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin } from '@/lib/services';
 import { Suspense } from 'react';
 import { CustomersTable } from '@/components/customers/CustomersTable';
@@ -71,20 +72,17 @@ export default async function CustomersPage(props: {
    */
   const stats = {
     total: dStats?.customers.total ?? meta.total,
-    newThisWeek: dStats?.customers.newThisWeek ?? 0,
-    withOrders: dStats?.customers.withOrdersCount ?? 0,
+    newThisWeek: dStats?.customers.newThisWeek ?? null,
+    withOrders: dStats?.customers.withOrdersCount ?? null,
     revenueFormatted: dStats?.revenue.delivered.formatted ?? '—',
     windowLabel: dStats?.window.label ?? null,
   };
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Customers</h1>
-        <p className="text-sm text-muted-foreground mt-1">View customer accounts and their purchase activity.</p>
-      </div>
+      <PageHeader title={<>Customers</>} description={<>View customer accounts and their purchase activity.</>} />
 
-      <Suspense fallback={<CustomersSkeleton />}>
+      {!customerRes.ok ? <ErrorState title="Customers could not be loaded" description={customerRes.error.message} /> : <Suspense fallback={<CustomersSkeleton />}>
         <CustomersTable
           initialCustomers={customers}
           orderMap={orderMap}
@@ -93,7 +91,7 @@ export default async function CustomersPage(props: {
           total={meta.total}
           stats={stats}
         />
-      </Suspense>
+      </Suspense>}
     </div>
   );
 }

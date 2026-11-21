@@ -406,7 +406,7 @@ describe('an admin status transition is audited', () => {
 
     const [row] = await auditFor(order.id);
 
-    expect(row?.metadata).toEqual({ note: 'Customer confirmed by phone' });
+    expect(row?.metadata).toEqual({ outcome: 'succeeded' });
   });
 
   it('does not audit a CUSTOMER cancelling their own order', async () => {

@@ -1,3 +1,4 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { Suspense } from 'react';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
@@ -7,7 +8,6 @@ import type { OrderQueueSort } from '@/lib/api/endpoints';
 import type { OrderStatus } from '@/lib/api/types';
 import OrdersTable from '@/components/orders/OrdersTable';
 import QueueFilters from '@/components/orders/QueueFilters';
-import { AlertCircle } from 'lucide-react';
 
 /**
  * The order work queue, on the API.
@@ -139,10 +139,7 @@ export default async function OrdersPage(props: {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Orders</h1>
-        <p className="text-sm text-muted-foreground mt-1">Manage and fulfil customer orders.</p>
-      </div>
+      <PageHeader title={<>Orders</>} description={<>Manage and fulfil customer orders.</>} />
 
       <QueueFilters q={q} placedFrom={placedFrom} placedTo={placedTo} sort={sort} />
 
@@ -152,18 +149,7 @@ export default async function OrdersPage(props: {
          * an empty table here would read as "no orders", which on a
          * fulfilment console is the most expensive possible lie.
          */
-        <div
-          role="alert"
-          data-testid="queue-error"
-          className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center"
-        >
-          <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-3" />
-          <h2 className="text-base font-bold text-foreground">The order queue could not be loaded</h2>
-          <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">{queue.error.message}</p>
-          <p className="text-xs text-muted-foreground mt-3">
-            This is not an empty queue — it is an unanswered question. Reload to try again.
-          </p>
-        </div>
+        <div data-testid="queue-error"><ErrorState title="The order queue could not be loaded" description={<>{queue.error.message}</>} /></div>
       ) : (
         <Suspense fallback={<OrdersSkeleton />}>
           <OrdersTable

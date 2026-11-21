@@ -1,8 +1,12 @@
 'use client';
 
+import { TableScroll } from '@/components/ui/admin';
+
+
 import { useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Pagination, StatusBadge } from '@nest/ui';
+import { Pagination } from '@nest/ui';
+import { StatusBadge } from '@/components/ui/status-badge';
 import Link from 'next/link';
 import type { OrderStatus, OrderSummary, PaginationMeta } from '@/lib/api/types';
 import {
@@ -103,7 +107,7 @@ export default function OrdersTable({
   return (
     <div className="space-y-5">
       {/* Status tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+      <div className="admin-queue-statuses">
         {TILES.map((tile) => {
           const Icon = tile.icon;
           const count = counts[tile.status];
@@ -181,7 +185,7 @@ export default function OrdersTable({
 
       {/* Table */}
       <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <TableScroll>
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/30 border-b border-border">
@@ -277,7 +281,7 @@ export default function OrdersTable({
               )}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         <div className="px-5 py-3 border-t border-border bg-muted/20 flex flex-wrap items-center justify-between gap-3">
           <span className="text-xs text-muted-foreground">
             Showing <span className="font-semibold text-foreground">{orders.length}</span> of{' '}

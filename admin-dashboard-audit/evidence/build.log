@@ -1,0 +1,49 @@
+▲ Next.js 16.2.4 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.2s
+  Running TypeScript ...
+
+  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+  	- include was updated to add '.next-audit-build/types/**/*.ts'
+  	- include was updated to add '.next-audit-build/dev/types/**/*.ts'
+
+  Finished TypeScript in 7.5s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/18) ...
+  Generating static pages using 7 workers (4/18) 
+  Generating static pages using 7 workers (8/18) 
+  Generating static pages using 7 workers (13/18) 
+✓ Generating static pages using 7 workers (18/18) in 504ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /api/check-slug
+├ ƒ /audit-log
+├ ƒ /brands
+├ ƒ /categories
+├ ƒ /coupons
+├ ƒ /customers
+├ ƒ /inventory
+├ ƒ /login
+├ ƒ /orders
+├ ƒ /orders/[id]
+├ ƒ /products
+├ ƒ /products/[id]/edit
+├ ƒ /products/new
+├ ƒ /reviews
+├ ƒ /session/renew
+├ ƒ /settings
+└ ○ /unauthorized
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

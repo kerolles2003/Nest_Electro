@@ -7,6 +7,8 @@ import { ConsoleEmailSender } from '../../src/providers/email/console/console-em
 import { ResendEmailSender } from '../../src/providers/email/resend/resend-email-sender';
 import { ProvidersModule } from '../../src/providers/providers.module';
 import { BLOCKED_EMAIL_VENDOR_HOSTS } from './email-isolation';
+import { MediaStoragePort } from '../../src/modules/media/application/ports/media-storage.port';
+import { InMemoryMediaStorage } from '../../src/providers/media/memory/in-memory-media-storage';
 
 /**
  * The bootstrap assertion for F-07.
@@ -31,6 +33,10 @@ afterEach(async () => {
 });
 
 describe('F-07 — the test suite is isolated from every email vendor', () => {
+  it('P0 binds media to memory in the real provider graph', async () => {
+    moduleRef = await Test.createTestingModule({ imports: [ConfigModule, ProvidersModule] }).compile();
+    expect(moduleRef.get(MediaStoragePort)).toBeInstanceOf(InMemoryMediaStorage);
+  });
   it('forces EMAIL_PROVIDER=console regardless of the developer .env', () => {
     expect(process.env.EMAIL_PROVIDER).toBe('console');
   });

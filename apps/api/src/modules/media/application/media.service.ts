@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common';
 import { Types, type ClientSession } from 'mongoose';
 import { AppException } from '../../../common/errors/app.exception';
@@ -9,6 +9,13 @@ import { sniffImageFormat, mimeTypeForFormat } from './image-format';
 import { ImageProcessingError, processUploadedImage } from './image-processing';
 import { MediaStoragePort, type StoredMediaAsset } from './ports/media-storage.port';
 import { describeSharpBackend, detectSharpBackend } from './sharp-backend';
+
+import { TransactionService } from '../../../database/transaction.service';
+import { AuditService, type AuditContext } from '../../audit/application/audit.service';
+import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
+import { toAuditActor } from '../../audit/domain/audit-actor';
+import { UsersService } from '../../users/application/users.service';
+import { Role } from '../../users/infrastructure/schemas/user.schema';
 
 /**
  * The upload pipeline, in the order ADR-MEDIA-001 specifies it.
@@ -59,6 +66,9 @@ export class MediaService implements OnModuleInit {
     private readonly ledger: MediaAssetRepository,
     @Inject(mediaConfig.KEY) private readonly config: MediaConfig,
     @Inject(appConfig.KEY) private readonly app: AppConfig,
+    private readonly transactions: TransactionService,
+    private readonly audit: AuditService,
+    private readonly users: UsersService,
   ) {}
 
   /**
@@ -240,25 +250,37 @@ export class MediaService implements OnModuleInit {
     return this.ledger.release(publicId, session);
   }
 
-  async destroy(publicId: string): Promise<void> {
-    const asset = await this.ledger.find(publicId);
-
-    if (asset === null) {
-      throw AppException.mediaAssetNotFound();
-    }
-
-    if (asset.refCount > 0) {
-      throw AppException.mediaAssetInUse(asset.refCount);
-    }
-
-    // Store first, ledger second — the reverse of upload, and for the same
-    // reason. If the store call fails the row survives and the operation can be
-    // retried; if the row were removed first, a failed destroy would leave an
-    // asset nothing knows about and nothing can ever reach.
+  async destroy(publicId: string, context: { actorId: Types.ObjectId; forensics: AuditContext }): Promise<void> {
+    const actor = await this.users.findById(context.actorId);
+    if (!actor) throw AppException.accountDisabled();
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(actor.role)) throw AppException.forbidden();
+    const asset = await this.transactions.run(async session => {
+      const claimed = await this.ledger.claimDeletion(publicId, randomUUID(), session);
+      if (!claimed) {
+        const current = await this.ledger.find(publicId, session);
+        if (!current) throw AppException.mediaAssetNotFound();
+        if (current.refCount !== 0 || !current.deleting) throw AppException.mediaAssetInUse(current.refCount);
+        return current;
+      }
+      if (!claimed.destroyedAt) await this.audit.record({
+        actor: toAuditActor(actor), action: AuditAction.MEDIA_DELETE_REQUESTED,
+        entity: { type: AuditEntityType.MEDIA, id: claimed._id, label: publicId },
+        metadata: { outcome: 'requested', operationId: claimed.deletionId }, context: context.forensics,
+      }, session);
+      return claimed;
+    });
+    if (asset.destroyedAt) return;
+    // External effects never occur within a retryable Mongo transaction.
+    // Failed/uncertain provider outcomes keep the permanent fence for safe retry.
     await this.storage.destroy(publicId);
-    await this.ledger.forget(publicId);
-
-    this.logger.log(`media destroyed  publicId=${publicId}`);
+    await this.transactions.run(async session => {
+      if (!await this.ledger.markDestroyed(publicId, session)) return;
+      await this.audit.record({
+        actor: toAuditActor(actor), action: AuditAction.MEDIA_DELETED,
+        entity: { type: AuditEntityType.MEDIA, id: asset._id, label: publicId },
+        metadata: { outcome: 'succeeded', operationId: asset.deletionId }, context: context.forensics,
+      }, session);
+    });
   }
 
   /**
@@ -291,6 +313,7 @@ export class MediaService implements OnModuleInit {
       unreferenced: unreferenced.map((asset) => ({
         publicId: asset.publicId,
         bytes: asset.bytes,
+        deletionPending: asset.deleting === true,
         createdAt: asset.createdAt.toISOString(),
       })),
     };
@@ -347,7 +370,7 @@ export interface MediaReconciliation {
   /** In the ledger, absent from the store — destroyed out of band. */
   readonly inLedgerOnly: readonly string[];
   /** Known to both, referenced by nothing — safe to destroy, if intended. */
-  readonly unreferenced: readonly { publicId: string; bytes: number; createdAt: string }[];
+  readonly unreferenced: readonly { publicId: string; bytes: number; deletionPending: boolean; createdAt: string }[];
 }
 
 /** Bytes as a person reads them, so a limit message is actionable. */

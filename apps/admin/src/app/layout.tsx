@@ -1,39 +1,26 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { connection } from 'next/server';
 import { AdminProviders } from "@/components/AdminProviders";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Nest Electronics Admin",
   description: "Admin dashboard for Nest Electronics",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Nonces are per request; never prerender a shell with nonce-less scripts.
+  await connection();
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased dark`}
+      className="h-full antialiased"
     >
-      <body className="min-h-full bg-background text-foreground font-sans">
+      <body className="admin-app min-h-full bg-background text-foreground font-sans">
         <AdminProviders>
           {children}
         </AdminProviders>

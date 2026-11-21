@@ -1,0 +1,20 @@
+[
+  {
+    "route": "/categories",
+    "ms": 2549,
+    "width": 320,
+    "documentWidth": 320,
+    "rows": 0,
+    "nodes": 20228,
+    "htmlExecuted": false
+  },
+  {
+    "route": "/brands",
+    "ms": 1550,
+    "width": 320,
+    "documentWidth": 320,
+    "rows": 0,
+    "nodes": 20225,
+    "htmlExecuted": false
+  }
+]

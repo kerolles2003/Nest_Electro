@@ -37,16 +37,12 @@ const COPY: Record<Domain, { readonly title: string; readonly detail: string }> 
   coupons: {
     title: 'Coupons are not live at checkout yet',
     detail:
-      'This screen still uses the old database, which is deliberate: coupons are rebuilt whole in ' +
-      'a later phase rather than half-migrated now. Nothing here reaches a customer — there is no ' +
-      'coupon field at checkout, so a code created here cannot be redeemed.',
+      'Codes managed here cannot currently be redeemed by customers. Coupon entry is not available at checkout.',
   },
   reviews: {
     title: 'Reviews are not shown on the storefront yet',
     detail:
-      'This screen still uses the old database, which is deliberate: reviews are rebuilt whole in ' +
-      'a later phase rather than half-migrated now. Moderating here changes nothing a customer ' +
-      'sees, because no product page renders reviews at all.',
+      'Moderation here does not affect live product pages. Customers cannot see these reviews yet.',
   },
 };
 

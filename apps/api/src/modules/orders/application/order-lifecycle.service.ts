@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { ClientSession } from 'mongoose';
 import { Types } from 'mongoose';
-import { AuditService, type AuditContext } from '../../audit/application/audit.service';
+import { AuditService, type AuditContext, type AuditActorInput } from '../../audit/application/audit.service';
 import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
 import { AppException } from '../../../common/errors/app.exception';
 import { TransactionService } from '../../../database/transaction.service';
@@ -27,6 +27,7 @@ export interface TransitionActor {
 }
 
 export interface TransitionCommand {
+  readonly audit?: { actor: AuditActorInput; context: AuditContext };
   readonly orderId: Types.ObjectId;
   readonly to: OrderStatus;
   readonly actor: TransitionActor;
@@ -229,56 +230,13 @@ export class OrderLifecycleService {
 
     try {
       const updated = await this.transition({
+        audit: { actor: { id: profile._id, role: profile.role, name: profile.fullName, email: profile.email }, context: command.context },
         orderId: command.orderId,
         to: command.to,
         actor: { id: profile._id, role: profile.role, name: profile.fullName },
         ...(command.reason !== undefined ? { reason: command.reason } : {}),
         ...(command.note !== undefined ? { note: command.note } : {}),
         ...(command.shipment !== undefined ? { shipment: command.shipment } : {}),
-      });
-
-      /*
-       * POST-COMMIT, and outside the transaction on purpose.
-       *
-       * AUDIT-MODEL.md §5 rule 2: an audit write must never roll back a
-       * successful business operation. A delivered order is more important than
-       * its audit line, so `record` cannot throw and this cannot fail the
-       * transition.
-       *
-       * This is the SECOND record of the same event, and that is the point.
-       * `statusHistory` is business history — customer-visible, embedded,
-       * answering *what happened to this order* (§6.1). This answers *who did
-       * it and were they allowed to* (§1), which is a different question with a
-       * different audience and a different retention. Phase 6 recorded only the
-       * first and concluded the second was covered; it was not, and every
-       * intervention between then and now is unaudited.
-       */
-      const latest = updated.statusHistory[updated.statusHistory.length - 1];
-
-      await this.audit.record({
-        actor: {
-          id: profile._id,
-          role: profile.role,
-          name: profile.fullName,
-          email: profile.email,
-        },
-        action: AuditAction.ORDER_STATUS_CHANGED,
-        entity: {
-          type: AuditEntityType.ORDER,
-          id: updated._id,
-          // The order NUMBER, not the id: §4 wants a label the log reads
-          // without joins, and nobody recognises an ObjectId.
-          label: updated.orderNumber,
-        },
-        changes: {
-          before: { status: latest?.from ?? null },
-          after: { status: updated.status },
-        },
-        metadata: {
-          ...(command.note !== undefined && command.note !== null ? { note: command.note } : {}),
-          ...(command.reason !== undefined ? { reason: command.reason } : {}),
-        },
-        context: command.context,
       });
 
       return updated;
@@ -317,7 +275,7 @@ export class OrderLifecycleService {
    * No email, no HTTP, no external I/O may ever appear in here
    * (CONSISTENCY-MODEL.md §7). Notifications belong after the commit.
    */
-  async transition(command: TransitionCommand): Promise<OrderLean> {
+  private async transition(command: TransitionCommand): Promise<OrderLean> {
     if (command.to === OrderStatus.CANCELLED && (command.reason?.trim() ?? '') === '') {
       // A CALLER error, not a client one — the customer-facing DTO already
       // requires `reason`, so reaching this means a future admin operation
@@ -417,6 +375,14 @@ export class OrderLifecycleService {
         session,
       );
     }
+
+    if (command.audit) await this.audit.record({
+      actor: command.audit.actor, action: AuditAction.ORDER_STATUS_CHANGED,
+      entity: { type: AuditEntityType.ORDER, id: updated._id, label: updated.orderNumber },
+      changes: { before: { status: from }, after: { status: updated.status } },
+      // Free-form customer notes/reasons stay in access-controlled order history.
+      metadata: { outcome: 'succeeded' }, context: command.audit.context,
+    }, session);
 
     return updated;
   }

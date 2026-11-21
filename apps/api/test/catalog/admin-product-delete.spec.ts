@@ -137,7 +137,7 @@ function restore(id: string): request.Test {
 
 async function auditFor(productId: string) {
   return auditLogs
-    .find({ 'entity.type': AuditEntityType.PRODUCT, 'entity.id': new Types.ObjectId(productId) })
+    .find({ 'entity.type': AuditEntityType.PRODUCT, 'entity.id': new Types.ObjectId(productId), action: { $ne: AuditAction.ADMIN_MUTATION_REQUESTED } })
     .sort({ createdAt: 1 })
     .lean()
     .exec();
@@ -234,6 +234,7 @@ afterAll(async () => {
   }
 
   if (createdUserIds.length > 0) {
+    await auditLogs.deleteMany({ 'actor.id': { $in: createdUserIds } }).exec();
     await refreshTokens.deleteMany({ userId: { $in: createdUserIds } }).exec();
     await users.deleteMany({ _id: { $in: createdUserIds } }).exec();
   }

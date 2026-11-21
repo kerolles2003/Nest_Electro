@@ -1,0 +1,510 @@
+{
+  "axe": [
+    {
+      "route": "/admin",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/login",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "violations": [],
+      "incomplete": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/brands",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/categories",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/coupons",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/customers",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/inventory",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/orders",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/products",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/reviews",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/settings",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": [
+            {
+              "html": "<span class=\"text-warning/80\">marking this order delivered records the cash as collected, in the same write.</span>",
+              "target": [
+                ".text-warning\\/80"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.74 (foreground color: #97743f, background color: #f2efe9, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/products/new",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "unnamed search clear",
+      "buttons": [
+        "<button class=\"absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x h-3.5 w-3.5\"><path d=\"M18 6 6 18\"></path><path d=\"m6 6 12 12\"></path></svg></button>"
+      ]
+    },
+    {
+      "name": "upload within advertised 5 MB",
+      "bytes": 1923982,
+      "responses": [
+        {
+          "url": "http://127.0.0.1:3410/admin/products/000000000000000000000030/edit",
+          "status": 500
+        },
+        {
+          "url": "http://127.0.0.1:3410/__nextjs_original-stack-frames",
+          "status": 200
+        }
+      ],
+      "text": "Skip to main content\nn\n·\nnest\nELECTRONICS\nStore workspace\nDashboard\nCatalog\nProducts\nCategories\nBrands\nInventory\nSales\nOrders\nCoupons\nUsers\nCustomers\nReviews\nSystem\nAudit Log\nSettings\nV\n\nVisual QA Operator\n\nvisual@example.test\n\nWorkspace\nProducts\nEdit product\nCtrl K\nV\nVisual QA Operator\nThis page could not be loaded\n\nYour workspace is still available. Try loading this page again.\n\nTry again",
+      "requests": [
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/dashboard/stats",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/orders/stats",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/orders",
+          "method": "GET",
+          "query": "?limit=8"
+        },
+        {
+          "path": "/admin/audit-logs",
+          "method": "GET",
+          "query": "?limit=8"
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/audit-logs",
+          "method": "GET",
+          "query": "?page=1&limit=25"
+        },
+        {
+          "path": "/admin/audit-logs/actions",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/brands",
+          "method": "GET",
+          "query": "?includeDeleted=true"
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/categories",
+          "method": "GET",
+          "query": "?includeDeleted=true"
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/rest/v1/coupons",
+          "method": "GET",
+          "query": "?select=*&offset=0&limit=25&order=created_at.desc"
+        },
+        {
+          "path": "/rest/v1/coupons",
+          "method": "HEAD",
+          "query": "?select=*"
+        },
+        {
+          "path": "/rest/v1/coupons",
+          "method": "HEAD",
+          "query": "?select=*&is_active=eq.true"
+        },
+        {
+          "path": "/rest/v1/coupons",
+          "method": "HEAD",
+          "query": "?select=*&expires_at=lt.2026-10-07T22%3A39%3A34.577Z"
+        },
+        {
+          "path": "/rest/v1/coupons",
+          "method": "GET",
+          "query": "?select=used_count"
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/customers",
+          "method": "GET",
+          "query": "?page=1&limit=25"
+        },
+        {
+          "path": "/admin/dashboard/stats",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/inventory",
+          "method": "GET",
+          "query": "?page=1&limit=25"
+        },
+        {
+          "path": "/admin/catalog/categories",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/dashboard/stats",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/orders",
+          "method": "GET",
+          "query": "?page=1&limit=20"
+        },
+        {
+          "path": "/admin/orders/stats",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/products",
+          "method": "GET",
+          "query": "?page=1&limit=20"
+        },
+        {
+          "path": "/admin/catalog/categories",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/brands",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/products",
+          "method": "GET",
+          "query": "?limit=1&state=published"
+        },
+        {
+          "path": "/admin/catalog/products",
+          "method": "GET",
+          "query": "?limit=1&state=draft"
+        },
+        {
+          "path": "/admin/catalog/products",
+          "method": "GET",
+          "query": "?limit=1&state=deleted"
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/rest/v1/reviews",
+          "method": "GET",
+          "query": "?select=*%2Cproduct%3Aproducts%28name_en%2Cslug%29%2Cprofiles%28full_name%2Cavatar_url%29&offset=0&limit=25&order=created_at.desc"
+        },
+        {
+          "path": "/rest/v1/reviews",
+          "method": "HEAD",
+          "query": "?select=*"
+        },
+        {
+          "path": "/rest/v1/reviews",
+          "method": "HEAD",
+          "query": "?select=*&moderation_status=eq.pending"
+        },
+        {
+          "path": "/rest/v1/reviews",
+          "method": "HEAD",
+          "query": "?select=*&moderation_status=eq.approved"
+        },
+        {
+          "path": "/rest/v1/reviews",
+          "method": "HEAD",
+          "query": "?select=*&moderation_status=eq.rejected"
+        },
+        {
+          "path": "/rest/v1/reviews",
+          "method": "HEAD",
+          "query": "?select=*&is_verified_purchase=eq.true"
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/shipping-rates",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/orders/000000000000000000000050",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/categories",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/brands",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/products/000000000000000000000030",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/categories",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/brands",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/customers",
+          "method": "GET",
+          "query": "?page=1&limit=25"
+        },
+        {
+          "path": "/admin/dashboard/stats",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/customers",
+          "method": "GET",
+          "query": "?page=1&limit=25&q=Salma"
+        },
+        {
+          "path": "/admin/dashboard/stats",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/auth/me",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/products/000000000000000000000030",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/categories",
+          "method": "GET",
+          "query": ""
+        },
+        {
+          "path": "/admin/catalog/brands",
+          "method": "GET",
+          "query": ""
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

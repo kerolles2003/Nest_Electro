@@ -280,10 +280,9 @@ describe('what it uploads', () => {
     const product = await productBySku(`${SKU_PREFIX}-R`);
     expect(product.images).toHaveLength(0);
 
-    // And the uploads were rolled back rather than left in the account, which
-    // is only safe BECAUSE the counts rolled back with them.
-    expect(await assets.countDocuments({ publicId: new RegExp(`^${config.folderRoot}/`) }).exec()).toBe(0);
-    expect(await storage.list(config.folderRoot)).toHaveLength(0);
+    // Failed imports retain orphan bytes for explicit attributable cleanup.
+    expect(await assets.countDocuments({ publicId: new RegExp(`^${config.folderRoot}/`), refCount: 0 }).exec()).toBe(2);
+    expect(await storage.list(config.folderRoot)).toHaveLength(2);
 
     // Re-runnable: the product has no images, so a second run imports them.
     await run(csv(`${SKU_PREFIX}-R,Widget R ${RUN_ID},tools,199.00,10,one.jpg;two.png\n`));

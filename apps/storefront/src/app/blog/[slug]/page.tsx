@@ -1,3 +1,5 @@
+import { serializeJsonLd } from '@/lib/safe-content';
+import { headers } from 'next/headers';
 import { getCachedBlogPostBySlug } from "@/lib/services";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -64,6 +66,7 @@ export async function generateMetadata(
 export default async function BlogPostPage(
   props: { params: Promise<{ slug: string }> }
 ) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
   const params = await props.params;
 
   const post = await getCachedBlogPostBySlug(params.slug);
@@ -92,8 +95,8 @@ export default async function BlogPostPage(
 
   return (
     <div className="container-nest py-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script nonce={nonce} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(articleJsonLd) }} />
+      <script nonce={nonce} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }} />
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-[13px] font-medium text-foreground-muted mb-10 bg-surface-low px-4 py-2.5 rounded-full inline-flex border border-border/50" aria-label="Breadcrumb">

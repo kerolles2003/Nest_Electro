@@ -1,0 +1,72 @@
+[WebServer] (node:3196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:16868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 
+[WebServer] > api@0.1.0 build D:\eng-mina\nest-electronics\apps\api
+[WebServer] > nest build
+[WebServer] 
+[WebServer] (node:1384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 
+[WebServer] > api@0.1.0 test-db D:\eng-mina\nest-electronics\apps\api
+[WebServer] > node dist/database/testing/scratch-database.cli.js "--" "--suite" "admin-e2e" "--ensure-clean"
+[WebServer] 
+[WebServer] (node:26084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [Nest] 26084  - 10/08/2026, 1:36:06 AM     LOG [NestFactory] Starting Nest application...
+[WebServer] [Nest] 26084  - 10/08/2026, 1:36:06 AM     LOG [Database] database connection starting (database: nest_test_admin_e2e_44b4c5b2c8897a56bcf9be10dc56c8fc)
+[WebServer] [Nest] 26084  - 10/08/2026, 1:36:06 AM     LOG [InstanceLoader] ConfigModule dependencies initialized +1ms
+[WebServer] [Nest] 26084  - 10/08/2026, 1:36:06 AM     LOG [InstanceLoader] MongooseModule dependencies initialized +0ms
+[WebServer] [Nest] 26084  - 10/08/2026, 1:36:06 AM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +7ms
+[WebServer] [Nest] 26084  - 10/08/2026, 1:36:06 AM     LOG [InstanceLoader] ThrottlerModule dependencies initialized +0ms
+[WebServer] [Nest] 26084  - 10/08/2026, 1:36:06 AM   ERROR [ExceptionHandler] UnknownDependenciesException [Error]: Nest can't resolve dependencies of the CustomersAdminService (UserModel, OrderModel, AuditService, ?). Please make sure that the argument TransactionService at index [3] is available in the UsersModule module.
+[WebServer] 
+[WebServer] Potential solutions:
+[WebServer] - Is UsersModule a valid NestJS module?
+[WebServer] - If TransactionService is a provider, is it part of the current UsersModule?
+[WebServer] - If TransactionService is exported from a separate @Module, is that module imported within UsersModule?
+[WebServer]   @Module({
+[WebServer]     imports: [ /* the Module containing TransactionService */ ]
+[WebServer]   })
+[WebServer] 
+[WebServer] For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
+[WebServer]     at Injector.lookupComponentInParentModules (D:\eng-mina\nest-electronics\node_modules\.pnpm\@nestjs+core@11.2.3_@nestjs+common@11.2.3_class-transformer@0.5.1_class-validator@0.15.1_refl_bq5c7gtim7pugj72bfafutnwmm\node_modules\@nestjs\core\injector\injector.js:312:19)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[WebServer]     at async resolveParam (D:\eng-mina\nest-electronics\node_modules\.pnpm\@nestjs+core@11.2.3_@nestjs+common@11.2.3_class-transformer@0.5.1_class-validator@0.15.1_refl_bq5c7gtim7pugj72bfafutnwmm\node_modules\@nestjs\core\injector\injector.js:151:38)
+[WebServer]     at async Promise.all (index 3)
+[WebServer]     at async Injector.resolveConstructorParams (D:\eng-mina\nest-electronics\node_modules\.pnpm\@nestjs+core@11.2.3_@nestjs+common@11.2.3_class-transformer@0.5.1_class-validator@0.15.1_refl_bq5c7gtim7pugj72bfafutnwmm\node_modules\@nestjs\core\injector\injector.js:180:27)
+[WebServer]     at async Injector.loadInstance (D:\eng-mina\nest-electronics\node_modules\.pnpm\@nestjs+core@11.2.3_@nestjs+common@11.2.3_class-transformer@0.5.1_class-validator@0.15.1_refl_bq5c7gtim7pugj72bfafutnwmm\node_modules\@nestjs\core\injector\injector.js:78:13)
+[WebServer]     at async Injector.loadProvider (D:\eng-mina\nest-electronics\node_modules\.pnpm\@nestjs+core@11.2.3_@nestjs+common@11.2.3_class-transformer@0.5.1_class-validator@0.15.1_refl_bq5c7gtim7pugj72bfafutnwmm\node_modules\@nestjs\core\injector\injector.js:112:9)
+[WebServer]     at async D:\eng-mina\nest-electronics\node_modules\.pnpm\@nestjs+core@11.2.3_@nestjs+common@11.2.3_class-transformer@0.5.1_class-validator@0.15.1_refl_bq5c7gtim7pugj72bfafutnwmm\node_modules\@nestjs\core\injector\instance-loader.js:56:13
+[WebServer]     at async Promise.all (index 5)
+[WebServer]     at async InstanceLoader.createInstancesOfProviders (D:\eng-mina\nest-electronics\node_modules\.pnpm\@nestjs+core@11.2.3_@nestjs+common@11.2.3_class-transformer@0.5.1_class-validator@0.15.1_refl_bq5c7gtim7pugj72bfafutnwmm\node_modules\@nestjs\core\injector\instance-loader.js:55:9) {
+[WebServer]   type: 'CustomersAdminService',
+[WebServer]   context: {
+[WebServer]     index: 3,
+[WebServer]     dependencies: [
+[WebServer]       'UserModel',
+[WebServer]       'OrderModel',
+[WebServer]       [class AuditService],
+[WebServer]       [class TransactionService]
+[WebServer]     ],
+[WebServer]     name: [class TransactionService]
+[WebServer]   },
+[WebServer]   metadata: {
+[WebServer]     id: '1a1cea27118d02bdb5005'
+[WebServer]   },
+[WebServer]   moduleRef: {
+[WebServer]     id: '473b5d17480388dab6fa7'
+[WebServer]   }
+[WebServer] }
+[WebServer] D:\eng-mina\nest-electronics\apps\api:
+[WebServer]  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  api@0.1.0 test-db: `node dist/database/testing/scratch-database.cli.js "--" "--suite" "admin-e2e" "--ensure-clean"`
+[WebServer] Exit status 1
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+browser-health: nothing was ignored in this run.

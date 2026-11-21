@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, Types } from 'mongoose';
+import { FilterQuery, Model, Types, type ClientSession } from 'mongoose';
+import { TransactionService } from '../../../database/transaction.service';
+import { Role } from '../../users/infrastructure/schemas/user.schema';
 import { AppException } from '../../../common/errors/app.exception';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from '../../../common/dto/pagination-query.dto';
 import { AuditService, type AuditContext } from '../../audit/application/audit.service';
 import { toAuditActor } from '../../audit/domain/audit-actor';
 import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
-import { MediaService } from '../../media/application/media.service';
 import { Order } from '../../orders/infrastructure/schemas/order.schema';
 import { UsersService, type UserProfile } from '../../users/application/users.service';
 import { Brand, type BrandLean } from '../infrastructure/schemas/brand.schema';
@@ -181,10 +182,10 @@ export class ProductAdminService {
     private readonly users: UsersService,
     private readonly redirects: SlugRedirectService,
     private readonly images: ProductImageService,
-    private readonly media: MediaService,
     private readonly categoriesCache: CategoriesService,
     private readonly brandsCache: BrandsService,
     private readonly audit: AuditService,
+    private readonly transactions: TransactionService,
   ) {}
 
   /**
@@ -201,6 +202,7 @@ export class ProductAdminService {
       throw AppException.accountDisabled();
     }
 
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(profile.role)) throw AppException.forbidden();
     return profile;
   }
 
@@ -237,8 +239,8 @@ export class ProductAdminService {
    * product from the deleted list must see it, and a 404 there would make the
    * restore action impossible to reach.
    */
-  async findById(id: Types.ObjectId): Promise<ProductLean> {
-    const product = await this.products.findById(id).lean<ProductLean>().exec();
+  async findById(id: Types.ObjectId, session?: ClientSession): Promise<ProductLean> {
+    const product = await this.products.findById(id).session(session ?? null).lean<ProductLean>().exec();
 
     if (product === null) {
       throw AppException.productNotFound();
@@ -261,6 +263,12 @@ export class ProductAdminService {
    */
   async create(input: CreateProductInput, context: AdminWriteContext): Promise<ProductLean> {
     const actor = await this.resolveActor(context.actorId);
+    const creationId = new Types.ObjectId();
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.PRODUCT_CREATED,
+      entity: { type: AuditEntityType.PRODUCT, id: creationId, label: creationId.toHexString() },
+      context: context.forensics,
+    });
     const { category, brand } = await this.resolveParents(input.categoryId, input.brandId ?? null);
 
     assertSalePriceBelowBase(input.basePrice, input.salePrice ?? null);
@@ -271,6 +279,7 @@ export class ProductAdminService {
 
     try {
       const document = await this.products.create({
+        _id: creationId,
         sku: input.sku,
         slug: input.slug,
         name: toLocalized(input.name),
@@ -317,7 +326,7 @@ export class ProductAdminService {
        * forbids storing. The facts that make a creation reconstructable go in
        * `metadata` instead: what it is, what it costs, and whether it went live.
        */
-      metadata: {
+      metadata: { operationId: auditOperationId, outcome: 'succeeded',
         slug: created.slug,
         name: created.name.en,
         categoryId: created.category.id.toHexString(),
@@ -362,6 +371,11 @@ export class ProductAdminService {
     context: AdminWriteContext,
   ): Promise<ProductLean> {
     const actor = await this.resolveActor(context.actorId);
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.PRODUCT_UPDATED,
+      entity: { type: AuditEntityType.PRODUCT, id: id, label: id.toHexString() },
+      context: context.forensics,
+    });
     const current = await this.findById(id);
 
     if (current.deletedAt !== null) {
@@ -480,6 +494,7 @@ export class ProductAdminService {
       entity: { type: AuditEntityType.PRODUCT, id, label: updated.sku },
       before: auditableProduct(current),
       after: auditableProduct(updated),
+      metadata: { operationId: auditOperationId, outcome: 'succeeded' },
       context: context.forensics,
     });
 
@@ -510,6 +525,11 @@ export class ProductAdminService {
     context: AdminWriteContext,
   ): Promise<ProductLean> {
     const actor = await this.resolveActor(context.actorId);
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: isActive ? AuditAction.PRODUCT_PUBLISHED : AuditAction.PRODUCT_UNPUBLISHED,
+      entity: { type: AuditEntityType.PRODUCT, id: id, label: id.toHexString() },
+      context: context.forensics,
+    });
     const current = await this.findById(id);
 
     if (current.deletedAt !== null) {
@@ -534,6 +554,7 @@ export class ProductAdminService {
       entity: { type: AuditEntityType.PRODUCT, id, label: updated.sku },
       before: { isActive: current.isActive },
       after: { isActive: updated.isActive },
+      metadata: { operationId: auditOperationId, outcome: 'succeeded' },
       context: context.forensics,
     });
 
@@ -564,45 +585,49 @@ export class ProductAdminService {
    */
   async softDelete(id: Types.ObjectId, context: AdminWriteContext): Promise<ProductLean> {
     const actor = await this.resolveActor(context.actorId);
-    const current = await this.findById(id);
+    const { current, updated } = await this.transactions.run(async session => {
+      const current = await this.findById(id, session);
 
-    if (current.deletedAt !== null) {
-      // Already gone. Refused rather than answered 200, for the same reason a
-      // repeated order transition is: a caller that gets 200 twice cannot tell
-      // whether it deleted once or twice, and the second answer would carry a
-      // `deletedAt` from an operator who is not the one asking.
-      throw AppException.productDeleted();
-    }
+      if (current.deletedAt !== null) {
+        // Already gone. Refused rather than answered 200, for the same reason a
+        // repeated order transition is: a caller that gets 200 twice cannot tell
+        // whether it deleted once or twice, and the second answer would carry a
+        // `deletedAt` from an operator who is not the one asking.
+        throw AppException.productDeleted();
+      }
 
-    const updated =
-      (await this.products
-        .findOneAndUpdate(
-          { _id: id, deletedAt: null },
-          { $set: { deletedAt: new Date(), isActive: false } },
-          { new: true },
-        )
-        .lean<ProductLean>()
-        .exec()) ?? current;
+      const updated =
+        (await this.products
+          .findOneAndUpdate(
+            { _id: id, deletedAt: null },
+            { $set: { deletedAt: new Date(), isActive: false } },
+            { new: true, session },
+          )
+          .lean<ProductLean>()
+          .exec());
+      if (!updated) throw AppException.concurrentModification();
 
-    await this.recount(current, updated);
 
-    await this.audit.record({
-      actor: toAuditActor(actor),
-      action: AuditAction.PRODUCT_DELETED,
-      entity: { type: AuditEntityType.PRODUCT, id, label: updated.sku },
-      changes: {
-        before: { deletedAt: null, isActive: current.isActive },
-        after: { deletedAt: updated.deletedAt, isActive: false },
-      },
-      /*
-       * The slug and name are snapshotted into the record. §4 wants a log that
-       * reads without joins, and this is the one action after which the entity
-       * stops being visible in every listing an investigator would reach for.
-       */
-      metadata: { slug: updated.slug, name: updated.name.en },
-      context: context.forensics,
+      await this.audit.record({
+        actor: toAuditActor(actor),
+        action: AuditAction.PRODUCT_DELETED,
+        entity: { type: AuditEntityType.PRODUCT, id, label: updated.sku },
+        changes: {
+          before: { deletedAt: null, isActive: current.isActive },
+          after: { deletedAt: updated.deletedAt, isActive: false },
+        },
+        /*
+         * The slug and name are snapshotted into the record. §4 wants a log that
+         * reads without joins, and this is the one action after which the entity
+         * stops being visible in every listing an investigator would reach for.
+         */
+        metadata: { slug: updated.slug, name: updated.name.en },
+        context: context.forensics,
+      }, session);
+
+      return { current, updated };
     });
-
+    await this.recount(current, updated);
     return updated;
   }
 
@@ -620,31 +645,35 @@ export class ProductAdminService {
    */
   async restore(id: Types.ObjectId, context: AdminWriteContext): Promise<ProductLean> {
     const actor = await this.resolveActor(context.actorId);
-    const current = await this.findById(id);
+    const { current, updated } = await this.transactions.run(async session => {
+      const current = await this.findById(id, session);
 
-    if (current.deletedAt === null) {
-      throw AppException.validation([
-        { field: 'id', message: 'That product is not deleted.', code: 'STATE' },
-      ]);
-    }
+      if (current.deletedAt === null) {
+        throw AppException.validation([
+          { field: 'id', message: 'That product is not deleted.', code: 'STATE' },
+        ]);
+      }
 
-    const updated =
-      (await this.products
-        .findOneAndUpdate({ _id: id }, { $set: { deletedAt: null } }, { new: true })
-        .lean<ProductLean>()
-        .exec()) ?? current;
+      const updated =
+        (await this.products
+          .findOneAndUpdate({ _id: id }, { $set: { deletedAt: null } }, { new: true, session })
+          .lean<ProductLean>()
+          .exec());
+      if (!updated) throw AppException.concurrentModification();
 
-    await this.recount(current, updated);
 
-    await this.audit.record({
-      actor: toAuditActor(actor),
-      action: AuditAction.PRODUCT_RESTORED,
-      entity: { type: AuditEntityType.PRODUCT, id, label: updated.sku },
-      changes: { before: { deletedAt: current.deletedAt }, after: { deletedAt: null } },
-      metadata: { slug: updated.slug, isActive: updated.isActive },
-      context: context.forensics,
+      await this.audit.record({
+        actor: toAuditActor(actor),
+        action: AuditAction.PRODUCT_RESTORED,
+        entity: { type: AuditEntityType.PRODUCT, id, label: updated.sku },
+        changes: { before: { deletedAt: current.deletedAt }, after: { deletedAt: null } },
+        metadata: { slug: updated.slug, isActive: updated.isActive },
+        context: context.forensics,
+      }, session);
+
+      return { current, updated };
     });
-
+    await this.recount(current, updated);
     return updated;
   }
 
@@ -722,102 +751,35 @@ export class ProductAdminService {
   }
 
 
-  /**
-   * Destroys a product permanently, and its images with it.
-   *
-   * Authority: CATALOG-MODEL.md §9 — "Hard delete exists only as a
-   * `SUPER_ADMIN` operation for a product **never referenced by any order**, and
-   * it destroys the associated Cloudinary assets."
-   *
-   * Every clause of that sentence is a separate guard, and each is here:
-   *
-   * **`SUPER_ADMIN` only** — enforced by `@Roles` on the route, not here, so it
-   * is visible in the route table beside every other authorization decision.
-   *
-   * **Never referenced by any order** — orders embed product SNAPSHOTS, so the
-   * commercial record survives regardless; but every line keeps `productId` for
-   * traceability and reorder, and destroying the document turns that into a
-   * dangling id that analytics and the reorder button both follow to nothing.
-   * A referenced product is refused with a count, and soft delete is the answer
-   * for it — which is what soft delete is for.
-   *
-   * **Destroys the assets** — every image is released, and any that falls to
-   * zero references is destroyed. Ones still held by ANOTHER product are left
-   * alone; that is the entire point of the reference count, and it is the
-   * legacy defect W4 in its original form (two products sharing one storage
-   * object; deleting from either broke the other).
-   *
-   * ## Order of operations
-   *
-   * References first, then the assets, then the document. The assets go before
-   * the document because a failure there leaves the product intact and the
-   * operation retryable — whereas destroying the document first would strand
-   * the assets with nothing left to name them, and the reconciliation report
-   * would file them as store-only orphans an operator has to identify by hand.
-   *
-   * ## Redirects are forgotten here, and only here
-   *
-   * `forgetEntity` exists for exactly this moment: a soft delete keeps the
-   * redirects because the product is coming back, and a hard delete removes
-   * them because the destination genuinely no longer exists. A redirect to a
-   * 404 is worse than a 404 — it costs the client a round trip to reach the
-   * same answer.
-   */
+  /** Hard-delete only never-ordered products; release references atomically and
+   * leave physical media destruction to the explicit fenced cleanup endpoint. */
   async hardDelete(id: Types.ObjectId, context: AdminWriteContext): Promise<HardDeleteOutcome> {
     const actor = await this.resolveActor(context.actorId);
-    const product = await this.findById(id);
-
-    const orderCount = await this.orders.countDocuments({ 'items.productId': id }).exec();
-
-    if (orderCount > 0) {
-      throw AppException.productHasOrders(orderCount);
-    }
-
-    const unreferenced = await this.images.releaseAll(product);
-
-    for (const publicId of unreferenced) {
-      await this.media.destroy(publicId);
-    }
-
-    await this.redirects.forgetEntity(SlugRedirectEntityType.PRODUCT, id);
-    await this.products.deleteOne({ _id: id }).exec();
-
-    await this.recount(product, { ...product, isActive: false, deletedAt: new Date() });
-
-    await this.audit.record({
-      actor: toAuditActor(actor),
-      action: AuditAction.PRODUCT_DELETED,
-      entity: { type: AuditEntityType.PRODUCT, id, label: product.sku },
-      /*
-       * The whole identity goes in `metadata`, which is the one place §4's
-       * "not whole documents" rule argues the other way: after this row is
-       * written there is no document left to join to, so a record that named
-       * only an ObjectId would be unreadable by the person who most needs it.
-       */
-      metadata: {
-        permanent: true,
-        slug: product.slug,
-        name: product.name.en,
-        categoryId: product.category.id.toHexString(),
-        imagesDestroyed: unreferenced.length,
-        imagesKeptForOtherProducts: product.images.length - unreferenced.length,
-      },
-      context: context.forensics,
+    if (actor.role !== Role.SUPER_ADMIN) throw AppException.forbidden();
+    const product = await this.transactions.run(async session => {
+      const product = await this.findById(id, session);
+      const orderCount = await this.orders.countDocuments({ 'items.productId': id }).session(session).exec();
+      if (orderCount > 0) throw AppException.productHasOrders(orderCount);
+      // Checkout writes this same product in its stock transaction. A competing
+      // checkout/delete causes a write conflict and retries the complete check.
+      const result = await this.products.deleteOne({ _id: id }, { session }).exec();
+      if (result.deletedCount !== 1) throw AppException.concurrentModification();
+      await this.images.releaseAll(product, session);
+      await this.redirects.forgetEntity(SlugRedirectEntityType.PRODUCT, id, session);
+      await this.audit.record({
+        actor: toAuditActor(actor), action: AuditAction.PRODUCT_DELETED,
+        entity: { type: AuditEntityType.PRODUCT, id, label: product.sku },
+        metadata: { permanent: true, slug: product.slug, imagesDestroyed: 0,
+          retainedForExplicitCleanup: product.images.map(image => image.publicId) },
+        context: context.forensics,
+      }, session);
+      return product;
     });
-
-    this.logger.warn(
-      `product hard-deleted  id=${id.toHexString()}  sku=${product.sku}  ` +
-        `by=${actor._id.toHexString()}  assetsDestroyed=${String(unreferenced.length)}`,
-    );
-
-    return {
-      sku: product.sku,
-      slug: product.slug,
-      imagesDestroyed: unreferenced,
-      imagesKept: product.images
-        .map((image) => image.publicId)
-        .filter((publicId) => !unreferenced.includes(publicId)),
-    };
+    await this.recount(product, { ...product, isActive: false, deletedAt: new Date() });
+    // Keep bytes. Explicit media deletion uses the durable fence; provider
+    // outages can no longer partially delete a still-existing product's images.
+    return { sku: product.sku, slug: product.slug, imagesDestroyed: [],
+      imagesKept: product.images.map(image => image.publicId) };
   }
 
   /**

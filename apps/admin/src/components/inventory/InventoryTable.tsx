@@ -1,5 +1,8 @@
 'use client';
 
+import { TableScroll } from '@/components/ui/admin';
+
+
 import { useState, useTransition, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -184,6 +187,7 @@ export function InventoryTable({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
+              aria-label="Search inventory by name or SKU"
               placeholder="Search by name or SKU..."
               value={searchInput}
               className="h-10 w-full rounded-lg border border-border bg-background pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none"
@@ -294,7 +298,7 @@ export function InventoryTable({
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <TableScroll>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-muted/30 border-b border-border">
@@ -381,7 +385,7 @@ export function InventoryTable({
                   })}
                 </tbody>
               </table>
-            </div>
+            </TableScroll>
 
             <div className="px-5 py-3 border-t border-border bg-muted/20 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs text-muted-foreground">
@@ -445,7 +449,7 @@ function StatsStrip({
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="admin-metric-filters grid grid-cols-2 md:grid-cols-4 gap-3">
       {items.map((item) => {
         const Icon = item.icon;
 
@@ -454,6 +458,7 @@ function StatsStrip({
             key={item.label}
             type="button"
             onClick={item.onClick}
+            aria-pressed={item.active}
             className={`relative overflow-hidden rounded-xl border ${
               item.active ? 'border-primary ring-1 ring-primary/30' : 'border-border'
             } bg-card p-3 text-left transition-all hover:shadow-md`}

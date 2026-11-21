@@ -1,3 +1,4 @@
+import { Role } from '../../users/infrastructure/schemas/user.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types } from 'mongoose';
@@ -120,6 +121,12 @@ export class CategoryAdminService {
 
   async create(input: CreateCategoryInput, context: AdminWriteContext): Promise<CategoryLean> {
     const actor = await this.resolveActor(context.actorId);
+    const creationId = new Types.ObjectId();
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.CATEGORY_CREATED,
+      entity: { type: AuditEntityType.CATEGORY, id: creationId, label: creationId.toHexString() },
+      context: context.forensics,
+    });
     const parent = await this.resolveParent(input.parentId ?? null);
     const path = parent === null ? [] : [...parent.path, parent._id];
 
@@ -129,6 +136,7 @@ export class CategoryAdminService {
 
     try {
       const document = await this.categories.create({
+        _id: creationId,
         slug: input.slug,
         name: toLocalized(input.name),
         description: input.description == null ? null : toLocalized(input.description),
@@ -150,7 +158,7 @@ export class CategoryAdminService {
       actor: toAuditActor(actor),
       action: AuditAction.CATEGORY_CREATED,
       entity: { type: AuditEntityType.CATEGORY, id: created._id, label: created.slug },
-      metadata: {
+      metadata: { operationId: auditOperationId, outcome: 'succeeded',
         name: created.name.en,
         parentId: created.parentId?.toHexString() ?? null,
         depth: created.depth,
@@ -170,6 +178,11 @@ export class CategoryAdminService {
     context: AdminWriteContext,
   ): Promise<CategoryLean> {
     const actor = await this.resolveActor(context.actorId);
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.CATEGORY_UPDATED,
+      entity: { type: AuditEntityType.CATEGORY, id: id, label: id.toHexString() },
+      context: context.forensics,
+    });
     const current = await this.findById(id);
 
     if (current.deletedAt !== null) throw AppException.categoryDeleted();
@@ -250,6 +263,7 @@ export class CategoryAdminService {
       entity: { type: AuditEntityType.CATEGORY, id, label: updated.slug },
       before: auditableCategory(current),
       after: auditableCategory(updated),
+      metadata: { operationId: auditOperationId, outcome: 'succeeded' },
       context: context.forensics,
     });
 
@@ -268,6 +282,11 @@ export class CategoryAdminService {
    */
   async softDelete(id: Types.ObjectId, context: AdminWriteContext): Promise<CategoryLean> {
     const actor = await this.resolveActor(context.actorId);
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.CATEGORY_DELETED,
+      entity: { type: AuditEntityType.CATEGORY, id: id, label: id.toHexString() },
+      context: context.forensics,
+    });
     const current = await this.findById(id);
 
     if (current.deletedAt !== null) throw AppException.categoryDeleted();
@@ -292,7 +311,9 @@ export class CategoryAdminService {
           { new: true },
         )
         .lean<CategoryLean>()
-        .exec()) ?? current;
+        .exec());
+
+    if (updated === null) throw AppException.concurrentModification();
 
     this.cache.invalidateCache();
 
@@ -301,7 +322,7 @@ export class CategoryAdminService {
       action: AuditAction.CATEGORY_DELETED,
       entity: { type: AuditEntityType.CATEGORY, id, label: updated.slug },
       changes: { before: { deletedAt: null }, after: { deletedAt: updated.deletedAt } },
-      metadata: { name: updated.name.en },
+      metadata: { operationId: auditOperationId, outcome: 'succeeded', name: updated.name.en },
       context: context.forensics,
     });
 
@@ -335,6 +356,11 @@ export class CategoryAdminService {
    */
   async restore(id: Types.ObjectId, context: AdminWriteContext): Promise<CategoryLean> {
     const actor = await this.resolveActor(context.actorId);
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.CATEGORY_RESTORED,
+      entity: { type: AuditEntityType.CATEGORY, id: id, label: id.toHexString() },
+      context: context.forensics,
+    });
     const current = await this.findById(id);
 
     if (current.deletedAt === null) {
@@ -375,7 +401,7 @@ export class CategoryAdminService {
       action: AuditAction.CATEGORY_RESTORED,
       entity: { type: AuditEntityType.CATEGORY, id, label: updated.slug },
       changes: { before: { deletedAt: current.deletedAt }, after: { deletedAt: null } },
-      metadata: { name: updated.name.en, isActive: updated.isActive },
+      metadata: { operationId: auditOperationId, outcome: 'succeeded', name: updated.name.en, isActive: updated.isActive },
       context: context.forensics,
     });
 
@@ -387,6 +413,7 @@ export class CategoryAdminService {
 
     if (profile === null) throw AppException.accountDisabled();
 
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(profile.role)) throw AppException.forbidden();
     return profile;
   }
 

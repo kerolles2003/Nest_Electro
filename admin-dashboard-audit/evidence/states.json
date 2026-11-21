@@ -1,0 +1,159 @@
+{
+  "checks": [
+    {
+      "state": "empty",
+      "route": "/admin",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Thursday, October 8, 2026\nGood morning, Visual.\n\nA little clarity for a busy day at Nest.\n\nManage Orders\nYour order queue is in good shape.\n\n0 awaiting confirmation · 0 delivery failures to follow up.\n\nReview the queue\nDelivered Revenue\n\n0.00 EGP\n\nLast 30 days\n0 paid orders\nAwaiting confirmation\n\n0\n\nCall the customer to confirm · all time\nReady to ship\n\n0\n\nConfirmed, not yet dispatched · all time\nDelivery failed\n\n0\n\nRe-dispatch or return · all time\nThe bigger picture\n\nOrder status distribution · all time\n\nView orders\nPlaced\n0\nConfirmed\n0\nShipped\n0\nDelivered\n0\nDelivery failed\n0\nCancelled\n0\nReturned\n0\n0\nTotal Orders\n6\nProducts\n4\nCustomers\nRevenue, with context\n\nLast 30 days\n\n30 days\n90 days\nAll time\n\nApplies to revenue only. The queue counts are live and unbounded.\n\nDelivered\n0.00 EGP\nPipeline\n31500.00 EGP\n\nNet of returns — recognised at delivery, removed retroactively if returned.\n\nRecent orders\n\nEvery order, a new project in the making.\n\nView all\nNo orders yet\n\nNew customer orders will appear here. Your catalog is ready to explore.\n\nReview products\nLow stock\n\nA quick check before the next dispatch.\n\nManage Inventory\nStock levels are healthy\n\nNo products are currently below their stock threshold.\n\nRecent activity\n\nThe people and actions behind your store.\n\nAudit log\nNo recent activity\n\nAdministrative actions will appear here as your team works."
+    },
+    {
+      "state": "empty",
+      "route": "/admin/products",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nAll\nPublished\n0\nDrafts\n0\nDeleted\n0\nAll categories\nAll brands\nNewest first\nOldest first\nName A–Z\nPrice low to high\nPrice high to low\nStock low to high\nRecently updated\nNo products match\n\nAdd the first product to start the catalogue."
+    },
+    {
+      "state": "empty",
+      "route": "/admin/orders",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Orders\n\nManage and fulfil customer orders.\n\nSearch\nPlaced from\nPlaced to\nSort\nNewest first\nOldest first\nHighest value\nLowest value\n\nPlaced\n\n0\n\nConfirmed\n\n0\n\nShipped\n\n0\n\nDelivered\n\n0\n\nDelivery failed\n\n0\n\nCancelled\n\n0\n\nReturned\n\n0\n\n0 orders in the system\nOrder\tItems\tTotal\tStatus\tPayment\tAction\n\n\nNo orders yet.\n\nShowing 0 of 0"
+    },
+    {
+      "state": "empty",
+      "route": "/admin/inventory",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Inventory\n\nTrack stock, review low quantities, and record inventory movements.\n\nActive\n\nActive products\n\n6\n\nIn stock\n\n5\n\nLow stock\n\n1\n\nOut of stock\n\n0\n\nAll categories\nAll stock\nLow stock\nOut of stock\nUnpublished\nNo products match\n\nThe catalogue has no products yet."
+    },
+    {
+      "state": "empty",
+      "route": "/admin/categories",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Categories\n\nOrganize products into a clear, easy-to-browse catalogue.\n\n0 Categories\n0 Published\n0 Roots\nNew category\nNo categories yet\n\nEvery product belongs to one, so the catalogue starts here."
+    },
+    {
+      "state": "empty",
+      "route": "/admin/brands",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Brands\n\nManage the brands represented in your store.\n\n0 Brands\n0 Published\nNew brand\nNo brands yet\n\nA brand is optional on a product — add one when a manufacturer is worth naming."
+    },
+    {
+      "state": "empty",
+      "route": "/admin/customers",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Customers\n\nView customer accounts and their purchase activity.\n\nTotal Customers\n\n4\n\nAll registered accounts\nNew This Week\n\n2\n\nRegistered in the last 7 days\nOrdered\n\n3\n\nLast 30 days\nDelivered Revenue\n\n0.00 EGP\n\nLast 30 days\nCustomer\tContact\tOrders\tTotal Spent\tJoined\n\n\nNo customers yet\n\nCustomer accounts will appear here.\n\nShowing 0 of 0 customers"
+    },
+    {
+      "state": "empty",
+      "route": "/admin/coupons",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Coupons are not live at checkout yet\n\nCodes managed here cannot currently be redeemed by customers. Coupon entry is not available at checkout.\n\nCoupons\n\nCreate and manage promotional coupon codes.\n\nActive\n\nTotal\n\n0\n\nActive\n\n0\n\nExpired\n\n0\n\nUsed\n\n0\n\nAdd Coupon\nCode\tType\tValue\tUsage\tValidity\tStatus\tActions\n\n\nNo coupons yet\n\nCreate your first promotional coupon.\n\nShowing 0 of 0 coupons"
+    },
+    {
+      "state": "empty",
+      "route": "/admin/reviews",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Reviews are not shown on the storefront yet\n\nModeration here does not affect live product pages. Customers cannot see these reviews yet.\n\nReviews\n\nModerate product reviews and manage the approval queue.\n\nActive\n\nTotal Reviews\n\n0\n\nPending\n\n0\n\nApproved\n\n0\n\nRejected\n\n0\n\nVerified\n\n0\n\nAll Status\nPending\nApproved\nRejected\nProduct\tCustomer\tRating\tReview\tStatus\tDate\tActions\n\n\nNo reviews yet\n\nProduct reviews will appear here.\n\nShowing 0 of 0 reviews"
+    },
+    {
+      "state": "empty",
+      "route": "/admin/audit-log",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Audit log\n\nA clear record of your team’s changes, with who, what and when.\n\nEvery action\nOrder confirmed\nProduct updated\nInventory adjusted\nCategory created\nEvery entity\n\nFilter by action or entity. Select a team member on any entry to see their activity.\n\nNothing recorded yet\n\nEvery administrative action is recorded here as it happens.\n\nRecords are kept for two years and cannot be edited or deleted — there is no route to do either. Settings"
+    },
+    {
+      "state": "empty",
+      "route": "/admin/settings",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Settings & Policies\n\nManage delivery fees for each governorate. Changes apply immediately at checkout.\n\nDelivery rates\n\nKeep a rate for every governorate so customers can check out. Set a fee to 0.00 EGP for free delivery. Changes take effect immediately and are recorded in the audit log.\n\nShowing 0 of 0 governorates\nGovernorate\tShipping Fee\tStatus\tLast Updated\tActions\nNo governorates match your search query."
+    },
+    {
+      "state": "error",
+      "route": "/admin",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Thursday, October 8, 2026\nGood morning, Visual.\n\nA little clarity for a busy day at Nest.\n\nManage Orders\nStart with your order queue.\n\nSome queue counts are unavailable. Review orders for the latest details.\n\nReview the queue\nDelivered Revenue\n\n—\n\nPeriod unavailable\nCounted at delivery\nAwaiting confirmation\n\n—\n\nCall the customer to confirm · all time\nReady to ship\n\n—\n\nConfirmed, not yet dispatched · all time\nDelivery failed\n\n—\n\nRe-dispatch or return · all time\nThe bigger picture\n\nOrder status distribution · all time\n\nView orders\nPlaced\n—\nConfirmed\n—\nShipped\n—\nDelivered\n—\nDelivery failed\n—\nCancelled\n—\nReturned\n—\n—\nTotal Orders\n—\nProducts\n—\nCustomers\nRevenue, with context\n\nRevenue unavailable\n\n30 days\n90 days\nAll time\n\nApplies to revenue only. The queue counts are live and unbounded.\n\nDelivered\n—\nPipeline\n—\n\nNet of returns — recognised at delivery, removed retroactively if returned.\n\nRevenue could not be loaded\nTry again to retrieve the selected period.\nTry again\nRecent orders\n\nEvery order, a new project in the making.\n\nView all\nRecent orders could not be loaded\nThe local QA service is simulating an unavailable response.\nTry again\nLow stock\n\nA quick check before the next dispatch.\n\nManage Inventory\nStock levels could not be loaded\nRetry to check the inventory snapshot.\nTry again\nRecent activity\n\nThe people and actions behind your store.\n\nAudit log\nActivity could not be loaded\nThe local QA service is simulating an unavailable response.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/products",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Products\n\nManage your catalogue, prepare drafts, and keep published products up to date.\n\nAdd product\nThe catalogue could not be loaded\nThe API failed to process that. Nothing was changed.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/orders",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Orders\n\nManage and fulfil customer orders.\n\nSearch\nPlaced from\nPlaced to\nSort\nNewest first\nOldest first\nHighest value\nLowest value\nThe order queue could not be loaded\nThe local QA service is simulating an unavailable response.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/inventory",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Inventory\n\nTrack stock, review low quantities, and record inventory movements.\n\nStock levels could not be loaded\nThe API failed to process that. Nothing was changed.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/categories",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Categories\n\nOrganize products into a clear, easy-to-browse catalogue.\n\nCategories could not be loaded\nThe API failed to process that. Nothing was changed.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/brands",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Brands\n\nManage the brands represented in your store.\n\nBrands could not be loaded\nThe API failed to process that. Nothing was changed.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/customers",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Customers\n\nView customer accounts and their purchase activity.\n\nCustomers could not be loaded\nThe local QA service is simulating an unavailable response.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/coupons",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Coupons are not live at checkout yet\n\nCodes managed here cannot currently be redeemed by customers. Coupon entry is not available at checkout.\n\nCoupons\n\nCreate and manage promotional coupon codes.\n\nCoupons could not be loaded\nThe legacy service did not respond. Try again in a moment.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/reviews",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Reviews are not shown on the storefront yet\n\nModeration here does not affect live product pages. Customers cannot see these reviews yet.\n\nReviews\n\nModerate product reviews and manage the approval queue.\n\nReviews could not be loaded\nThe legacy service did not respond. Try again in a moment.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/audit-log",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Audit log\n\nA clear record of your team’s changes, with who, what and when.\n\nThe audit trail could not be read\nThe API failed to process that. Nothing was changed.\nTry again"
+    },
+    {
+      "state": "error",
+      "route": "/admin/settings",
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "Settings & Policies\n\nManage delivery fees for each governorate. Changes apply immediately at checkout.\n\nShipping rates could not be loaded\nThe local QA service is simulating an unavailable response.\nTry again"
+    }
+  ],
+  "errors": []
+}

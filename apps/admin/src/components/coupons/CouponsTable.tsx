@@ -1,8 +1,12 @@
 'use client';
 
+import { TableScroll } from '@/components/ui/admin';
+
+
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Pagination, StatusBadge } from '@nest/ui';
+import { Pagination } from '@nest/ui';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { useToast } from '@nest/ui';
 import {
   createCouponAction,
@@ -281,13 +285,14 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
   return (
     <div className="space-y-5">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="admin-metric-filters grid grid-cols-2 md:grid-cols-4 gap-3">
         {statItems.map((item) => {
           const Icon = item.icon;
           const isActive = statusFilter === item.filter || (!statusFilter && !item.filter && item.label !== 'Used');
           return (
             <button
               key={item.label}
+              aria-pressed={isActive}
               onClick={() => item.filter && updateQueryParam('status', item.filter)}
               className={`relative overflow-hidden rounded-xl border ${isActive ? 'border-primary ring-1 ring-primary/30' : 'border-border'} bg-card p-3 text-left transition-all hover:shadow-md`}
             >
@@ -312,7 +317,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search coupons..."
+            aria-label="Search coupons"
+              placeholder="Search coupons..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="h-10 w-full rounded-lg border border-border bg-background pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none"
@@ -340,8 +346,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Code *</label>
-              <input
+              <label htmlFor="coupons-code-" className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Code *</label>
+              <input id="coupons-code-"
                 value={form.code}
                 onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                 className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm font-mono focus:ring-2 focus:ring-primary/10 outline-none"
@@ -349,8 +355,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Type *</label>
-              <select
+              <label htmlFor="coupons-type-" className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Type *</label>
+              <select id="coupons-type-"
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value as 'percentage' | 'fixed' })}
                 className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm focus:ring-2 focus:ring-primary/10 outline-none"
@@ -360,8 +366,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Value *</label>
-              <input
+              <label htmlFor="coupons-value-" className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Value *</label>
+              <input id="coupons-value-"
                 type="number"
                 min={0}
                 step={form.type === 'percentage' ? 1 : 0.01}
@@ -372,8 +378,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Usage Limit</label>
-              <input
+              <label htmlFor="coupons-usage-limit" className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Usage Limit</label>
+              <input id="coupons-usage-limit"
                 type="number"
                 min={0}
                 value={form.usage_limit}
@@ -383,8 +389,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Min Order</label>
-              <input
+              <label htmlFor="coupons-min-order" className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Min Order</label>
+              <input id="coupons-min-order"
                 type="number"
                 min={0}
                 step={0.01}
@@ -395,8 +401,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Max Discount</label>
-              <input
+              <label htmlFor="coupons-max-discount" className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Max Discount</label>
+              <input id="coupons-max-discount"
                 type="number"
                 min={0}
                 step={0.01}
@@ -407,8 +413,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Starts At</label>
-              <input
+              <label htmlFor="coupons-starts-at" className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Starts At</label>
+              <input id="coupons-starts-at"
                 type="date"
                 value={form.starts_at}
                 onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
@@ -416,8 +422,8 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Expires At</label>
-              <input
+              <label htmlFor="coupons-expires-at" className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Expires At</label>
+              <input id="coupons-expires-at"
                 type="date"
                 value={form.expires_at}
                 onChange={(e) => setForm({ ...form, expires_at: e.target.value })}
@@ -458,7 +464,7 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
 
       {/* Table */}
       <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <TableScroll>
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/30 border-b border-border">
@@ -569,7 +575,7 @@ export function CouponsTable({ initialCoupons, currentPage, totalPages, total, s
               )}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         <div className="px-5 py-3 border-t border-border bg-muted/20 flex flex-wrap items-center justify-between gap-3">
           <span className="text-xs text-muted-foreground">
             Showing <span className="font-semibold text-foreground">{coupons.length}</span> of <span className="font-semibold text-foreground">{total}</span> coupons

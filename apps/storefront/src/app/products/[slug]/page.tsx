@@ -1,3 +1,5 @@
+import { serializeJsonLd } from '@/lib/safe-content';
+import { headers } from 'next/headers';
 import * as api from "@/lib/api/endpoints"
 import { ApiError } from "@/lib/api/errors"
 import { imageUrl } from "@/lib/images"
@@ -149,6 +151,7 @@ export async function generateMetadata(
 }
 
 export default async function ProductDetailPage(props: { params: Promise<{ slug: string }> }) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
   const params = await props.params
 
   const detail = await findProduct(params.slug)
@@ -235,8 +238,8 @@ export default async function ProductDetailPage(props: { params: Promise<{ slug:
 
   return (
     <div className="container-nest py-6">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script nonce={nonce} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <script nonce={nonce} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }} />
 
       {/* Breadcrumb */}
       {/*

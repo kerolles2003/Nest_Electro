@@ -521,10 +521,11 @@ export function detachProductImage(
 export function arrangeProductImages(
   productId: string,
   images: { publicId: string; alt?: string | null; isPrimary?: boolean }[],
+  expectedVersion: number,
 ): Promise<Envelope<AdminProduct>> {
   return apiFetch(`/admin/catalog/products/${productId}/images`, {
     method: 'PUT',
-    body: { images },
+    body: { images, expectedVersion },
   });
 }
 

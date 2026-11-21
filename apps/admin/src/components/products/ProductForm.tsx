@@ -274,8 +274,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
         <SectionCard title="Identity" icon={Package}>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <FieldLabel required>Name (English)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-name-english" required>Name (English)</FieldLabel>
+              <input id="product-name-english" aria-invalid={fieldErrors['name.en'] !== undefined} aria-describedby={fieldErrors['name.en'] !== undefined ? 'product-name-english-error' : undefined}
                 value={form.nameEn}
                 onChange={(event) => changeName(event.target.value)}
                 required
@@ -283,12 +283,12 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
                 placeholder="ESP32 DevKit V1"
                 className={inputClass(fieldErrors['name.en'])}
               />
-              <FieldError message={fieldErrors['name.en']} />
+              <FieldError id="product-name-english-error" message={fieldErrors['name.en']} />
             </div>
 
             <div className="md:col-span-2">
-              <FieldLabel>Name (Arabic)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-name-arabic">Name (Arabic)</FieldLabel>
+              <input id="product-name-arabic"
                 value={form.nameAr}
                 onChange={(event) => set('nameAr', event.target.value)}
                 maxLength={200}
@@ -308,8 +308,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
             </div>
 
             <div>
-              <FieldLabel required>SKU</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-sku" required>SKU</FieldLabel>
+              <input id="product-sku" aria-invalid={fieldErrors['sku'] !== undefined} aria-describedby={fieldErrors['sku'] !== undefined ? 'product-sku-error' : undefined}
                 value={form.sku}
                 onChange={(event) => set('sku', event.target.value.toUpperCase())}
                 required={mode === 'create'}
@@ -323,13 +323,13 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
                   ? 'Immutable. It is printed on labels and quoted to suppliers.'
                   : 'Uppercase. Permanent once saved.'}
               </p>
-              <FieldError message={fieldErrors['sku']} />
+              <FieldError id="product-sku-error" message={fieldErrors['sku']} />
             </div>
 
             <div>
-              <FieldLabel required>Slug</FieldLabel>
+              <FieldLabel htmlFor="product-slug" required>Slug</FieldLabel>
               <div className="relative">
-                <input
+                <input id="product-slug" aria-invalid={fieldErrors['slug'] !== undefined} aria-describedby={fieldErrors['slug'] !== undefined ? 'product-slug-error' : undefined}
                   value={form.slug}
                   onChange={(event) => {
                     setSlugTouched(true);
@@ -351,7 +351,7 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
                   set('slug', value);
                 }}
               />
-              <FieldError message={fieldErrors['slug']} />
+              <FieldError id="product-slug-error" message={fieldErrors['slug']} />
             </div>
           </div>
         </SectionCard>
@@ -359,8 +359,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
         <SectionCard title="Description" icon={FileText}>
           <div className="space-y-4">
             <div>
-              <FieldLabel>Short description (English)</FieldLabel>
-              <textarea
+              <FieldLabel htmlFor="product-short-description-english">Short description (English)</FieldLabel>
+              <textarea id="product-short-description-english"
                 value={form.shortDescriptionEn}
                 onChange={(event) => set('shortDescriptionEn', event.target.value)}
                 rows={2}
@@ -370,8 +370,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               />
             </div>
             <div>
-              <FieldLabel>Short description (Arabic)</FieldLabel>
-              <textarea
+              <FieldLabel htmlFor="product-short-description-arabic">Short description (Arabic)</FieldLabel>
+              <textarea id="product-short-description-arabic"
                 value={form.shortDescriptionAr}
                 onChange={(event) => set('shortDescriptionAr', event.target.value)}
                 rows={2}
@@ -381,8 +381,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               />
             </div>
             <div>
-              <FieldLabel>Full description (English)</FieldLabel>
-              <textarea
+              <FieldLabel htmlFor="product-full-description-english">Full description (English)</FieldLabel>
+              <textarea id="product-full-description-english"
                 value={form.descriptionEn}
                 onChange={(event) => set('descriptionEn', event.target.value)}
                 rows={6}
@@ -391,8 +391,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               />
             </div>
             <div>
-              <FieldLabel>Full description (Arabic)</FieldLabel>
-              <textarea
+              <FieldLabel htmlFor="product-full-description-arabic">Full description (Arabic)</FieldLabel>
+              <textarea id="product-full-description-arabic"
                 value={form.descriptionAr}
                 onChange={(event) => set('descriptionAr', event.target.value)}
                 rows={6}
@@ -429,8 +429,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
         <SectionCard title="Shipping" icon={Ruler}>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div>
-              <FieldLabel>Weight (g)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-weight-g">Weight (g)</FieldLabel>
+              <input id="product-weight-g"
                 type="number"
                 min={0}
                 step={1}
@@ -440,8 +440,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               />
             </div>
             <div>
-              <FieldLabel>Length (mm)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-length-mm">Length (mm)</FieldLabel>
+              <input id="product-length-mm"
                 type="number"
                 min={0}
                 step={1}
@@ -451,8 +451,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               />
             </div>
             <div>
-              <FieldLabel>Width (mm)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-width-mm">Width (mm)</FieldLabel>
+              <input id="product-width-mm"
                 type="number"
                 min={0}
                 step={1}
@@ -462,8 +462,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               />
             </div>
             <div>
-              <FieldLabel>Height (mm)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-height-mm">Height (mm)</FieldLabel>
+              <input id="product-height-mm"
                 type="number"
                 min={0}
                 step={1}
@@ -482,8 +482,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
         <SectionCard title="Search engine listing" icon={Search}>
           <div className="space-y-4">
             <div>
-              <FieldLabel>SEO title</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-seo-title">SEO title</FieldLabel>
+              <input id="product-seo-title"
                 value={form.seoTitle}
                 onChange={(event) => set('seoTitle', event.target.value)}
                 maxLength={70}
@@ -494,8 +494,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               </p>
             </div>
             <div>
-              <FieldLabel>SEO description</FieldLabel>
-              <textarea
+              <FieldLabel htmlFor="product-seo-description">SEO description</FieldLabel>
+              <textarea id="product-seo-description"
                 value={form.seoDescription}
                 onChange={(event) => set('seoDescription', event.target.value)}
                 rows={3}
@@ -510,37 +510,7 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
 
       {/* RIGHT — the sidebar */}
       <div className="w-full space-y-5 xl:w-80 xl:shrink-0">
-        <SectionCard title="Save" icon={CheckCircle2}>
-          {formError !== null && (
-            <div className="mb-3 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>{formError}</span>
-            </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={isSaving || deleted}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            {mode === 'create' ? 'Create as draft' : 'Save changes'}
-          </button>
-
-          {mode === 'create' && (
-            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-              New products are created unpublished. They have no images and no stock yet, and a bare
-              row in a customer&apos;s search results helps nobody.
-            </p>
-          )}
-
-          <Link
-            href="/products"
-            className="mt-2 inline-flex w-full items-center justify-center rounded-lg border border-border px-4 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            Back to catalogue
-          </Link>
-        </SectionCard>
 
         {mode === 'edit' && product !== undefined && !deleted && (
           <SectionCard title="Visibility" icon={product.isActive ? Eye : EyeOff}>
@@ -570,8 +540,7 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               </button>
             </div>
             <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
-              Publishing is recorded separately from an edit, so the trail can answer
-              &ldquo;who made this visible, and when&rdquo;.
+              Publishing is recorded separately in the audit log.
             </p>
           </SectionCard>
         )}
@@ -579,8 +548,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
         <SectionCard title="Pricing" icon={DollarSign}>
           <div className="space-y-4">
             <div>
-              <FieldLabel required>Base price (EGP)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-base-price-egp" required>Base price (EGP)</FieldLabel>
+              <input id="product-base-price-egp" aria-invalid={fieldErrors['basePrice'] !== undefined} aria-describedby={fieldErrors['basePrice'] !== undefined ? 'product-base-price-egp-error' : undefined}
                 type="number"
                 min={0}
                 step="0.01"
@@ -589,11 +558,11 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
                 required
                 className={inputClass(fieldErrors['basePrice'])}
               />
-              <FieldError message={fieldErrors['basePrice']} />
+              <FieldError id="product-base-price-egp-error" message={fieldErrors['basePrice']} />
             </div>
             <div>
-              <FieldLabel>Sale price (EGP)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-sale-price-egp">Sale price (EGP)</FieldLabel>
+              <input id="product-sale-price-egp" aria-invalid={fieldErrors['salePrice'] !== undefined} aria-describedby={fieldErrors['salePrice'] !== undefined ? 'product-sale-price-egp-error' : undefined}
                 type="number"
                 min={0}
                 step="0.01"
@@ -604,11 +573,11 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Must be below the base price. Clear it to end the sale.
               </p>
-              <FieldError message={fieldErrors['salePrice']} />
+              <FieldError id="product-sale-price-egp-error" message={fieldErrors['salePrice']} />
             </div>
             <div>
-              <FieldLabel>Cost price (EGP)</FieldLabel>
-              <input
+              <FieldLabel htmlFor="product-cost-price-egp">Cost price (EGP)</FieldLabel>
+              <input id="product-cost-price-egp"
                 type="number"
                 min={0}
                 step="0.01"
@@ -621,7 +590,7 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
                   Worth stating on the screen. The separation is structural: a
                   different DTO type, not a runtime field-strip.
                 */}
-                Never leaves the admin. It is absent from every public response by construction.
+                Private cost, visible only to your team.
               </p>
             </div>
           </div>
@@ -630,8 +599,8 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
         <SectionCard title="Placement" icon={Tag}>
           <div className="space-y-4">
             <div>
-              <FieldLabel required>Category</FieldLabel>
-              <select
+              <FieldLabel htmlFor="product-category" required>Category</FieldLabel>
+              <select id="product-category" aria-invalid={fieldErrors['categoryId'] !== undefined} aria-describedby={fieldErrors['categoryId'] !== undefined ? 'product-category-error' : undefined}
                 value={form.categoryId}
                 onChange={(event) => set('categoryId', event.target.value)}
                 required
@@ -645,11 +614,11 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
                   </option>
                 ))}
               </select>
-              <FieldError message={fieldErrors['categoryId']} />
+              <FieldError id="product-category-error" message={fieldErrors['categoryId']} />
             </div>
             <div>
-              <FieldLabel>Brand</FieldLabel>
-              <select
+              <FieldLabel htmlFor="product-brand">Brand</FieldLabel>
+              <select id="product-brand"
                 value={form.brandId}
                 onChange={(event) => set('brandId', event.target.value)}
                 className={selectClass(fieldErrors['brandId'])}
@@ -689,9 +658,7 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
               {/*
                 The refusal explained where somebody would look for the field.
               */}
-              Read-only here. Stock moves only through an inventory adjustment, which records a
-              ledger entry in the same transaction — a product form that could set a balance would
-              move stock with nothing recording it.
+              To change stock, use an inventory adjustment and record a reason.
             </p>
             <Link
               href="/inventory"
@@ -701,6 +668,36 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
             </Link>
           </SectionCard>
         )}
+        <SectionCard title="Save" icon={CheckCircle2}>
+          {formError !== null && (
+            <div className="mb-3 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>{formError}</span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSaving || deleted}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            {mode === 'create' ? 'Create as draft' : 'Save changes'}
+          </button>
+
+          {mode === 'create' && (
+            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+              New products start as drafts. Add images and stock, then publish when ready.
+            </p>
+          )}
+
+          <Link
+            href="/products"
+            className="mt-2 inline-flex w-full items-center justify-center rounded-lg border border-border px-4 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Back to catalogue
+          </Link>
+        </SectionCard>
       </div>
     </form>
   );
@@ -744,19 +741,19 @@ function SectionCard({
   );
 }
 
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+function FieldLabel({ children, required, htmlFor }: { children: React.ReactNode; required?: boolean; htmlFor: string }) {
   return (
-    <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+    <label htmlFor={htmlFor} className="mb-1.5 block text-xs font-medium text-muted-foreground">
       {children}
       {required === true && <span className="ml-0.5 text-destructive">*</span>}
-    </span>
+    </label>
   );
 }
 
-function FieldError({ message }: { message: string | undefined }) {
+function FieldError({ message, id }: { message: string | undefined; id: string }) {
   if (message === undefined) return null;
 
-  return <p className="mt-1 text-[11px] font-medium text-destructive">{message}</p>;
+  return <p id={id} className="mt-1 text-xs text-destructive">{message}</p>;
 }
 
 function SlugIndicator({ status }: { status: SlugStatus }) {

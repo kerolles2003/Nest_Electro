@@ -1,0 +1,18 @@
+{
+  "detectedAt": "2026-10-07T22:54:35.671Z",
+  "trackedFilesChangedDuringAudit": [
+    "apps/admin/src/app/layout.tsx",
+    "apps/api/src/database/import/image-importer.ts",
+    "apps/api/src/modules/catalog/application/brand-admin.service.ts",
+    "apps/api/src/modules/catalog/application/category-admin.service.ts",
+    "apps/api/src/modules/catalog/application/product-image.service.ts",
+    "apps/storefront/src/app/blog/[slug]/page.tsx",
+    "apps/storefront/src/app/products/[slug]/page.tsx",
+    "apps/admin/src/proxy.ts",
+    "apps/api/src/database/import/import-runner.ts",
+    "apps/storefront/src/proxy.ts"
+  ],
+  "scope": "Changes were not authored by this audit; preserved without reverting.",
+  "beforePatchSha256": "626aa6d576215cb078ca0dc8b576d81c2cac7633e22e2573f0569f292d49db1d",
+  "afterPatchSha256": "29bd27e44680b891d0369efe432a6a71239e4fda4a7ab8475291f2bf6765ddb3"
+}

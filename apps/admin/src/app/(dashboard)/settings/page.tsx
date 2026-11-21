@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/services";
-import { SectionHeader } from "@nest/ui";
+import { PageHeader, ErrorState } from "@/components/ui/admin";
 import { tryApi } from "@/lib/api/client";
 import * as api from "@/lib/api/endpoints";
 import { ShippingRatesTable } from "@/components/settings/ShippingRatesTable";
@@ -12,11 +12,11 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader
+      <PageHeader
         title="Settings & Policies"
-        description="Configure governorate shipping rates, delivery rules, and platform preferences."
+        description="Manage delivery fees for each governorate. Changes apply immediately at checkout."
       />
-      <ShippingRatesTable initialRates={initialRates} />
+      {ratesRes.ok ? <ShippingRatesTable initialRates={initialRates} /> : <ErrorState title="Shipping rates could not be loaded" description={ratesRes.error.message} />}
     </div>
   );
 }

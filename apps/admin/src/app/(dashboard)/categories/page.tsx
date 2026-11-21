@@ -1,9 +1,9 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin } from '@/lib/services';
 import { CategoriesManager } from '@/components/categories/CategoriesManager';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
 import { operatorMessage } from '@/lib/api/errors';
-import { AlertTriangle } from 'lucide-react';
 
 /**
  * Categories, from the API.
@@ -24,22 +24,12 @@ export default async function CategoriesPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Categories</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          The tree every product is filed under. Renaming one rewrites the category shown on every
-          product beneath it.
-        </p>
-      </div>
+      <PageHeader title={<>Categories</>} description="Organize products into a clear, easy-to-browse catalogue." />
 
       {res.ok ? (
         <CategoriesManager categories={res.data.data} />
       ) : (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
-          <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-destructive/70" />
-          <h2 className="text-base font-bold text-foreground">Categories could not be loaded</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{operatorMessage(res.error)}</p>
-        </div>
+        <ErrorState title="Categories could not be loaded" description={<>{operatorMessage(res.error)}</>} />
       )}
     </div>
   );

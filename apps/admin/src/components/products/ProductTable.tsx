@@ -1,5 +1,9 @@
 'use client';
 
+import { TableScroll } from '@/components/ui/admin';
+import { AdminDialog } from '@/components/ui/admin-dialog';
+
+
 import { useState, useTransition, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
@@ -195,6 +199,7 @@ export function ProductTable({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
+              aria-label="Search products by name, SKU or slug"
               placeholder="Search by name, SKU or slug..."
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
@@ -280,7 +285,7 @@ export function ProductTable({
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <TableScroll>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
@@ -427,7 +432,7 @@ export function ProductTable({
                   })}
                 </tbody>
               </table>
-            </div>
+            </TableScroll>
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-muted/20 px-5 py-3">
               <span className="text-xs text-muted-foreground">
@@ -500,7 +505,7 @@ function ConfirmDelete({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <AdminDialog title="Delete product" onClose={onCancel}>
       <div className="w-full max-w-md rounded-xl border border-border bg-card shadow-elevated">
         <div className="flex items-start gap-3 border-b border-border px-5 py-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
@@ -545,7 +550,7 @@ function ConfirmDelete({
           </button>
         </div>
       </div>
-    </div>
+    </AdminDialog>
   );
 }
 

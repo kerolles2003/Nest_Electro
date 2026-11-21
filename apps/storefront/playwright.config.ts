@@ -129,6 +129,10 @@ export default defineConfig({
          * for this process only — see `e2e/origin.ts`.
          */
         MONGODB_DB_NAME: SCRATCH_DATABASE,
+        MONGODB_URI: process.env['MONGODB_URI']!,
+        NEST_TEST_MONGODB_URI: process.env['NEST_TEST_MONGODB_URI']!,
+        NEST_TEST_RUN: process.env['NEST_TEST_RUN']!,
+        MEDIA_PROVIDER: 'memory',
 
         /**
          * The browser journey covers the PURCHASE path. Email verification is
@@ -176,7 +180,7 @@ export default defineConfig({
       // also warms the route every test loads first.
       url: `${BASE_URL}/`,
       timeout: 180_000,
-      reuseExistingServer: process.env['CI'] === undefined,
+      reuseExistingServer: false,
       stdout: 'pipe',
       stderr: 'pipe',
       env: {

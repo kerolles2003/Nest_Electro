@@ -1,3 +1,4 @@
+import { Role } from '../../users/infrastructure/schemas/user.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types } from 'mongoose';
@@ -94,11 +95,18 @@ export class BrandAdminService {
 
   async create(input: CreateBrandInput, context: AdminWriteContext): Promise<BrandLean> {
     const actor = await this.resolveActor(context.actorId);
+    const creationId = new Types.ObjectId();
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.BRAND_CREATED,
+      entity: { type: AuditEntityType.BRAND, id: creationId, label: creationId.toHexString() },
+      context: context.forensics,
+    });
 
     let created: BrandLean;
 
     try {
       const document = await this.brands.create({
+        _id: creationId,
         slug: input.slug,
         name: toLocalized(input.name),
         description: input.description == null ? null : toLocalized(input.description),
@@ -117,7 +125,7 @@ export class BrandAdminService {
       actor: toAuditActor(actor),
       action: AuditAction.BRAND_CREATED,
       entity: { type: AuditEntityType.BRAND, id: created._id, label: created.slug },
-      metadata: { name: created.name.en },
+      metadata: { operationId: auditOperationId, outcome: 'succeeded', name: created.name.en },
       context: context.forensics,
     });
 
@@ -130,6 +138,11 @@ export class BrandAdminService {
     context: AdminWriteContext,
   ): Promise<BrandLean> {
     const actor = await this.resolveActor(context.actorId);
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.BRAND_UPDATED,
+      entity: { type: AuditEntityType.BRAND, id: id, label: id.toHexString() },
+      context: context.forensics,
+    });
     const current = await this.findById(id);
 
     if (current.deletedAt !== null) throw AppException.brandDeleted();
@@ -188,6 +201,7 @@ export class BrandAdminService {
       entity: { type: AuditEntityType.BRAND, id, label: updated.slug },
       before: auditableBrand(current),
       after: auditableBrand(updated),
+      metadata: { operationId: auditOperationId, outcome: 'succeeded' },
       context: context.forensics,
     });
 
@@ -208,6 +222,11 @@ export class BrandAdminService {
    */
   async softDelete(id: Types.ObjectId, context: AdminWriteContext): Promise<BrandLean> {
     const actor = await this.resolveActor(context.actorId);
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.BRAND_DELETED,
+      entity: { type: AuditEntityType.BRAND, id: id, label: id.toHexString() },
+      context: context.forensics,
+    });
     const current = await this.findById(id);
 
     if (current.deletedAt !== null) throw AppException.brandDeleted();
@@ -220,7 +239,9 @@ export class BrandAdminService {
           { new: true },
         )
         .lean<BrandLean>()
-        .exec()) ?? current;
+        .exec());
+
+    if (updated === null) throw AppException.concurrentModification();
 
     const detached = await this.products.updateMany({ 'brand.id': id }, { $set: { brand: null } }).exec();
 
@@ -231,7 +252,7 @@ export class BrandAdminService {
       action: AuditAction.BRAND_DELETED,
       entity: { type: AuditEntityType.BRAND, id, label: updated.slug },
       changes: { before: { deletedAt: null }, after: { deletedAt: updated.deletedAt } },
-      metadata: { name: updated.name.en, productsUnbranded: detached.modifiedCount },
+      metadata: { operationId: auditOperationId, outcome: 'succeeded', name: updated.name.en, productsUnbranded: detached.modifiedCount },
       context: context.forensics,
     });
 
@@ -252,6 +273,11 @@ export class BrandAdminService {
    */
   async restore(id: Types.ObjectId, context: AdminWriteContext): Promise<BrandLean> {
     const actor = await this.resolveActor(context.actorId);
+    const auditOperationId = await this.audit.recordIntent({
+      actor: toAuditActor(actor), action: AuditAction.BRAND_RESTORED,
+      entity: { type: AuditEntityType.BRAND, id: id, label: id.toHexString() },
+      context: context.forensics,
+    });
     const current = await this.findById(id);
 
     if (current.deletedAt === null) {
@@ -273,7 +299,7 @@ export class BrandAdminService {
       action: AuditAction.BRAND_RESTORED,
       entity: { type: AuditEntityType.BRAND, id, label: updated.slug },
       changes: { before: { deletedAt: current.deletedAt }, after: { deletedAt: null } },
-      metadata: { name: updated.name.en, isActive: updated.isActive },
+      metadata: { operationId: auditOperationId, outcome: 'succeeded', name: updated.name.en, isActive: updated.isActive },
       context: context.forensics,
     });
 
@@ -285,6 +311,7 @@ export class BrandAdminService {
 
     if (profile === null) throw AppException.accountDisabled();
 
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(profile.role)) throw AppException.forbidden();
     return profile;
   }
 }

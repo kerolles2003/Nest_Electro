@@ -198,7 +198,7 @@ describe('the three suites name the same three databases', () => {
   it.each(Object.keys(files) as (keyof typeof files)[])(
     '%s names its own database and its own suite',
     (suite) => {
-      expect(files[suite]).toContain(`'${SCRATCH_DATABASES[suite]}'`);
+      expect(files[suite]).toContain('browserScratchRun(SCRATCH_SUITE).database');
       expect(files[suite]).toContain(`'${suite}'`);
     },
   );
@@ -217,7 +217,8 @@ describe('the three suites name the same three databases', () => {
   it('the jest suite takes its database from the registry, not a literal', () => {
     const setup = source('apps/api/test/setup/scratch-database.ts');
 
-    expect(setup).toContain("SCRATCH_DATABASES['api-jest']");
+    expect(setup).toContain("readScratchRun('api-jest')");
+    expect(setup).toContain("verifyScratchOwnership('api-jest')");
     // A literal here would be a fourth place for the name to drift.
     expect(setup).not.toContain(SCRATCH_DATABASES['api-jest']);
   });

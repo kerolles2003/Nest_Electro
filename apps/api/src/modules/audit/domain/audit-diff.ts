@@ -38,7 +38,7 @@ export const REDACTED = '[redacted]';
 /**
  * Field names whose VALUE is never written to an audit record.
  *
- * Matched on the last segment of the path, case-insensitively, so
+ * Matched on path segments, case-insensitively, so
  * `credentials.passwordHash` and `passwordHash` are both caught. A substring
  * match was rejected: it would redact `tokenCount` and `resetTokenSentAt`,
  * which are facts an investigator wants, while giving no additional protection.
@@ -54,6 +54,7 @@ const NEVER_STORED: ReadonlySet<string> = new Set([
   'otp',
   'resettoken',
   'verificationtoken',
+  'apikey', 'authorization', 'cookie', 'credentials', 'clientsecret', 'privatekey',
 ]);
 
 export interface AuditChanges {
@@ -73,9 +74,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function shouldRedact(path: string): boolean {
-  const leaf = path.split('.').pop() ?? path;
-
-  return NEVER_STORED.has(leaf.toLowerCase());
+  return path.split('.').some(segment => NEVER_STORED.has(segment.replace(/[_-]/g, '').toLowerCase()));
 }
 
 /**
@@ -150,7 +149,16 @@ function walk(
       continue;
     }
 
-    outBefore[path] = left;
-    outAfter[path] = right;
+    outBefore[path] = redactAuditValue(left);
+    outAfter[path] = redactAuditValue(right);
   }
+}
+
+/** Redact both direct records and nested array metadata, not only flat diffs. */
+export function redactAuditValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(redactAuditValue);
+  if (isPlainObject(value)) return Object.fromEntries(Object.entries(value).map(
+    ([key, child]) => [key, shouldRedact(key) ? REDACTED : redactAuditValue(child)],
+  ));
+  return value;
 }

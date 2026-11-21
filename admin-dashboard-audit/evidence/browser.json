@@ -1,0 +1,4521 @@
+{
+  "fixtureOnly": true,
+  "pages": [
+    "/admin",
+    "/admin/login",
+    "/admin/unauthorized",
+    "/admin/audit-log",
+    "/admin/brands",
+    "/admin/categories",
+    "/admin/coupons",
+    "/admin/customers",
+    "/admin/inventory",
+    "/admin/orders",
+    "/admin/products",
+    "/admin/reviews",
+    "/admin/settings",
+    "/admin/orders/000000000000000000000050",
+    "/admin/products/new",
+    "/admin/products/000000000000000000000030/edit"
+  ],
+  "widths": [
+    320,
+    375,
+    390,
+    414,
+    768,
+    1024,
+    1280,
+    1440,
+    1920
+  ],
+  "checks": [
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Good morning, Visual.",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 74.421875,
+          "h": 17
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 74.1875,
+          "h": 17
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/login",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Welcome back.",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/unauthorized",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Access Denied",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "audit log",
+          "label": null,
+          "w": 51.609375,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "audit log",
+          "label": null,
+          "w": 51.609375,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "audit log",
+          "label": null,
+          "w": 51.609375,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/audit-log",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Audit log",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "audit log",
+          "label": null,
+          "w": 51.609375,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Visual QA Operator(SUPER_ADMIN)",
+          "label": null,
+          "w": 214.328125,
+          "h": 18.59375
+        },
+        {
+          "text": "Settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "brands",
+          "label": null,
+          "w": 36.109375,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "brands",
+          "label": null,
+          "w": 36.109375,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "brands",
+          "label": null,
+          "w": 36.109375,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/brands",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Brands",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "brands",
+          "label": null,
+          "w": 36.109375,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "categories",
+          "label": null,
+          "w": 56.421875,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "categories",
+          "label": null,
+          "w": 56.421875,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "categories",
+          "label": null,
+          "w": 56.421875,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/categories",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Categories",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "categories",
+          "label": null,
+          "w": 56.421875,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        },
+        {
+          "text": "3 products",
+          "label": null,
+          "w": 56.578125,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "coupons",
+          "label": null,
+          "w": 47.234375,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "coupons",
+          "label": null,
+          "w": 47.234375,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "coupons",
+          "label": null,
+          "w": 47.234375,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/coupons",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Coupons",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "coupons",
+          "label": null,
+          "w": 47.234375,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "customers",
+          "label": null,
+          "w": 56.296875,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "customers",
+          "label": null,
+          "w": 56.296875,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "customers",
+          "label": null,
+          "w": 56.296875,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/customers",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Customers",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "customers",
+          "label": null,
+          "w": 56.296875,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "inventory",
+          "label": null,
+          "w": 49.875,
+          "h": 18.59375
+        },
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "inventory",
+          "label": null,
+          "w": 49.875,
+          "h": 18.59375
+        },
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "inventory",
+          "label": null,
+          "w": 49.875,
+          "h": 18.59375
+        },
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/inventory",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Inventory",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "inventory",
+          "label": null,
+          "w": 49.875,
+          "h": 18.59375
+        },
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 240,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 75.328125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 75.328125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 75.328125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 75.328125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 75.328125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 75.328125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 75.328125,
+          "h": 17.140625
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "orders",
+          "label": null,
+          "w": 35.828125,
+          "h": 18.59375
+        },
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 79.828125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 79.828125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 79.828125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 79.828125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 79.828125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 79.828125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 79.828125,
+          "h": 17.140625
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "orders",
+          "label": null,
+          "w": 35.828125,
+          "h": 18.59375
+        },
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 117.75,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 117.75,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 117.75,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 117.75,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 117.75,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 117.75,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 117.75,
+          "h": 17.140625
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "orders",
+          "label": null,
+          "w": 35.828125,
+          "h": 18.59375
+        },
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 143.453125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 143.453125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 143.453125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 143.453125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 143.453125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 143.453125,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 143.453125,
+          "h": 17.140625
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Orders",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "orders",
+          "label": null,
+          "w": 35.828125,
+          "h": 18.59375
+        },
+        {
+          "text": "NE-QA-1001",
+          "label": null,
+          "w": 217.984375,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1002",
+          "label": null,
+          "w": 217.984375,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1003",
+          "label": null,
+          "w": 217.984375,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1004",
+          "label": null,
+          "w": 217.984375,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1005",
+          "label": null,
+          "w": 217.984375,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1006",
+          "label": null,
+          "w": 217.984375,
+          "h": 17.140625
+        },
+        {
+          "text": "NE-QA-1007",
+          "label": null,
+          "w": 217.984375,
+          "h": 17.140625
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Products",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "Arduino Uno R3 development board",
+          "label": null,
+          "w": 230.765625,
+          "h": 20
+        },
+        {
+          "text": "ESP32 Wi-Fi and Bluetooth module",
+          "label": null,
+          "w": 222.484375,
+          "h": 20
+        },
+        {
+          "text": "Digital temperature & humidity sensor",
+          "label": null,
+          "w": 244,
+          "h": 20
+        },
+        {
+          "text": "Breadboard jumper wire set",
+          "label": null,
+          "w": 176.234375,
+          "h": 20
+        },
+        {
+          "text": "Precision soldering station",
+          "label": null,
+          "w": 167.859375,
+          "h": 20
+        },
+        {
+          "text": "USB-C development board",
+          "label": null,
+          "w": 169.203125,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "reviews",
+          "label": null,
+          "w": 41.796875,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "reviews",
+          "label": null,
+          "w": 41.796875,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "reviews",
+          "label": null,
+          "w": 41.796875,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/reviews",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Reviews",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "reviews",
+          "label": null,
+          "w": 41.796875,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/settings",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Settings & Policies",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "settings",
+          "label": null,
+          "w": 42.640625,
+          "h": 18.59375
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "orders",
+          "label": null,
+          "w": 35.828125,
+          "h": 18.59375
+        },
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "orders",
+          "label": null,
+          "w": 35.828125,
+          "h": 18.59375
+        },
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "orders",
+          "label": null,
+          "w": 35.828125,
+          "h": 18.59375
+        },
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/orders/000000000000000000000050",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "NE-QA-1001",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "orders",
+          "label": null,
+          "w": 35.828125,
+          "h": 18.59375
+        },
+        {
+          "text": "01000000000",
+          "label": null,
+          "w": 83.359375,
+          "h": 20
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/new",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "New product",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 40
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 40
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 40
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 40
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 40
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 40
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 40
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 40
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "Choose images",
+          "label": null,
+          "w": 96.171875,
+          "h": 20
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "Choose images",
+          "label": null,
+          "w": 96.171875,
+          "h": 20
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "Choose images",
+          "label": null,
+          "w": 96.171875,
+          "h": 20
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "Choose images",
+          "label": null,
+          "w": 96.171875,
+          "h": 20
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/products/000000000000000000000030/edit",
+      "status": 200,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Arduino Uno R3 development board",
+      "unlabeled": [],
+      "smallTargets": [
+        {
+          "text": "Workspace",
+          "label": null,
+          "w": 57.984375,
+          "h": 18.59375
+        },
+        {
+          "text": "products",
+          "label": null,
+          "w": 46.484375,
+          "h": 18.59375
+        },
+        {
+          "text": "▲",
+          "label": "Move up",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "▼",
+          "label": "Move down",
+          "w": 18.34375,
+          "h": 12
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 14,
+          "h": 14
+        },
+        {
+          "text": "Choose images",
+          "label": null,
+          "w": 96.171875,
+          "h": 20
+        },
+        {
+          "text": "",
+          "label": null,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 320,
+      "scrollWidth": 320,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 375,
+      "scrollWidth": 375,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 414,
+      "scrollWidth": 414,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 768,
+      "scrollWidth": 768,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 1024,
+      "scrollWidth": 1024,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 1280,
+      "scrollWidth": 1280,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    },
+    {
+      "route": "/admin/not-a-real-route",
+      "status": 404,
+      "width": 1920,
+      "scrollWidth": 1920,
+      "h1": "Page Not Found",
+      "unlabeled": [],
+      "smallTargets": [],
+      "brokenImages": []
+    }
+  ],
+  "errors": [
+    {
+      "url": "http://127.0.0.1:3410/admin/not-a-real-route",
+      "type": "error",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://127.0.0.1:3410/admin/products/new",
+      "type": "error",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "network": [
+    {
+      "url": "http://127.0.0.1:3410/admin/not-a-real-route",
+      "status": 404
+    },
+    {
+      "url": "http://127.0.0.1:3410/api/check-slug?type=product&slug=audit-scripttestscript",
+      "status": 404
+    }
+  ],
+  "tests": [
+    {
+      "test": "direct route load",
+      "route": "/admin",
+      "ms": 1883
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/login",
+      "ms": 1213
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/unauthorized",
+      "ms": 985
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/audit-log",
+      "ms": 1483
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/brands",
+      "ms": 1447
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/categories",
+      "ms": 1217
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/coupons",
+      "ms": 1322
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/customers",
+      "ms": 1592
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/inventory",
+      "ms": 1250
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/orders",
+      "ms": 1399
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/products",
+      "ms": 1232
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/reviews",
+      "ms": 1282
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/settings",
+      "ms": 1250
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/orders/000000000000000000000050",
+      "ms": 1601
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/products/new",
+      "ms": 2532
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/products/000000000000000000000030/edit",
+      "ms": 2450
+    },
+    {
+      "test": "direct route load",
+      "route": "/admin/not-a-real-route",
+      "ms": 1163
+    },
+    {
+      "test": "slug check",
+      "requests": [
+        {
+          "url": "http://127.0.0.1:3410/api/check-slug?type=product&slug=audit-scripttestscript",
+          "status": 404
+        }
+      ],
+      "text": " the Arabic storefront.\n\nSKU*\n\nUppercase. Permanent once saved.\n\nSlug*\n\nCould not check — saving may still be refused as a duplicate.\n\nDescription\nShort description (English)\nShort description (Arabic)\nFull description (English)\nFull description (Arabic)\nSpecifications\n\nNo specifications yet. These become the product's spec table, and the ones marked filterable become search facets.\n\nAdd specification\n\nFacetmarks a spec as filterable, which is what puts it in the storefront's filter sidebar. Products group by key, not by label — two products spelling the label differently still group together if the key matches. Rows with no key or no value are dropped on save.\n\nImages\n\nImages are added after the first save. An upload is filed under the product it belongs to, so the product has to exist first.\n\nShipping\nWeight (g)\nLength (mm)\nWidth (mm)\nHeight (mm)\n\nAll three dimensions are needed for any of them to be stored — a box with two measurements is not a box.\n\nSearch engine listing\nSEO title\n\n0/70. Falls back to the product name when blank.\n\nSEO description\n\n0/200\n\nPricing\nBase price (EGP)*\nSale price (EGP)\n\nMust be below the base price. Clear it to end the sale.\n\nCost price (EGP)\n\nPrivate cost, visible only to your team.\n\nPlacement\nCategory*\nChoose a category\nDevelopment boards\nSensors & modules\nTools & accessories\nBrand\nNo brand\nArduino\nEspressif\nWaveshare\nFeatured\nSave\nCreate as draft\n\nNew products start as drafts. Add images and stock, then publish when ready.\n\nBack to catalogue"
+    }
+  ]
+}

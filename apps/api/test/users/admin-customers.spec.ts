@@ -496,6 +496,19 @@ describe('PATCH /admin/customers/:id/role — the separation legacy never enforc
     await users.updateOne({ _id: third.id }, { $set: { role: Role.CUSTOMER } }).exec();
   });
 
+  it('serializes simultaneous mutual demotion of two fixture owners', async () => {
+    const first = await createAccount('p1-owner-a', Role.SUPER_ADMIN);
+    const second = await createAccount('p1-owner-b', Role.SUPER_ADMIN);
+    const results = await Promise.all([
+      changeRole(second.id.toHexString(), Role.ADMIN, first),
+      changeRole(first.id.toHexString(), Role.ADMIN, second),
+    ]);
+    expect(results.map(result => result.status).sort()).toEqual([200, 403]);
+    expect(await users.countDocuments({ _id: { $in: [first.id, second.id] }, role: Role.SUPER_ADMIN, deletedAt: null }).exec()).toBe(1);
+    // Only this test's accounts are reset; the run-owned harness controls cleanup.
+    await users.updateMany({ _id: { $in: [first.id, second.id] } }, { $set: { role: Role.CUSTOMER } }).exec();
+  });
+
   it('writes a USER_ROLE_CHANGED audit row, and none for a no-op', async () => {
     const target = await createAccount('audited');
 

@@ -108,5 +108,16 @@ globalThis.fetch = function guardedFetch(
     );
   }
 
+  // Default tests cannot reach payment APIs or other external fetch transports.
+  // Provider adapter unit tests replace fetch with a recorder; browser/API
+  // fixture traffic is loopback. Cloudinary's explicitly opted-in SDK suite
+  // uses its separate account/ownership guards, not this fetch transport.
+  if (hostname !== null && !['127.0.0.1', 'localhost', '[::1]'].includes(hostname)) {
+    throw new Error('P0 guard: external fetch is disabled in automated tests. Use a provider mock.');
+  }
+
   return realFetch(...args);
 } as typeof realFetch;
+
+// Never select a real media provider through an inherited application .env.
+process.env.MEDIA_PROVIDER = 'memory';

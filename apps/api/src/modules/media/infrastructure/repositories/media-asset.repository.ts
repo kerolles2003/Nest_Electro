@@ -1,3 +1,4 @@
+import { AppException } from '../../../../common/errors/app.exception';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, type ClientSession } from 'mongoose';
@@ -53,7 +54,7 @@ export class MediaAssetRepository {
   }): Promise<void> {
     await this.assets
       .updateOne(
-        { publicId: asset.publicId },
+        { publicId: asset.publicId, deleting: { $ne: true } },
         {
           $set: {
             // `version` is in the $set rather than the $setOnInsert: a re-upload
@@ -88,11 +89,11 @@ export class MediaAssetRepository {
    */
   async retain(publicId: string, session?: ClientSession): Promise<number> {
     const updated = await this.assets
-      .findOneAndUpdate({ publicId }, { $inc: { refCount: 1 } }, { new: true, session: session ?? null })
+      .findOneAndUpdate({ publicId, deleting: { $ne: true } }, { $inc: { refCount: 1 } }, { new: true, session: session ?? null })
       .lean<MediaAssetLean>()
       .exec();
 
-    if (updated === null) throw new Error(`media asset ${publicId} is not in the ledger`);
+    if (updated === null) throw AppException.mediaAssetNotFound();
 
     return updated.refCount;
   }
@@ -124,9 +125,19 @@ export class MediaAssetRepository {
     return current?.refCount ?? 0;
   }
 
-  /** Removes the ledger row. Called only after the store confirms destruction. */
-  async forget(publicId: string): Promise<void> {
-    await this.assets.deleteOne({ publicId }).exec();
+  /** Fence before external deletion. Retain and this write conflict on one row. */
+  claimDeletion(publicId: string, deletionId: string, session: ClientSession): Promise<MediaAssetLean | null> {
+    return this.assets.findOneAndUpdate(
+      { publicId, refCount: 0, deleting: { $ne: true } }, { $set: { deleting: true, deletionId } }, { new: true, session },
+    ).lean<MediaAssetLean>().exec();
+  }
+
+  /** Keep the tombstone so retries/re-upload cannot resurrect a deleted identity. */
+  async markDestroyed(publicId: string, session: ClientSession): Promise<boolean> {
+    const result = await this.assets.updateOne(
+      { publicId, deleting: true, refCount: 0, destroyedAt: null }, { $set: { destroyedAt: new Date() } }, { session },
+    ).exec();
+    return result.modifiedCount === 1;
   }
 
   /**
@@ -138,7 +149,7 @@ export class MediaAssetRepository {
    */
   unreferenced(limit: number): Promise<MediaAssetLean[]> {
     return this.assets
-      .find({ refCount: { $lte: 0 } })
+      .find({ refCount: 0, destroyedAt: null })
       .sort({ createdAt: 1 })
       .limit(limit)
       .lean<MediaAssetLean[]>()
@@ -147,7 +158,7 @@ export class MediaAssetRepository {
 
   /** Every `publicId` the ledger knows, for comparison against the store. */
   async knownPublicIds(): Promise<Set<string>> {
-    const rows = await this.assets.find({}, { publicId: 1 }).lean<{ publicId: string }[]>().exec();
+    const rows = await this.assets.find({ destroyedAt: null }, { publicId: 1 }).lean<{ publicId: string }[]>().exec();
 
     return new Set(rows.map((row) => row.publicId));
   }

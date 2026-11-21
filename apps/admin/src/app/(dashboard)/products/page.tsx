@@ -1,3 +1,4 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { requireAdmin } from '@/lib/services';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -7,7 +8,7 @@ import * as api from '@/lib/api/endpoints';
 import { operatorMessage } from '@/lib/api/errors';
 import { PRODUCT_SORTS, PRODUCT_STATES } from '@/lib/api/types';
 import type { AdminProductSort, AdminProductState } from '@/lib/api/types';
-import { Plus, AlertTriangle } from 'lucide-react';
+import { Plus, } from 'lucide-react';
 
 /**
  * The catalogue, from the API.
@@ -85,21 +86,12 @@ export default async function ProductsPage(props: {
   ]);
 
   const header = (
-    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Products</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          The catalogue customers buy from. Drafts are included; deleted products live behind their
-          own tab.
-        </p>
-      </div>
-      <Link
+    <PageHeader title={<>Products</>} description="Manage your catalogue, prepare drafts, and keep published products up to date." actions={<Link
         href="/products/new"
         className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
       >
         <Plus className="h-4 w-4" /> Add product
-      </Link>
-    </div>
+      </Link>} />
   );
 
   /*
@@ -110,11 +102,7 @@ export default async function ProductsPage(props: {
     return (
       <div className="space-y-5">
         {header}
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
-          <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-destructive/70" />
-          <h2 className="text-base font-bold text-foreground">The catalogue could not be loaded</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{operatorMessage(listRes.error)}</p>
-        </div>
+        <ErrorState title="The catalogue could not be loaded" description={<>{operatorMessage(listRes.error)}</>} />
       </div>
     );
   }

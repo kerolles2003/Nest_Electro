@@ -1,5 +1,8 @@
 'use client';
 
+import { AdminDialog } from '@/components/ui/admin-dialog';
+
+
 import { useEffect, useState } from 'react';
 import { X, Loader2, History, AlertTriangle, Box, User, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
@@ -96,7 +99,7 @@ export function InventoryHistoryDrawer({ level, onClose }: InventoryHistoryDrawe
   }, [level.productId]);
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/60">
+    <AdminDialog title="Inventory history" onClose={onClose} drawer>
       <aside className="flex h-full w-full max-w-md flex-col border-l border-border bg-card shadow-elevated">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
@@ -221,6 +224,6 @@ export function InventoryHistoryDrawer({ level, onClose }: InventoryHistoryDrawe
           </div>
         )}
       </aside>
-    </div>
+    </AdminDialog>
   );
 }

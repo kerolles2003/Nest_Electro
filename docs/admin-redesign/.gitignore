@@ -1,0 +1,6 @@
+# Locally regenerated visual evidence and tool logs; source/check summaries stay reviewable.
+screenshots/
+*.png
+*.log
+lint-results.json
+visual-qa-progress.json

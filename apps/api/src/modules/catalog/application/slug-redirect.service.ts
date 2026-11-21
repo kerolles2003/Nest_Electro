@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, type ClientSession } from 'mongoose';
 import {
   SlugRedirect,
   SlugRedirectEntityType,
@@ -112,8 +112,8 @@ export class SlugRedirectService {
    * removing the redirects would make a restore silently lose every old URL
    * that still worked the day before.
    */
-  async forgetEntity(entityType: SlugRedirectEntityType, entityId: Types.ObjectId): Promise<number> {
-    const result = await this.model.deleteMany({ entityType, entityId }).exec();
+  async forgetEntity(entityType: SlugRedirectEntityType, entityId: Types.ObjectId, session?: ClientSession): Promise<number> {
+    const result = await this.model.deleteMany({ entityType, entityId }, session ? { session } : {}).exec();
 
     return result.deletedCount;
   }

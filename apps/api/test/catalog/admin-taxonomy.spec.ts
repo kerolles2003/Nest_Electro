@@ -208,6 +208,7 @@ afterAll(async () => {
     await brands.deleteMany({ _id: { $in: createdBrandIds } }).exec();
   }
   if (createdUserIds.length > 0) {
+    await auditLogs.deleteMany({ 'actor.id': { $in: createdUserIds } }).exec();
     await refreshTokens.deleteMany({ userId: { $in: createdUserIds } }).exec();
     await users.deleteMany({ _id: { $in: createdUserIds } }).exec();
   }
@@ -307,7 +308,7 @@ describe('categories — create', () => {
   it('writes a CATEGORY_CREATED audit row', async () => {
     const created = await makeCategory();
     const rows = await auditLogs
-      .find({ 'entity.type': AuditEntityType.CATEGORY, 'entity.id': new Types.ObjectId(created.id) })
+      .find({ 'entity.type': AuditEntityType.CATEGORY, 'entity.id': new Types.ObjectId(created.id), action: AuditAction.CATEGORY_CREATED })
       .lean()
       .exec();
 

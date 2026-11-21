@@ -629,7 +629,7 @@ describe('arranging — K9 and K10, both closed by writing the array whole', () 
       .put(`/api/v1/admin/catalog/products/${productId}/images`)
       .set(...bearer(admin))
       .set('User-Agent', USER_AGENT)
-      .send({ images });
+      .send({ images, expectedVersion: 3 });
   }
 
   async function productWithThree(): Promise<{ productId: string; ids: string[] }> {
@@ -640,6 +640,32 @@ describe('arranging — K9 and K10, both closed by writing the array whole', () 
 
     return { productId, ids };
   }
+
+  it('rejects one of two real concurrent requests with the same arrangement version', async () => {
+    const { productId, ids } = await productWithThree();
+    const results = await Promise.all([
+      arrange(productId, ids.map(publicId => ({ publicId }))),
+      arrange(productId, [...ids].reverse().map(publicId => ({ publicId }))),
+    ]);
+    expect(results.map(row => row.status).sort()).toEqual([200, 409]);
+    const product = await products.findById(productId).lean().exec();
+    expect(product?.imageVersion).toBe(4);
+    expect(product?.images.filter(image => image.isPrimary)).toHaveLength(1);
+    for (const publicId of ids) expect(await refCountOf(publicId)).toBe(1);
+  });
+
+  it('does not resurrect an image during simultaneous detach and reorder', async () => {
+    const { productId, ids } = await productWithThree();
+    const results = await Promise.all([
+      detach(productId, ids[0]!),
+      arrange(productId, [...ids].reverse().map(publicId => ({ publicId }))),
+    ]);
+    expect(results[0]!.status).toBe(200);
+    expect([200, 409]).toContain(results[1]!.status);
+    const product = await products.findById(productId).lean().exec();
+    expect(product?.images.some(image => image.publicId === ids[0])).toBe(false);
+    expect(await refCountOf(ids[0]!)).toBe(0);
+  });
 
   it('reorders by POSITION, in one write (K9)', async () => {
     const { productId, ids } = await productWithThree();
@@ -757,7 +783,7 @@ describe('hard delete', () => {
       .expect(200);
   });
 
-  it('destroys the document and the images nothing else is showing', async () => {
+  it('deletes the document and retains orphan bytes for explicit cleanup', async () => {
     const productId = await makeProduct();
     const publicId = await upload(productId);
 
@@ -765,11 +791,11 @@ describe('hard delete', () => {
 
     const response = await hardDelete(productId, superAdmin).expect(200);
 
-    expect(response.body.data.imagesDestroyed).toEqual([publicId]);
-    expect(response.body.data.imagesKept).toEqual([]);
+    expect(response.body.data.imagesDestroyed).toEqual([]);
+    expect(response.body.data.imagesKept).toEqual([publicId]);
     expect(await products.findById(new Types.ObjectId(productId)).lean().exec()).toBeNull();
-    expect(await storage.list('nest')).not.toContain(publicId);
-    expect(await refCountOf(publicId)).toBe(-1);
+    expect(await storage.list('nest')).toContain(publicId);
+    expect(await refCountOf(publicId)).toBe(0);
   });
 
   it('LEAVES an image another product is showing', async () => {
@@ -842,5 +868,23 @@ describe('hard delete', () => {
     expect(
       await slugRedirects.countDocuments({ entityId: new Types.ObjectId(productId) }).exec(),
     ).toBe(0);
+  });
+});
+
+// Uses the existing P0-owned replica-set setup and in-memory storage adapter.
+describe('P1 attachment/deletion fence, live database', () => {
+  it('never destroys bytes referenced by a winning concurrent attachment', async () => {
+    const productId = await makeProduct();
+    const publicId = await upload(productId);
+    const results = await Promise.all([attach(productId, publicId), destroyAsset(publicId)]);
+    const product = await products.findById(productId).lean().exec();
+    const attached = product!.images.some(image => image.publicId === publicId);
+    if (attached) {
+      expect(results.map(row => row.status)).toEqual([200, 409]);
+      expect(await storage.list('nest')).toContain(publicId);
+    } else {
+      expect(results[0]!.status).toBe(404); expect(results[1]!.status).toBe(204);
+      expect(await storage.list('nest')).not.toContain(publicId);
+    }
   });
 });

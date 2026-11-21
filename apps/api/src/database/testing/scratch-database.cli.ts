@@ -28,7 +28,7 @@ interface Invocation {
 
 const USAGE = [
   'Usage:',
-  '  test-db --suite <suite> --ensure-clean   prepare the database, rebuilding it if dirty',
+  '  test-db --suite <suite> --ensure-clean   claim a fresh run-owned database; refuse pre-existing resources',
   '  test-db --suite <suite> --assert-clean   fail if the run left anything behind',
   '',
   `Suites: ${SCRATCH_SUITES.join(', ')}`,
@@ -86,8 +86,8 @@ async function main(): Promise<void> {
 
   process.stdout.write(
     prepared.rebuilt
-      ? `${suite}: rebuilt ${prepared.database}\n`
-      : `${suite}: reusing ${prepared.database}, already clean\n`,
+      ? `${suite}: prepared fresh ${prepared.database}\n`
+      : `${suite}: prepared ${prepared.database}\n`,
   );
 }
 

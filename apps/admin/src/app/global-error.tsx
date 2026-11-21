@@ -14,8 +14,8 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en" className="dark">
-      <body style={{ margin: 0, background: '#0f1117', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif' }}>
+    <html lang="en">
+      <body style={{ margin: 0, background: '#f8f7f4', color: '#292f2c', fontFamily: 'Segoe UI, Arial, sans-serif' }}>
         <div style={{
           display: 'flex',
           flexDirection: 'column',
@@ -35,16 +35,16 @@ export default function GlobalError({
             justifyContent: 'center',
             marginBottom: '1.5rem',
           }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#a43e39" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', fontWeight: 400, marginBottom: '0.5rem' }}>
             Something went wrong
           </h1>
-          <p style={{ color: '#94a3b8', maxWidth: '28rem', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+          <p style={{ color: '#62675f', maxWidth: '28rem', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
             {error.message || 'An unexpected error occurred.'}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
@@ -52,10 +52,10 @@ export default function GlobalError({
               onClick={reset}
               style={{
                 padding: '0.5rem 1rem',
-                border: '1px solid #334155',
+                border: '1px solid #c5c9be',
                 borderRadius: '0.375rem',
                 background: 'transparent',
-                color: '#e2e8f0',
+                color: '#292f2c',
                 cursor: 'pointer',
                 fontSize: '0.875rem',
               }}
@@ -68,7 +68,7 @@ export default function GlobalError({
                 padding: '0.5rem 1rem',
                 border: 'none',
                 borderRadius: '0.375rem',
-                background: '#3b82f6',
+                background: '#3d604c',
                 color: '#ffffff',
                 cursor: 'pointer',
                 fontSize: '0.875rem',

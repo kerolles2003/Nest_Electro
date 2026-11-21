@@ -1,6 +1,7 @@
+import { PageHeader, ErrorState } from '@/components/ui/admin';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Package, AlertCircle } from 'lucide-react';
+import { ArrowLeft, } from 'lucide-react';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
 import { requireAdmin } from '@/lib/api/identity';
@@ -36,14 +37,7 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
     return (
       <div className="space-y-5">
         <BackLink />
-        <div
-          role="alert"
-          className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center"
-        >
-          <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-3" />
-          <h2 className="text-base font-bold text-foreground">This order could not be loaded</h2>
-          <p className="text-sm text-muted-foreground mt-1">{result.error.message}</p>
-        </div>
+        <ErrorState title="This order could not be loaded" description={<>{result.error.message}</>} />
       </div>
     );
   }
@@ -52,16 +46,7 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center gap-3">
-        <BackLink />
-        <div className="h-4 w-px bg-border" />
-        <div className="flex items-center gap-2">
-          <Package className="h-4 w-4 text-primary" />
-          <h1 className="text-xl font-bold tracking-tight text-foreground" data-testid="order-number">
-            {order.orderNumber}
-          </h1>
-        </div>
-      </div>
+      <PageHeader context={<BackLink />} title={<span data-testid="order-number">{order.orderNumber}</span>} description="Order details, fulfilment and customer information." />
 
       <OrderDetail order={order} />
     </div>

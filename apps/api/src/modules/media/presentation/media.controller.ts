@@ -28,6 +28,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { Forensics, type ForensicContext } from '../../../common/decorators/forensics.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { ErrorResponseDto } from '../../../common/dto/error-response.dto';
@@ -194,8 +195,8 @@ export class MediaController {
     type: ErrorResponseDto,
     description: 'MEDIA_ASSET_IN_USE — still referenced; `details[0].message` gives the count.',
   })
-  async destroy(@Query() query: DestroyMediaDto): Promise<void> {
-    await this.media.destroy(query.publicId);
+  async destroy(@Query() query: DestroyMediaDto, @CurrentUser() user: AuthenticatedUser, @Forensics() forensics: ForensicContext): Promise<void> {
+    await this.media.destroy(query.publicId, { actorId: new Types.ObjectId(user.id), forensics });
   }
 
   @Get('reconciliation')

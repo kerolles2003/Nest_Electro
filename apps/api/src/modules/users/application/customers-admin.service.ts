@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types } from 'mongoose';
 import { AppException } from '../../../common/errors/app.exception';
+import { TransactionService } from '../../../database/transaction.service';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from '../../../common/dto/pagination-query.dto';
 import { AuditService, type AuditContext } from '../../audit/application/audit.service';
 import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
@@ -93,6 +94,7 @@ export class CustomersAdminService {
      */
     @InjectModel(Order.name) private readonly orders: Model<Order>,
     private readonly audit: AuditService,
+    private readonly transactions: TransactionService,
   ) {}
 
   /**
@@ -217,53 +219,68 @@ export class CustomersAdminService {
     role: Role,
     context: AdminWriteContext,
   ): Promise<CustomerSummary> {
-    const actor = await this.users.findById(context.actorId).lean<UserLean>().exec();
+    const updated = await this.transactions.run(async (session) => {
+      // All role/status mutations overlap on the active owner set. Snapshot
+      // transactions alone cannot prevent write skew between different users.
+      await this.users.updateMany(
+        { role: Role.SUPER_ADMIN, deletedAt: null },
+        { $inc: { roleMutationVersion: 1 } },
+        { session },
+      ).exec();
+      const actor = await this.users.findById(context.actorId).session(session).lean<UserLean>().exec();
 
-    if (actor === null || actor.deletedAt !== null) throw AppException.accountDisabled();
+      if (actor === null || actor.deletedAt !== null) throw AppException.accountDisabled();
+      if (actor.role !== Role.SUPER_ADMIN) throw AppException.forbidden();
 
-    if (actor._id.equals(id)) {
-      throw AppException.cannotChangeOwnRole();
-    }
+      if (actor._id.equals(id)) {
+        throw AppException.cannotChangeOwnRole();
+      }
 
-    const target = await this.users.findById(id).lean<UserLean>().exec();
+      const target = await this.users.findById(id, CustomersAdminService.PROJECTION).session(session).lean<UserLean>().exec();
 
-    if (target === null) throw AppException.resourceNotFound();
+      if (target === null || target.deletedAt !== null) throw AppException.resourceNotFound();
 
-    if (target.role === Role.SUPER_ADMIN && role !== Role.SUPER_ADMIN) {
-      const remaining = await this.users
-        .countDocuments({ role: Role.SUPER_ADMIN, deletedAt: null })
-        .exec();
+      if (target.role === role) return target;
 
-      if (remaining <= 1) throw AppException.lastSuperAdmin();
-    }
+      if (target.role === Role.SUPER_ADMIN && role !== Role.SUPER_ADMIN) {
+        const remaining = await this.users
+          .countDocuments({ role: Role.SUPER_ADMIN, deletedAt: null })
+          .session(session)
+          .exec();
 
-    const updated = (await this.users
-      .findOneAndUpdate(
-        { _id: id },
-        // The role and the invalidation in ONE update. Two statements would
-        // leave a window in which the role had changed and the old tokens still
-        // worked — small, and exactly the window an escape hatch exists to close.
-        { $set: { role }, $inc: { tokenVersion: 1 } },
-        { new: true, projection: CustomersAdminService.PROJECTION },
-      )
-      .lean<UserLean>()
-      .exec()) as UserLean;
+        if (remaining <= 1) throw AppException.lastSuperAdmin();
+      }
 
-    await this.audit.recordChange({
-      actor: toAuditActor(actor),
-      action: AuditAction.USER_ROLE_CHANGED,
-      entity: { type: AuditEntityType.USER, id, label: target.email },
-      before: { role: target.role },
-      after: { role: updated.role },
-      context: context.forensics,
+      const updated = (await this.users
+        .findOneAndUpdate(
+          { _id: id },
+          // The role and the invalidation in ONE update. Two statements would
+          // leave a window in which the role had changed and the old tokens still
+          // worked — small, and exactly the window an escape hatch exists to close.
+          { $set: { role }, $inc: { tokenVersion: 1 } },
+          { new: true, projection: CustomersAdminService.PROJECTION, session },
+        )
+        .lean<UserLean>()
+        .exec()) as UserLean;
+
+      await this.audit.recordChange({
+        actor: toAuditActor(actor),
+        action: AuditAction.USER_ROLE_CHANGED,
+        entity: { type: AuditEntityType.USER, id, label: target.email },
+        before: { role: target.role },
+        after: { role: updated.role },
+        context: context.forensics,
+      }, session);
+
+      if (target.role !== updated.role) {
+        this.logger.warn(
+          `role changed  user=${id.toHexString()}  ${target.role} -> ${updated.role}  ` +
+            `by=${actor._id.toHexString()}`,
+        );
+      }
+
+      return updated;
     });
-
-    if (target.role !== updated.role) {
-      this.logger.warn(
-        `role changed  user=${id.toHexString()}  ${target.role} -> ${updated.role}  ` +
-          `by=${actor._id.toHexString()}`,
-      );
-    }
 
     const totals = await this.orderTotals([id]);
 
@@ -288,53 +305,65 @@ export class CustomersAdminService {
    * gone — which is the whole reason the snapshot exists.
    */
   async softDelete(id: Types.ObjectId, context: AdminWriteContext): Promise<CustomerSummary> {
-    const actor = await this.users.findById(context.actorId).lean<UserLean>().exec();
+    const updated = await this.transactions.run(async (session) => {
+      // All role/status mutations overlap on the active owner set. Snapshot
+      // transactions alone cannot prevent write skew between different users.
+      await this.users.updateMany(
+        { role: Role.SUPER_ADMIN, deletedAt: null },
+        { $inc: { roleMutationVersion: 1 } },
+        { session },
+      ).exec();
+      const actor = await this.users.findById(context.actorId).session(session).lean<UserLean>().exec();
 
-    if (actor === null || actor.deletedAt !== null) throw AppException.accountDisabled();
+      if (actor === null || actor.deletedAt !== null) throw AppException.accountDisabled();
+      if (actor.role !== Role.SUPER_ADMIN) throw AppException.forbidden();
 
-    if (actor._id.equals(id)) throw AppException.cannotDeleteOwnAccount();
+      if (actor._id.equals(id)) throw AppException.cannotDeleteOwnAccount();
 
-    const target = await this.users.findById(id).lean<UserLean>().exec();
+      const target = await this.users.findById(id, CustomersAdminService.PROJECTION).session(session).lean<UserLean>().exec();
 
-    if (target === null) throw AppException.resourceNotFound();
-    if (target.deletedAt !== null) throw AppException.resourceNotFound();
+      if (target === null || target.deletedAt !== null) throw AppException.resourceNotFound();
 
-    if (target.role === Role.SUPER_ADMIN) {
-      const remaining = await this.users
-        .countDocuments({ role: Role.SUPER_ADMIN, deletedAt: null })
-        .exec();
+      if (target.role === Role.SUPER_ADMIN) {
+        const remaining = await this.users
+          .countDocuments({ role: Role.SUPER_ADMIN, deletedAt: null })
+          .session(session)
+          .exec();
 
-      if (remaining <= 1) throw AppException.lastSuperAdmin();
-    }
+        if (remaining <= 1) throw AppException.lastSuperAdmin();
+      }
 
-    const updated = (await this.users
-      .findOneAndUpdate(
-        { _id: id, deletedAt: null },
-        { $set: { deletedAt: new Date() }, $inc: { tokenVersion: 1 } },
-        { new: true, projection: CustomersAdminService.PROJECTION },
-      )
-      .lean<UserLean>()
-      .exec()) as UserLean;
+      const updated = (await this.users
+        .findOneAndUpdate(
+          { _id: id, deletedAt: null },
+          { $set: { deletedAt: new Date() }, $inc: { tokenVersion: 1 } },
+          { new: true, projection: CustomersAdminService.PROJECTION, session },
+        )
+        .lean<UserLean>()
+        .exec()) as UserLean;
 
-    await this.audit.record({
-      actor: toAuditActor(actor),
-      /*
-       * Recorded under `USER_ROLE_CHANGED` would be wrong, and there is no
-       * `USER_DELETED` in the frozen vocabulary. §3 lists "destructive
-       * operations" as audited and the enum is ADDITIVE by its own docstring,
-       * so a new action is the honest answer rather than borrowing one whose
-       * name would mislead every future query on `{action, createdAt}`.
-       */
-      action: AuditAction.USER_DELETED,
-      entity: { type: AuditEntityType.USER, id, label: target.email },
-      changes: { before: { deletedAt: null }, after: { deletedAt: updated.deletedAt } },
-      metadata: { role: target.role, fullName: target.fullName },
-      context: context.forensics,
+      await this.audit.record({
+        actor: toAuditActor(actor),
+        /*
+         * Recorded under `USER_ROLE_CHANGED` would be wrong, and there is no
+         * `USER_DELETED` in the frozen vocabulary. §3 lists "destructive
+         * operations" as audited and the enum is ADDITIVE by its own docstring,
+         * so a new action is the honest answer rather than borrowing one whose
+         * name would mislead every future query on `{action, createdAt}`.
+         */
+        action: AuditAction.USER_DELETED,
+        entity: { type: AuditEntityType.USER, id, label: target.email },
+        changes: { before: { deletedAt: null }, after: { deletedAt: updated.deletedAt } },
+        metadata: { role: target.role },
+        context: context.forensics,
+      }, session);
+
+      this.logger.warn(
+        `account deleted  user=${id.toHexString()}  by=${actor._id.toHexString()}`,
+      );
+
+      return updated;
     });
-
-    this.logger.warn(
-      `account deleted  user=${id.toHexString()}  by=${actor._id.toHexString()}`,
-    );
 
     const totals = await this.orderTotals([id]);
 

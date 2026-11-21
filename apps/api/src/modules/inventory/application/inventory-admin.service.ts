@@ -209,6 +209,18 @@ export class InventoryAdminService {
         session,
       );
 
+      await this.audit.record({
+        actor: toAuditActor(actor),
+        action: AuditAction.INVENTORY_ADJUSTED,
+        entity: { type: AuditEntityType.PRODUCT, id: command.productId, label: product.sku },
+        changes: {
+          before: { 'stock.onHand': moved.balanceBefore },
+          after: { 'stock.onHand': moved.balanceAfter },
+        },
+        metadata: { type: command.type, delta: command.delta, reason: command.reason },
+        context: command.forensics,
+      }, session);
+
       return moved;
     });
 
@@ -216,24 +228,6 @@ export class InventoryAdminService {
       .findById(command.productId)
       .lean<ProductLean>()
       .exec()) as ProductLean;
-
-    /*
-     * POST-COMMIT and outside the transaction, per AUDIT-MODEL.md §5 rule 2.
-     * §3 is explicit that this is written IN ADDITION to the ledger, not
-     * instead of it: the ledger records what moved, the audit records who, and
-     * why they were allowed to.
-     */
-    await this.audit.record({
-      actor: toAuditActor(actor),
-      action: AuditAction.INVENTORY_ADJUSTED,
-      entity: { type: AuditEntityType.PRODUCT, id: command.productId, label: product.sku },
-      changes: {
-        before: { 'stock.onHand': outcome.balanceBefore },
-        after: { 'stock.onHand': outcome.balanceAfter },
-      },
-      metadata: { type: command.type, delta: command.delta, reason: command.reason },
-      context: command.forensics,
-    });
 
     this.logger.log(
       `stock adjusted  sku=${product.sku}  ${command.type}  ${command.delta > 0 ? '+' : ''}` +

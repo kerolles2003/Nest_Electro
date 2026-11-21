@@ -20,42 +20,22 @@
  * same pipeline against the in-memory adapter; this proves the vendor behind it.
  */
 const { spawnSync } = require('node:child_process');
-const fs = require('node:fs');
 const path = require('node:path');
 
-/**
- * Loads `.env` into this process, so the spec can read the credentials.
- *
- * Jest does not run `ConfigModule`, and nothing else puts `CLOUDINARY_*` into
- * `process.env`. Parsed here rather than with `dotenv`, which is not a direct
- * dependency of this package — eight lines against a new dependency for one
- * script.
- *
- * `.env.local` wins over `.env`, matching `ConfigModule`'s own order, so a
- * developer pointing at their own sandbox account is not overridden.
- */
-function loadEnvFile(file) {
-  if (!fs.existsSync(file)) return;
-
-  for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
-    const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
-    if (match === null || line.trimStart().startsWith('#')) continue;
-
-    const [, key, raw] = match;
-    if (process.env[key] !== undefined) continue;
-
-    process.env[key] = raw.trim().replace(/^['"]|['"]$/g, '');
-  }
-}
-
-for (const file of ['.env.local', '.env']) {
-  loadEnvFile(path.join(__dirname, '..', file));
-}
-
-if (process.env.CLOUDINARY_CLOUD_NAME === undefined) {
+// No application .env loading: opt-in must name a separate disposable account.
+const required = [
+  'NEST_TEST_MONGODB_URI',
+  'NEST_TEST_CLOUDINARY_CLOUD_NAME',
+  'NEST_TEST_CLOUDINARY_API_KEY',
+  'NEST_TEST_CLOUDINARY_API_SECRET',
+];
+if (
+  required.some((key) => !process.env[key]) ||
+  process.env.NEST_TEST_CLOUDINARY_ACCOUNT !== 'dedicated-disposable-account' ||
+  process.env.NEST_TEST_CLOUDINARY_CLOUD_NAME === process.env.CLOUDINARY_CLOUD_NAME
+) {
   process.stderr.write(
-    'No CLOUDINARY_* credentials found in apps/api/.env or the environment.\n' +
-      'This suite makes real calls and cannot run without them.\n',
+    'Cloudinary tests blocked: provide an isolated test replica set, separate NEST_TEST_CLOUDINARY_* credentials and dedicated-account attestation. Application credentials are never a fallback.\n',
   );
   process.exit(1);
 }
@@ -73,7 +53,12 @@ const result = spawnSync(
   {
     cwd: path.join(__dirname, '..'),
     stdio: 'inherit',
-    env: { ...process.env, CLOUDINARY_INTEGRATION: '1' },
+    env: {
+      ...process.env,
+      CLOUDINARY_INTEGRATION: '1',
+      EMAIL_PROVIDER: 'console',
+      MEDIA_PROVIDER: 'memory',
+    },
   },
 );
 

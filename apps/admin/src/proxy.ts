@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { ADMIN_REFRESH_COOKIE } from '@/lib/api/session';
 import { PATH_HEADER } from '@/lib/api/renewal';
 import { logAdminAuthFailure } from '@/lib/logger';
+import { cspRequest } from '../../../packages/config/src/content-security-policy';
 
 /**
  * The navigation guard.
@@ -62,6 +63,13 @@ const PUBLIC_PATHS = ['/login', '/unauthorized'];
 const NEXT_ACTION_HEADER = 'next-action';
 
 export function proxy(request: NextRequest): NextResponse {
+  const { forwarded, policy } = cspRequest(request.headers, request.url, process.env.NODE_ENV === 'development');
+  const response = navigationProxy(request, forwarded);
+  response.headers.set('Content-Security-Policy', policy);
+  return response;
+}
+
+function navigationProxy(request: NextRequest, forwarded: Headers): NextResponse {
   const { pathname } = request.nextUrl;
 
   /**
@@ -91,11 +99,11 @@ export function proxy(request: NextRequest): NextResponse {
    * reintroduce a redirect on this path.
    */
   if (request.headers.get(NEXT_ACTION_HEADER) !== null) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: forwarded } });
   }
 
   if (PUBLIC_PATHS.some((prefix) => isUnder(pathname, prefix))) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: forwarded } });
   }
 
   /*
@@ -131,7 +139,7 @@ export function proxy(request: NextRequest): NextResponse {
     return NextResponse.redirect(target);
   }
 
-  return passThroughWithPath(request);
+  return passThroughWithPath(request, forwarded);
 }
 
 /**
@@ -148,8 +156,7 @@ export function proxy(request: NextRequest): NextResponse {
  * path, so the worst forgery available is sending yourself to another page of
  * the console you were already entitled to open.
  */
-function passThroughWithPath(request: NextRequest): NextResponse {
-  const forwarded = new Headers(request.headers);
+function passThroughWithPath(request: NextRequest, forwarded: Headers): NextResponse {
   forwarded.set(PATH_HEADER, request.nextUrl.pathname);
 
   return NextResponse.next({ request: { headers: forwarded } });
@@ -175,6 +182,6 @@ export const config = {
      * say about a JavaScript bundle. Note the basePath: these are matched
      * relative to it, so this covers `/admin/_next/*`.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api(?:/|$)|_next/static|_next/image|favicon.ico).*)',
   ],
 };

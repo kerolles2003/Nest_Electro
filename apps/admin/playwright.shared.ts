@@ -171,6 +171,10 @@ export const API_SERVER: WebServer = {
      * for this process only — see `e2e/origin.ts`.
      */
     MONGODB_DB_NAME: SCRATCH_DATABASE,
+        MONGODB_URI: process.env['MONGODB_URI']!,
+        NEST_TEST_MONGODB_URI: process.env['NEST_TEST_MONGODB_URI']!,
+        NEST_TEST_RUN: process.env['NEST_TEST_RUN']!,
+        MEDIA_PROVIDER: 'memory',
 
     /**
      * Rate limits raised for THIS process only — see
@@ -213,7 +217,7 @@ export const ADMIN_SERVER: WebServer = {
    */
   url: `${BASE_URL}/admin/login`,
   timeout: 180_000,
-  reuseExistingServer: process.env['CI'] === undefined,
+  reuseExistingServer: false,
   stdout: 'pipe',
   stderr: 'pipe',
   env: {
@@ -268,7 +272,7 @@ export const UNREACHABLE_API_SERVER: WebServer = {
   // server exists to have broken.
   url: `http://${HOST}:${DEAD_API_PORT}/admin/login`,
   timeout: 180_000,
-  reuseExistingServer: process.env['CI'] === undefined,
+  reuseExistingServer: false,
   stdout: 'pipe',
   stderr: 'pipe',
   env: {

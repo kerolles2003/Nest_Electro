@@ -1,0 +1,58 @@
+{
+  "browser": "Chromium",
+  "results": [
+    {
+      "concept": "01-premium-minimal",
+      "result": "passed",
+      "widths": [
+        1440,
+        1024,
+        768,
+        390,
+        320
+      ],
+      "browserErrors": 0,
+      "externalRequests": 0
+    },
+    {
+      "concept": "02-dark-command-center",
+      "result": "passed",
+      "widths": [
+        1440,
+        1024,
+        768,
+        390,
+        320
+      ],
+      "browserErrors": 0,
+      "externalRequests": 0
+    },
+    {
+      "concept": "03-editorial-human",
+      "result": "passed",
+      "widths": [
+        1440,
+        1024,
+        768,
+        390,
+        320
+      ],
+      "browserErrors": 0,
+      "externalRequests": 0
+    },
+    {
+      "concept": "04-data-first",
+      "result": "passed",
+      "widths": [
+        1440,
+        1024,
+        768,
+        390,
+        320
+      ],
+      "browserErrors": 0,
+      "externalRequests": 0
+    }
+  ],
+  "selector": "passed"
+}

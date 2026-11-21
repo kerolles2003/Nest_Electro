@@ -1,0 +1,906 @@
+{
+  "fixtureOnly": true,
+  "widths": [
+    320,
+    375,
+    768,
+    1024,
+    1280,
+    1440
+  ],
+  "checks": [
+    {
+      "route": "/",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Good morning, Visual.",
+      "unlabeled": []
+    },
+    {
+      "route": "/",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Good morning, Visual.",
+      "unlabeled": []
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Good morning, Visual.",
+      "unlabeled": []
+    },
+    {
+      "route": "/",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Good morning, Visual.",
+      "unlabeled": []
+    },
+    {
+      "route": "/",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Good morning, Visual.",
+      "unlabeled": []
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Good morning, Visual.",
+      "unlabeled": []
+    },
+    {
+      "route": "/products",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Products",
+      "unlabeled": []
+    },
+    {
+      "route": "/products",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Products",
+      "unlabeled": []
+    },
+    {
+      "route": "/products",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Products",
+      "unlabeled": []
+    },
+    {
+      "route": "/products",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Products",
+      "unlabeled": []
+    },
+    {
+      "route": "/products",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Products",
+      "unlabeled": []
+    },
+    {
+      "route": "/products",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Products",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/new",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "New product",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/new",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "New product",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/new",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "New product",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/new",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "New product",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/new",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "New product",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/new",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "New product",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/000000000000000000000030/edit",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Arduino Uno R3 development board",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/000000000000000000000030/edit",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Arduino Uno R3 development board",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/000000000000000000000030/edit",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Arduino Uno R3 development board",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/000000000000000000000030/edit",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Arduino Uno R3 development board",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/000000000000000000000030/edit",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Arduino Uno R3 development board",
+      "unlabeled": []
+    },
+    {
+      "route": "/products/000000000000000000000030/edit",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Arduino Uno R3 development board",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Orders",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Orders",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Orders",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Orders",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Orders",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Orders",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders/000000000000000000000050",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "NE-QA-1001",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders/000000000000000000000050",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "NE-QA-1001",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders/000000000000000000000050",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "NE-QA-1001",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders/000000000000000000000050",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "NE-QA-1001",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders/000000000000000000000050",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "NE-QA-1001",
+      "unlabeled": []
+    },
+    {
+      "route": "/orders/000000000000000000000050",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "NE-QA-1001",
+      "unlabeled": []
+    },
+    {
+      "route": "/inventory",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Inventory",
+      "unlabeled": []
+    },
+    {
+      "route": "/inventory",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Inventory",
+      "unlabeled": []
+    },
+    {
+      "route": "/inventory",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Inventory",
+      "unlabeled": []
+    },
+    {
+      "route": "/inventory",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Inventory",
+      "unlabeled": []
+    },
+    {
+      "route": "/inventory",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Inventory",
+      "unlabeled": []
+    },
+    {
+      "route": "/inventory",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Inventory",
+      "unlabeled": []
+    },
+    {
+      "route": "/categories",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Categories",
+      "unlabeled": []
+    },
+    {
+      "route": "/categories",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Categories",
+      "unlabeled": []
+    },
+    {
+      "route": "/categories",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Categories",
+      "unlabeled": []
+    },
+    {
+      "route": "/categories",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Categories",
+      "unlabeled": []
+    },
+    {
+      "route": "/categories",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Categories",
+      "unlabeled": []
+    },
+    {
+      "route": "/categories",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Categories",
+      "unlabeled": []
+    },
+    {
+      "route": "/brands",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Brands",
+      "unlabeled": []
+    },
+    {
+      "route": "/brands",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Brands",
+      "unlabeled": []
+    },
+    {
+      "route": "/brands",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Brands",
+      "unlabeled": []
+    },
+    {
+      "route": "/brands",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Brands",
+      "unlabeled": []
+    },
+    {
+      "route": "/brands",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Brands",
+      "unlabeled": []
+    },
+    {
+      "route": "/brands",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Brands",
+      "unlabeled": []
+    },
+    {
+      "route": "/customers",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Customers",
+      "unlabeled": []
+    },
+    {
+      "route": "/customers",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Customers",
+      "unlabeled": []
+    },
+    {
+      "route": "/customers",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Customers",
+      "unlabeled": []
+    },
+    {
+      "route": "/customers",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Customers",
+      "unlabeled": []
+    },
+    {
+      "route": "/customers",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Customers",
+      "unlabeled": []
+    },
+    {
+      "route": "/customers",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Customers",
+      "unlabeled": []
+    },
+    {
+      "route": "/coupons",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Coupons",
+      "unlabeled": []
+    },
+    {
+      "route": "/coupons",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Coupons",
+      "unlabeled": []
+    },
+    {
+      "route": "/coupons",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Coupons",
+      "unlabeled": []
+    },
+    {
+      "route": "/coupons",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Coupons",
+      "unlabeled": []
+    },
+    {
+      "route": "/coupons",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Coupons",
+      "unlabeled": []
+    },
+    {
+      "route": "/coupons",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Coupons",
+      "unlabeled": []
+    },
+    {
+      "route": "/reviews",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Reviews",
+      "unlabeled": []
+    },
+    {
+      "route": "/reviews",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Reviews",
+      "unlabeled": []
+    },
+    {
+      "route": "/reviews",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Reviews",
+      "unlabeled": []
+    },
+    {
+      "route": "/reviews",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Reviews",
+      "unlabeled": []
+    },
+    {
+      "route": "/reviews",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Reviews",
+      "unlabeled": []
+    },
+    {
+      "route": "/reviews",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Reviews",
+      "unlabeled": []
+    },
+    {
+      "route": "/audit-log",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Audit log",
+      "unlabeled": []
+    },
+    {
+      "route": "/audit-log",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Audit log",
+      "unlabeled": []
+    },
+    {
+      "route": "/audit-log",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Audit log",
+      "unlabeled": []
+    },
+    {
+      "route": "/audit-log",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Audit log",
+      "unlabeled": []
+    },
+    {
+      "route": "/audit-log",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Audit log",
+      "unlabeled": []
+    },
+    {
+      "route": "/audit-log",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Audit log",
+      "unlabeled": []
+    },
+    {
+      "route": "/settings",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Settings & Policies",
+      "unlabeled": []
+    },
+    {
+      "route": "/settings",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Settings & Policies",
+      "unlabeled": []
+    },
+    {
+      "route": "/settings",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Settings & Policies",
+      "unlabeled": []
+    },
+    {
+      "route": "/settings",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Settings & Policies",
+      "unlabeled": []
+    },
+    {
+      "route": "/settings",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Settings & Policies",
+      "unlabeled": []
+    },
+    {
+      "route": "/settings",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Settings & Policies",
+      "unlabeled": []
+    },
+    {
+      "route": "/login",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Welcome back.",
+      "unlabeled": []
+    },
+    {
+      "route": "/login",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Welcome back.",
+      "unlabeled": []
+    },
+    {
+      "route": "/login",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Welcome back.",
+      "unlabeled": []
+    },
+    {
+      "route": "/login",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Welcome back.",
+      "unlabeled": []
+    },
+    {
+      "route": "/login",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Welcome back.",
+      "unlabeled": []
+    },
+    {
+      "route": "/login",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Welcome back.",
+      "unlabeled": []
+    },
+    {
+      "route": "/unauthorized",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Access Denied",
+      "unlabeled": []
+    },
+    {
+      "route": "/unauthorized",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Access Denied",
+      "unlabeled": []
+    },
+    {
+      "route": "/unauthorized",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Access Denied",
+      "unlabeled": []
+    },
+    {
+      "route": "/unauthorized",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Access Denied",
+      "unlabeled": []
+    },
+    {
+      "route": "/unauthorized",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Access Denied",
+      "unlabeled": []
+    },
+    {
+      "route": "/unauthorized",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Access Denied",
+      "unlabeled": []
+    },
+    {
+      "route": "/not-a-real-route",
+      "width": 320,
+      "documentWidth": 320,
+      "title": "Page Not Found",
+      "unlabeled": []
+    },
+    {
+      "route": "/not-a-real-route",
+      "width": 375,
+      "documentWidth": 375,
+      "title": "Page Not Found",
+      "unlabeled": []
+    },
+    {
+      "route": "/not-a-real-route",
+      "width": 768,
+      "documentWidth": 768,
+      "title": "Page Not Found",
+      "unlabeled": []
+    },
+    {
+      "route": "/not-a-real-route",
+      "width": 1024,
+      "documentWidth": 1024,
+      "title": "Page Not Found",
+      "unlabeled": []
+    },
+    {
+      "route": "/not-a-real-route",
+      "width": 1280,
+      "documentWidth": 1280,
+      "title": "Page Not Found",
+      "unlabeled": []
+    },
+    {
+      "route": "/not-a-real-route",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Page Not Found",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Good morning, Visual.",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/products",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Products",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/orders",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Orders",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/inventory",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Inventory",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/categories",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Categories",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/brands",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Brands",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/customers",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Customers",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/coupons",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Coupons",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/reviews",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Reviews",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/audit-log",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Audit log",
+      "unlabeled": []
+    },
+    {
+      "state": "empty",
+      "route": "/settings",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Settings & Policies",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Good morning, Visual.",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/products",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Products",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/orders",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Orders",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/inventory",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Inventory",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/categories",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Categories",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/brands",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Brands",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/customers",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Customers",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/coupons",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Coupons",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/reviews",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Reviews",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/audit-log",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Audit log",
+      "unlabeled": []
+    },
+    {
+      "state": "error",
+      "route": "/settings",
+      "width": 1440,
+      "documentWidth": 1440,
+      "title": "Settings & Policies",
+      "unlabeled": []
+    }
+  ],
+  "errors": [],
+  "overflows": [],
+  "unlabeled": []
+}

@@ -1,0 +1,40 @@
+{
+  "race": {
+    "test": "Two requests read original, second cost-only write overwrites first price",
+    "afterFirst": {
+      "basePrice": 15000,
+      "salePrice": null,
+      "effectivePrice": 15000,
+      "costPrice": 3000
+    },
+    "afterSecond": {
+      "basePrice": 10000,
+      "salePrice": null,
+      "effectivePrice": 10000,
+      "costPrice": 4000
+    },
+    "filters": [
+      {
+        "_id": "000000000000000000000030"
+      },
+      {
+        "_id": "000000000000000000000030"
+      },
+      {
+        "_id": "000000000000000000000030"
+      }
+    ],
+    "mockedDatabase": true
+  },
+  "partial": {
+    "test": "Failure after persisted product update",
+    "error": "controlled recount failure",
+    "persistedPricing": {
+      "basePrice": 20000,
+      "salePrice": null,
+      "effectivePrice": 20000,
+      "costPrice": 3000
+    },
+    "mockedDatabase": true
+  }
+}

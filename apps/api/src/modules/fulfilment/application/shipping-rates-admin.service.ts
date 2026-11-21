@@ -1,3 +1,4 @@
+import { TransactionService } from '../../../database/transaction.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -5,7 +6,7 @@ import { AppException } from '../../../common/errors/app.exception';
 import { AuditService, type AuditContext } from '../../audit/application/audit.service';
 import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
 import { toAuditActor } from '../../audit/domain/audit-actor';
-import { User, type UserLean } from '../../users/infrastructure/schemas/user.schema';
+import { Role, User, type UserLean } from '../../users/infrastructure/schemas/user.schema';
 import {
   ShippingRate,
   type ShippingRateLean,
@@ -41,6 +42,7 @@ export class ShippingRatesAdminService {
     @InjectModel(ShippingRate.name) private readonly rates: Model<ShippingRate>,
     @InjectModel(User.name) private readonly users: Model<User>,
     private readonly audit: AuditService,
+    private readonly transactions: TransactionService,
   ) {}
 
   /** Every rate in the system, sorted alphabetically by governorate. */
@@ -69,40 +71,43 @@ export class ShippingRatesAdminService {
     fee: number,
     context: AdminShippingRateContext,
   ): Promise<ShippingRateLean> {
-    const actor = await this.users.findById(context.actorId).lean<UserLean>().exec();
+    return this.transactions.run(async session => {
+      const actor = await this.users.findById(context.actorId).session(session).lean<UserLean>().exec();
 
-    if (actor === null || actor.deletedAt !== null) throw AppException.accountDisabled();
+      if (actor === null || actor.deletedAt !== null) throw AppException.accountDisabled();
+      if (![Role.ADMIN, Role.SUPER_ADMIN].includes(actor.role)) throw AppException.forbidden();
 
-    const target = await this.rates.findOne({ governorate }).lean<ShippingRateLean>().exec();
+      const target = await this.rates.findOne({ governorate }).session(session).lean<ShippingRateLean>().exec();
 
-    if (target === null) throw AppException.resourceNotFound();
+      if (target === null) throw AppException.resourceNotFound();
 
-    const updated = (await this.rates
-      .findOneAndUpdate(
-        { governorate },
-        { $set: { fee } },
-        { new: true },
-      )
-      .lean<ShippingRateLean>()
-      .exec()) as ShippingRateLean;
+      const updated = (await this.rates
+        .findOneAndUpdate(
+          { governorate },
+          { $set: { fee } },
+          { new: true, session },
+        )
+        .session(session).lean<ShippingRateLean>()
+        .exec()) as ShippingRateLean;
 
-    await this.audit.recordChange({
-      actor: toAuditActor(actor),
-      action: AuditAction.SHIPPING_RATE_CHANGED,
-      entity: { type: AuditEntityType.SHIPPING_RATE, id: updated._id, label: governorate },
-      before: { fee: target.fee },
-      after: { fee: updated.fee },
-      context: context.forensics,
+      await this.audit.recordChange({
+        actor: toAuditActor(actor),
+        action: AuditAction.SHIPPING_RATE_CHANGED,
+        entity: { type: AuditEntityType.SHIPPING_RATE, id: updated._id, label: governorate },
+        before: { fee: target.fee },
+        after: { fee: updated.fee },
+        context: context.forensics,
+      }, session);
+
+      if (target.fee !== updated.fee) {
+        this.logger.warn(
+          `shipping rate changed  governorate=${governorate}  ${target.fee} -> ${updated.fee}  ` +
+            `by=${actor._id.toHexString()}`,
+        );
+      }
+
+      return updated;
     });
-
-    if (target.fee !== updated.fee) {
-      this.logger.warn(
-        `shipping rate changed  governorate=${governorate}  ${target.fee} -> ${updated.fee}  ` +
-          `by=${actor._id.toHexString()}`,
-      );
-    }
-
-    return updated;
   }
 
   /**
