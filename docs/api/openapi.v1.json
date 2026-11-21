@@ -5653,6 +5653,54 @@
         ]
       }
     },
+    "/api/v1/checkout/payment-methods": {
+      "get": {
+        "description": "COD is always offered. WALLET and INSTAPAY appear only when the owner has configured\ntheir receiving details (D01). For a manual order, the customer transfers the order\ntotal to the shown destination, then sends the order reference and transfer screenshot\nvia WhatsApp (D16). The order stays PENDING_VERIFICATION until an authorized admin\napproves it — nothing on this endpoint or in WhatsApp can mark it paid.",
+        "operationId": "CheckoutController_paymentMethods_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManualPaymentInstructionsResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Payment methods currently offered, with manual transfer instructions",
+        "tags": [
+          "checkout"
+        ]
+      }
+    },
     "/api/v1/checkout/quote": {
       "post": {
         "description": "Returns the **authoritative** money breakdown for the signed-in customer’s cart, with\nper-line status flags. Every figure is recomputed from live catalogue data on this\nrequest; nothing stored is returned, and the client never adds anything up itself.\n\n### What this is NOT\n\n- **Not a reservation.** No stock is held. Another customer may buy the last unit one\n  millisecond later.\n- **Not a lock, and not a payment authorisation.**\n- **Not a promise that `POST /orders` will succeed.** Placement independently revalidates\n  everything inside a transaction and may still return `409 OUT_OF_STOCK`.\n- **Not persisted.** There is no quote id and nothing to send back. Placement ignores any\n  totals a client might have kept.\n\n### Reading the result\n\n- `canPlaceOrder` — whether placement would be accepted right now. Use it for the button.\n- `pricing.grandTotal` — the cash amount due on delivery. **Never compute this locally.**\n- `pricing.shippingFee` is computed by the server. Pass `addressId` and it is quoted\n  against that address governorate — the same calculation `POST /orders` applies, so the\n  two agree. Omit it before the customer has chosen an address. `discountTotal` is always\n  `0` in this release: no coupon domain exists yet.\n- A `PRICE_CHANGED` line is included at the NEW price — compare `unitPrice` with\n  `previousUnitPrice` to tell the customer before they commit.\n\nPOST rather than GET because the frozen contract shapes this as a body-carrying request.\nIt has **no side effects** and writes nothing.\n\nThe body accepts `addressId` and nothing else. Sending `couponCode` returns\n`400 UNKNOWN_FIELD` rather than being silently ignored, so a client is never left believing\nit applied a discount that was never validated; a raw `governorate` is refused for a second\nreason — the saved address is the authority for it, and accepting free text would let a\nclient shop for a cheaper delivery fee.",
@@ -6132,6 +6180,106 @@
           }
         ],
         "summary": "Cancel one of my orders",
+        "tags": [
+          "orders"
+        ]
+      }
+    },
+    "/api/v1/orders/{id}/payment/resubmit": {
+      "post": {
+        "description": "Only for YOUR OWN order whose manual payment is VERIFICATION_REJECTED. Records the\ncorrected sender account and returns the order to PENDING_VERIFICATION for a fresh\nadmin review. Resubmission NEVER marks an order paid (D03).",
+        "operationId": "OrdersController_resubmitPayment_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The order id, as returned by `POST /orders` or `GET /orders`.",
+            "schema": {
+              "pattern": "^[0-9a-f]{24}$",
+              "example": "652f1a9b3c4d5e6f7a8b9c0d",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResubmitPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resubmitted. `payment.status` is `PENDING_VERIFICATION`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ORDER_NOT_FOUND — no such order of yours.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONCURRENT_MODIFICATION — the payment is not in VERIFICATION_REJECTED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resubmit transfer evidence after a verification rejection",
         "tags": [
           "orders"
         ]
@@ -6717,6 +6865,206 @@
           }
         ],
         "summary": "Complete delivery (SHIPPED → DELIVERED)",
+        "tags": [
+          "admin · orders"
+        ]
+      }
+    },
+    "/api/v1/admin/orders/{id}/payment/verify": {
+      "post": {
+        "description": "The ONLY operation that can mark a manual-transfer order PAID (D03). The body carries\nthe amount actually received; approval is refused unless it equals the order total\nexactly. The decision is guarded on the current payment status, so two admins cannot\nboth approve, and repeating an approval is refused rather than applied twice.",
+        "operationId": "AdminOrdersController_verifyPayment_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The order id, as returned by `POST /orders` or `GET /orders`.",
+            "schema": {
+              "pattern": "^[0-9a-f]{24}$",
+              "example": "652f1a9b3c4d5e6f7a8b9c0d",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verified. `payment.status` is `PAID`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrderResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — `id` is not a 24-character hex id, or the body failed validation. UNKNOWN_FIELD — the body carried a field this operation does not accept, including any attempt to send a `status`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — lifecycle operations require an ADMIN or SUPER_ADMIN account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ORDER_NOT_FOUND — no order with that id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "INVALID_STATE_TRANSITION — the order is not in a status this operation can move it from; `details` names the current status and the requested one. This includes REPEATING an operation that already succeeded. Do NOT retry — it never succeeds. CONCURRENT_MODIFICATION — another operator changed the order during this request; re-read it and decide again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve a manual Wallet/InstaPay transfer (PENDING_VERIFICATION → PAID)",
+        "tags": [
+          "admin · orders"
+        ]
+      }
+    },
+    "/api/v1/admin/orders/{id}/payment/reject": {
+      "post": {
+        "description": "Records why the transfer was not accepted. The customer sees the reason and may\nresubmit evidence, which starts a new verification round. Rejection never deletes\nthe order and never marks anything paid.",
+        "operationId": "AdminOrdersController_rejectPayment_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The order id, as returned by `POST /orders` or `GET /orders`.",
+            "schema": {
+              "pattern": "^[0-9a-f]{24}$",
+              "example": "652f1a9b3c4d5e6f7a8b9c0d",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rejected. `payment.status` is `VERIFICATION_REJECTED`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrderResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — `id` is not a 24-character hex id, or the body failed validation. UNKNOWN_FIELD — the body carried a field this operation does not accept, including any attempt to send a `status`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — lifecycle operations require an ADMIN or SUPER_ADMIN account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ORDER_NOT_FOUND — no order with that id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "INVALID_STATE_TRANSITION — the order is not in a status this operation can move it from; `details` names the current status and the requested one. This includes REPEATING an operation that already succeeded. Do NOT retry — it never succeeds. CONCURRENT_MODIFICATION — another operator changed the order during this request; re-read it and decide again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reject a manual Wallet/InstaPay transfer (PENDING_VERIFICATION → VERIFICATION_REJECTED)",
         "tags": [
           "admin · orders"
         ]
@@ -10262,6 +10610,11 @@
           "isFeatured": {
             "type": "boolean",
             "example": false
+          },
+          "expectedUpdatedAt": {
+            "type": "string",
+            "example": "2026-09-03T09:14:00.000Z",
+            "description": "Optimistic-locking token: the `updatedAt` of the product as the editor loaded it. When present and the product has been modified since, the update is refused with CONCURRENT_MODIFICATION (409) instead of silently overwriting the other edit."
           }
         }
       },
@@ -11490,6 +11843,57 @@
           "fee"
         ]
       },
+      "ManualPaymentInstructionsDto": {
+        "type": "object",
+        "properties": {
+          "availableMethods": {
+            "type": "array",
+            "example": [
+              "COD"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "COD",
+                "WALLET",
+                "INSTAPAY"
+              ]
+            }
+          },
+          "walletNumber": {
+            "type": "string",
+            "example": null,
+            "nullable": true
+          },
+          "instapayAddress": {
+            "type": "string",
+            "example": null,
+            "nullable": true
+          },
+          "whatsappNumber": {
+            "type": "string",
+            "example": null,
+            "nullable": true
+          }
+        },
+        "required": [
+          "availableMethods",
+          "walletNumber",
+          "instapayAddress",
+          "whatsappNumber"
+        ]
+      },
+      "ManualPaymentInstructionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ManualPaymentInstructionsDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
       "CheckoutQuoteDto": {
         "type": "object",
         "properties": {
@@ -11737,6 +12141,21 @@
             "example": "Please call before delivery.",
             "maxLength": 500,
             "description": "Free text for the courier or the shop. Stored verbatim, never interpreted."
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "COD",
+              "WALLET",
+              "INSTAPAY"
+            ],
+            "default": "COD",
+            "description": "How the customer will pay (D01). COD is the default. WALLET and INSTAPAY are manual transfers: the order starts PENDING_VERIFICATION and only an authorized admin approval can mark it PAID — choosing one here, or sending transfer evidence, never pays an order."
+          },
+          "transferSender": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Required for WALLET/INSTAPAY: the wallet number or InstaPay account the transfer was sent FROM. Recorded as verification evidence for the reviewing admin."
           }
         },
         "required": [
@@ -11830,39 +12249,87 @@
           "lineTotal"
         ]
       },
+      "OrderPaymentVerificationDto": {
+        "type": "object",
+        "properties": {
+          "transferSender": {
+            "type": "string",
+            "example": "01012345678",
+            "nullable": true
+          },
+          "submittedAt": {
+            "type": "string",
+            "example": null,
+            "nullable": true,
+            "format": "date-time"
+          },
+          "decidedAt": {
+            "type": "string",
+            "example": null,
+            "nullable": true,
+            "format": "date-time"
+          },
+          "decisionNote": {
+            "type": "string",
+            "example": null,
+            "nullable": true,
+            "description": "Why verification was rejected, when it was. Shown to the customer."
+          }
+        },
+        "required": [
+          "transferSender",
+          "submittedAt",
+          "decidedAt",
+          "decisionNote"
+        ]
+      },
       "OrderPaymentDto": {
         "type": "object",
         "properties": {
           "method": {
             "type": "string",
             "enum": [
-              "COD"
+              "COD",
+              "WALLET",
+              "INSTAPAY"
             ],
             "example": "COD",
-            "description": "Cash on Delivery is the only method. No payment provider is integrated."
+            "description": "COD, or a manual WALLET/INSTAPAY transfer verified by an authorized admin (D01). No payment provider is integrated."
           },
           "status": {
             "type": "string",
             "enum": [
               "PENDING",
+              "PENDING_VERIFICATION",
+              "VERIFICATION_REJECTED",
               "PAID",
               "REFUNDED"
             ],
             "example": "PENDING",
-            "description": "PENDING until the courier collects the cash, which happens when the order becomes DELIVERED. A newly placed order is ALWAYS PENDING."
+            "description": "COD: PENDING until the courier collects the cash at DELIVERED. Manual transfers: PENDING_VERIFICATION until an authorized admin approves (PAID) or rejects (VERIFICATION_REJECTED). A manual order is NEVER paid at placement."
           },
           "collectedAt": {
             "type": "string",
             "example": null,
             "nullable": true,
             "format": "date-time",
-            "description": "When cash was collected. Null until delivery."
+            "description": "When payment was confirmed received. Null until then."
+          },
+          "verification": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderPaymentVerificationDto"
+              }
+            ]
           }
         },
         "required": [
           "method",
           "status",
-          "collectedAt"
+          "collectedAt",
+          "verification"
         ]
       },
       "OrderShippingAddressDto": {
@@ -12195,6 +12662,20 @@
         },
         "required": [
           "reason"
+        ]
+      },
+      "ResubmitPaymentDto": {
+        "type": "object",
+        "properties": {
+          "transferSender": {
+            "type": "string",
+            "example": "01012345678",
+            "maxLength": 64,
+            "description": "The wallet number or InstaPay account the (new) transfer was sent FROM."
+          }
+        },
+        "required": [
+          "transferSender"
         ]
       },
       "OrderStatusCountDto": {
@@ -12565,6 +13046,33 @@
             "description": "Free-text note recorded on the status history entry for this transition. Internal."
           }
         }
+      },
+      "VerifyPaymentDto": {
+        "type": "object",
+        "properties": {
+          "confirmedAmount": {
+            "type": "number",
+            "example": 45000,
+            "description": "The received transfer amount, in integer minor units. Must equal the order total."
+          }
+        },
+        "required": [
+          "confirmedAmount"
+        ]
+      },
+      "RejectPaymentDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "The transfer screenshot does not match the order total.",
+            "minLength": 3,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
+        ]
       },
       "DeliveryFailedDto": {
         "type": "object",
