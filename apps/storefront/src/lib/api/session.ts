@@ -81,6 +81,35 @@ export async function clearSession(): Promise<void> {
 }
 
 /**
+ * A 30-second breadcrumb saying "renewal has just been attempted".
+ *
+ * The loop guard for the renewal redirect. Without it, a session that
+ * renews successfully and is STILL refused sends the browser round
+ * `page -> renew -> page -> renew` forever, because each renewal genuinely
+ * succeeds. With it, the second consecutive expiry is treated as a dead
+ * session instead. Thirty seconds because a fresh access token is good
+ * for fifteen minutes: any second expiry inside that window is a real
+ * fault, not a race.
+ */
+const RENEWAL_MARKER_COOKIE = 'nest_renewed';
+
+const RENEWAL_MARKER_MAX_AGE_SECONDS = 30;
+
+/** Records that renewal has just run. Write-context only. */
+export async function markRenewalAttempted(): Promise<void> {
+  const jar = await cookies();
+  jar.set(RENEWAL_MARKER_COOKIE, '1', {
+    ...BASE_COOKIE,
+    maxAge: RENEWAL_MARKER_MAX_AGE_SECONDS,
+  });
+}
+
+/** Whether renewal ran in the last thirty seconds. Read-only: render-safe. */
+export async function renewalWasJustAttempted(): Promise<boolean> {
+  return (await cookies()).get(RENEWAL_MARKER_COOKIE)?.value === '1';
+}
+
+/**
  * Replaces only the access token, keeping the refresh cookie untouched.
  *
  * Used after a silent refresh in a context that may write cookies. The API
