@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { AppException } from '../../../common/errors/app.exception';
+import { ErrorCode } from '../../../common/errors/error-code.enum';
 import { TransactionService } from '../../../database/transaction.service';
 import { AuditService, type AuditContext } from '../../audit/application/audit.service';
 import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
@@ -90,6 +91,21 @@ export class PaymentVerificationService {
         .lean<OrderLean>()
         .exec();
       if (order === null) throw AppException.orderNotFound();
+
+      /*
+       * Segregation of duties (adversarial audit, 2026-11-21): the decider
+       * must not be the customer who placed the order. An administrator who
+       * buys from the shop could otherwise approve their own declared
+       * transfer — the one path by which a screenshot becomes money without
+       * a second pair of eyes. Another administrator can always decide.
+       */
+      if (String(order.userId) === input.actorId.toHexString()) {
+        throw new AppException(
+          ErrorCode.FORBIDDEN,
+          HttpStatus.FORBIDDEN,
+          'You cannot decide the payment for your own order. Another administrator must review it.',
+        );
+      }
 
       if (!isManualTransfer(order.payment.method)) {
         throw AppException.validation([
@@ -210,6 +226,15 @@ export class PaymentVerificationService {
             _id: input.orderId,
             userId: input.userId,
             'payment.status': PaymentStatus.VERIFICATION_REJECTED,
+            /*
+             * A terminal order takes no new evidence (adversarial audit,
+             * 2026-11-21): cancellation does not touch payment state, so a
+             * rejected payment on a since-cancelled order could otherwise
+             * be resubmitted into a verification round that decide() will
+             * always refuse — an undead queue entry, and a state the
+             * customer was told is a fresh chance. Same for returns.
+             */
+            status: { $nin: [OrderStatus.CANCELLED, OrderStatus.RETURNED] },
           },
           {
             $set: {
@@ -233,6 +258,15 @@ export class PaymentVerificationService {
           .lean<OrderLean>()
           .exec();
         if (exists === null) throw AppException.orderNotFound();
+        if (exists.status === OrderStatus.CANCELLED || exists.status === OrderStatus.RETURNED) {
+          throw AppException.validation([
+            {
+              field: 'orderStatus',
+              message: 'A cancelled or returned order cannot accept new payment evidence.',
+              code: 'STATE',
+            },
+          ]);
+        }
         throw AppException.concurrentModification();
       }
 
