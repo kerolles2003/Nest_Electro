@@ -484,7 +484,11 @@ describe('IndexHealthService, against a scratch collection', () => {
 
     expect(report.missing).toEqual([]);
     expect(report.unexpected).toEqual([
-      { collection: 'scratch_things', name: 'scratch_rogue' },
+      // The collection this suite actually created — the schema above names
+      // it `scratch_things_${RUN_ID}`, and the service correctly reports the
+      // real name. This expectation previously said 'scratch_things', a
+      // collection that never exists here, so the test could not pass.
+      { collection: `scratch_things_${RUN_ID}`, name: 'scratch_rogue' },
     ]);
   });
 });

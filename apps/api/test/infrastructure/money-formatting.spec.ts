@@ -184,6 +184,16 @@ const ALLOWED: readonly Allowance[] = [
     snippet: '{formatPrice(product.basePrice)} <span className="text-xl font-bold">EGP</span>',
     why: 'Same file, same rounding defect, same reason for being reported rather than fixed.',
   },
+  {
+    file: 'apps/admin/src/components/settings/ShippingRatesTable.tsx',
+    snippet: 'aria-label={`Shipping fee for ${rate.governorate} in EGP`}',
+    why:
+      'An input unit adornment, in this spec\'s own terms: the aria-label of the numeric ' +
+      'shipping-fee input names the unit the operator types in. No amount is rendered on ' +
+      'the line — the only interpolated value is the governorate name. Registered ' +
+      '2026-11-21; before that this line failed the guard unregistered, on a branch no ' +
+      'CI ran against.',
+  },
 ];
 
 function sourceFiles(root: string): string[] {
