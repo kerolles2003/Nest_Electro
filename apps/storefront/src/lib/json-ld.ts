@@ -32,14 +32,13 @@ export function generateProductJsonLd(product: {
           : "https://schema.org/OutOfStock",
       seller: { "@type": "Organization", name: SITE_NAME },
     },
-    aggregateRating:
-      product.reviewCount > 0
-        ? {
-            "@type": "AggregateRating",
-            ratingValue: product.rating,
-            reviewCount: product.reviewCount,
-          }
-        : undefined,
+    /*
+     * No `aggregateRating` (F38). Reviews are deferred (D09/D23): there is
+     * no review system and no provenance for the rating figures, which
+     * currently come from seed data. Publishing them as structured data
+     * told search engines the catalogue had verified customer ratings it
+     * does not have. Restore this only when a real review source exists.
+     */
   };
 }
 

@@ -13,6 +13,7 @@ import {
 } from '@/actions/product.actions';
 import { ProductSpecsEditor } from './ProductSpecsEditor';
 import { ProductImageManager } from './ProductImageManager';
+import { BASE_PATH } from '@/lib/api/renewal';
 import type { AdminBrand, AdminCategory, AdminProduct } from '@/lib/api/types';
 import {
   Package, DollarSign, Tag, Image as ImageIcon, Search, CheckCircle2,
@@ -173,8 +174,14 @@ export function ProductForm({ mode, categories, brands, product }: ProductFormPr
     if (product !== undefined) params.set('excludeId', product.id);
 
     const timer = setTimeout(() => {
-      void fetch(`/api/check-slug?${params.toString()}`)
-        .then((response) => response.json())
+      void fetch(`${BASE_PATH}/api/check-slug?${params.toString()}`)
+        .then((response) => {
+          // A non-2xx is UNKNOWN, not an answer. Without this check a 404
+          // body was parsed as JSON and the check silently never resolved
+          // (A07: the fetch also missed the /admin basePath entirely).
+          if (!response.ok) throw new Error(`slug check failed: ${response.status}`);
+          return response.json();
+        })
         .then((data: { available: boolean | null; suggestion: string | null }) => {
           /*
            * `null` is UNKNOWN, and is rendered as unknown. Treating it as
