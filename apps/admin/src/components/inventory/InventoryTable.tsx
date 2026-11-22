@@ -441,11 +441,17 @@ function StatsStrip({
   const show = (value: number | undefined) =>
     value === undefined ? '—' : value.toLocaleString('en-EG');
 
+  // The chip classes are written out in full rather than interpolated from
+  // `color`: Tailwind can only generate classes it can see, and the primary
+  // chip needs the AA ink shade on its tint (text-primary on bg-primary/10
+  // fails contrast at 10px — the same fix the other tinted chips already
+  // carry). The status hues were deepened to AA shades in the token pass,
+  // so their chip text uses the base token.
   const items = [
-    { label: 'Active products', value: stats?.total, icon: Boxes, color: 'primary', active: activeFilter === '', onClick: onClear },
-    { label: 'In stock', value: stats?.inStock, icon: CheckCircle2, color: 'success', active: false, onClick: onClear },
-    { label: 'Low stock', value: stats?.lowStock, icon: AlertTriangle, color: 'warning', active: activeFilter === 'low_stock', onClick: () => onFilterClick('low_stock') },
-    { label: 'Out of stock', value: stats?.outOfStock, icon: Package, color: 'destructive', active: activeFilter === 'out_of_stock', onClick: () => onFilterClick('out_of_stock') },
+    { label: 'Active products', value: stats?.total, icon: Boxes, color: 'primary', chip: 'bg-primary/10 text-primary-ink', active: activeFilter === '', onClick: onClear },
+    { label: 'In stock', value: stats?.inStock, icon: CheckCircle2, color: 'success', chip: 'bg-success/10 text-success', active: false, onClick: onClear },
+    { label: 'Low stock', value: stats?.lowStock, icon: AlertTriangle, color: 'warning', chip: 'bg-warning/10 text-warning', active: activeFilter === 'low_stock', onClick: () => onFilterClick('low_stock') },
+    { label: 'Out of stock', value: stats?.outOfStock, icon: Package, color: 'destructive', chip: 'bg-destructive/10 text-destructive', active: activeFilter === 'out_of_stock', onClick: () => onFilterClick('out_of_stock') },
   ];
 
   return (
@@ -468,7 +474,7 @@ function StatsStrip({
                 <Icon className={`h-3.5 w-3.5 text-${item.color}`} />
               </div>
               {item.active && (
-                <span className={`text-[10px] font-bold px-1.5 py-[2px] rounded-full bg-${item.color}/10 text-${item.color}`}>
+                <span className={`text-[10px] font-bold px-1.5 py-[2px] rounded-full ${item.chip}`}>
                   Active
                 </span>
               )}
