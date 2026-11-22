@@ -694,3 +694,186 @@ working as designed — and the run was restarted after the drop.
 - Working tree at session end: HEAD still bb217fa, nothing
   staged; the overnight changes join the sessions 4–5 uncommitted
   work awaiting the owner's commit decision.
+
+---
+
+# Session 7 — Full Admin Redesign + Complete Product Catalog (2026-11-22)
+
+Branch: `muse/full-admin-redesign-product-catalog`, created from
+`c34347e` (the sessions 4–6 commit on `muse/autonomous-engineering`).
+Mode: fully autonomous per the owner's standing delegation — decisions
+taken by Muse are recorded with their reasoning below. Boundaries
+honoured: no push, no merge, no deployment, no production data, no
+external services or spending. All data work ran against the local
+`nest_browser_check` demo database on the test replica set.
+
+## Mission A — Admin dashboard redesign
+
+Finding: the admin console used a disconnected identity ("Concept 03":
+sage green #3d604c, cream #f8f7f4, Georgia serif) that shares nothing
+with the storefront brand (navy ink #1a1a2e, crimson #cf3549, Albert
+Sans + Urbanist). Rather than restyling screens one by one, the
+redesign re-based the admin DESIGN SYSTEM on the storefront identity —
+token names unchanged, so every component inherits: storefront palette
+tokens in globals.css, dark navy sidebar with crimson brand mark and
+crimson active item, white topbar, navy sign-in page, brand-based
+status/stat colours, Urbanist headings via next/font in the root
+layout. No markup, behaviour, API contract or permission changed.
+Routes covered (the full existing inventory): dashboard, products
+(+new, [id]/edit), categories, brands, inventory, orders (+[id]),
+coupons, customers, reviews, audit-log, settings, login, unauthorized.
+No users/roles or reports routes exist; none were invented.
+Commit 506d9ca. Browser-verified on production builds: zero console
+errors on the swept routes (the /coupons and /reviews RSC errors are
+the pre-existing legacy-Supabase ADV-3 issue, untouched).
+
+## Mission B — Local media provider (the enabling decision)
+
+Problem: both frontends derive image URLs only from Cloudinary, and
+the owner's Cloudinary account (D-4) has not arrived — so NO product
+image could render anywhere, which would have made a populated
+catalogue invisible. Decision: implement a third adapter for the
+existing media port, `local` (disk), refused in production so D-4 is
+not prejudged. LocalMediaStorage honours the port contract (no
+overwrite, dimensions from bytes, idempotent destroy); a delivery
+controller serves the bytes, authorised by the MediaAsset LEDGER
+(never the URL), immutable-cached. Frontends fall back to
+NEXT_PUBLIC_MEDIA_BASE_URL when no cloud name is configured;
+Cloudinary always wins when configured. Commits a88d10b, 03c6579.
+
+Three defects were found by LIVE testing, each invisible to the
+layer below it — recorded because they are the mission's real lesson:
+1. The delivery route 401'd: the API's auth is global-by-default and
+   the controller lacked @Public(). Fixed in 03c6579.
+2. Browsers then refused the bytes: helmet's global
+   Cross-Origin-Resource-Policy: same-origin blocks cross-origin
+   <img> embedding. The delivery route now sets CORP: cross-origin on
+   its own responses (public, ledger-authorised assets — CDN posture).
+   Fixed in fc58b72, together with the controller-level spec written
+   precisely because bug 1 proved adapter-level tests cannot see this
+   layer (6 cases: provider gate, ledger authorisation, both URL
+   shapes, missing bytes, malformed id, CORP/cache headers).
+3. Next's image optimizer 400'd every delivery URL: the origin was in
+   no remotePattern, and once added, Next still refused it as a local
+   IP. The CSP builder now adds the configured media origin to img-src
+   and both configs add it as a remote pattern, with
+   dangerouslyAllowLocalIP scoped to exactly that configuration —
+   unset (production), policy and patterns are byte-identical to
+   before. Fixed in 2940fbf. No CSP directive was weakened: script-src
+   and the nonce machinery are untouched; img-src gained one
+   operator-configured origin alongside the five already named there.
+
+Also fixed: the motors-robotics category (created by this mission)
+had no home-page tile, firing a failing image request per render.
+Following the convention recorded in storefront app/page.tsx, the
+legacy robotics-motors artwork now also exists under the new slug —
+no new artwork drawn (37f033a).
+
+## Mission B — The catalog
+
+26 NEW products authored (bilingual names/short descriptions, full
+English descriptions, 3–5 documented specs each, SEO title +
+description, EGP pricing, stock) and 2 categories + 2 brands added
+(displays, motors-robotics; seeed-studio, adafruit) through the real
+admin API. Imported through the project's own catalogue:import CLI
+(SKU-upsert): first run 26 created / 26 images uploaded / 0 errors;
+re-run proved idempotent (0 created, 0 updated, 26 unchanged, images
+skipped). Enrichment (specs, SEO, Arabic) applied through the admin
+PATCH endpoint, 26/26.
+
+Arabic descriptions: the first enrichment pass left description.ar
+null in effect — investigation showed the API persists prose Arabic
+correctly, so the gap was in the mission's own data (only short Arabic
+existed, and it had been mapped into the long field). Full Arabic
+descriptions were authored for all 26 (faithful renderings of the
+English facts, no added claims) and re-applied; verified per product:
+name.ar, shortDescription.ar, description.ar (≥80 chars), seoTitle,
+≥3 specs — 26/26.
+
+Images: one unique AI-generated studio product photograph per product
+(light-grey seamless background, three-quarter view, no text/logos),
+60 in total (26 new + 34 seed products, whose fake seed galleries were
+detached through the API first). Attach ran through the real admin
+media pipeline. Final integrity check over the live API: 60 products,
+exactly 1 image each, 60 unique publicIds, every delivery URL 200.
+
+Catalog shape: 60 products, 15 categories, 9 brands. By category:
+development-boards 15, environmental-sensors 6, connectivity 6,
+motion-sensors 5, power 5, motors-robotics 4, tools 4, resistors 3,
+capacitors 3, imu-modules 3, displays 3, mcu-modules 2,
+passive-components 1 (microcontrollers and sensors are parent
+categories). By brand: espressif 5, arduino 5, waveshare 5, dfrobot 5,
+raspberry-pi 4, nordic-semiconductor 2, adafruit 2, sparkfun 2,
+seeed-studio 1, unbranded/generic 29 (bread-and-butter components).
+
+## Verification
+
+- Full Jest (clean machine, demo DB dropped first — the scratch guard
+  refused while it existed, as designed): **76/77 suites passed
+  (1 skipped by design — cloudinary), 1503/1518 tests, 0 failures.**
+  Delta vs session 6: +2 suites (local-media-storage 7 tests,
+  media-delivery 6 tests). Teardown residue exactly 4 audit rows —
+  the unchanged pre-existing baseline.
+- Type-checks: api exit 0; admin + storefront type-checked inside
+  their production builds, all three builds pass.
+- Lint: api exit 0; admin exit 0 (32 warnings, all pre-existing in
+  files this mission did not touch).
+- OpenAPI gates: drift OK (74 paths), page gate OK.
+- Browser (production builds, dedicated demo DB): storefront home
+  29/29 images loaded, products grid 16/16, search (?q=esp32 → the 6
+  ESP32-family products), category filter (displays = exactly 3),
+  sort, product detail 5/5 with specs, mobile grid 16/16 — ZERO
+  console errors on storefront desktop + mobile and admin. Admin
+  products list 20/20 thumbnails, product edit page image renders.
+  One transient: the first cold run against the freshly rebuilt demo
+  DB showed CORP-blocked grid images; it did not reproduce in the
+  failure probe, in direct header checks (200 + CORP cross-origin),
+  or in the full re-run — recorded as an environment transient, not a
+  code defect.
+- The demo environment was rebuilt after the regression (seed +
+  indexes:sync + dev-admin + sandbox seeds, taxonomy, import, enrich,
+  attach) and re-verified end-to-end (60/60 images, zero errors), so
+  it is left running and populated.
+
+## Decisions taken under the owner's delegation
+
+1. Redesign via the design-system layer, not per-screen restyles —
+   one consistent identity, zero behaviour risk, every route covered.
+2. Local media provider as the catalogue enabler (above) — the only
+   route that makes images real without the pending Cloudinary
+   account; production refusal keeps D-4 intact.
+3. Catalog data through the project's own import CLI + admin API
+   enrichment, never direct DB writes — the data carries the same
+   validation and audit trail as operator-entered data.
+4. Seed products received real generated images too (detach fakes via
+   API, attach real) — a half-fake catalogue would have failed the
+   mission's own verification bar.
+5. Full Arabic descriptions authored rather than reusing the short
+   Arabic line as the long description.
+6. RATE_LIMIT_RELAXED=true used only in the local demo API process
+   (the project's sanctioned dev flag) after scripted logins hit 429;
+   token caching added to the scripts as the structural fix.
+
+## Known limitations
+
+- The local media provider is a development bridge: production still
+  awaits the owner's Cloudinary account (D-4), at which point the
+  frontends prefer Cloudinary automatically and no data migration is
+  needed (publicIds are provider-relative by design).
+- /admin/coupons and /admin/reviews still show the pre-existing
+  legacy-Supabase RSC errors (ADV-3); the blog decision is still the
+  owner's.
+- N-1 (the decide() unguarded payment dereference, LOW) remains open
+  as a separate small follow-up; it was out of this mission's scope.
+- Nothing was pushed: the sandbox has no git credentials. The branch
+  is 6 commits ahead of c34347e; a bundle can be produced on request.
+
+## Commits on muse/full-admin-redesign-product-catalog
+
+- 506d9ca feat(admin): rebrand console to the Nest Electro storefront identity
+- a88d10b feat(media): local disk media provider
+- 03c6579 fix(media): make local delivery route public (@Public)
+- fc58b72 fix(media): local delivery is cross-origin embeddable + controller spec
+- 2940fbf feat(frontends): serve product images from the configured local media origin
+- 37f033a fix(storefront): category tile for the motors-robotics root category
+- (this log entry)
