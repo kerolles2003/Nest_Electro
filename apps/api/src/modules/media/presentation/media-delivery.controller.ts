@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, NotFoundException, Param, Res } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Res } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { Public } from '../../../common/decorators/public.decorator';
@@ -52,10 +52,28 @@ export class MediaDeliveryController {
     private readonly storage: LocalMediaStorage,
   ) {}
 
+  /**
+   * A 404 from this route must carry the same CORP posture as a 200.
+   * Throwing NotFoundException hands the response to the global exception
+   * filter, whose helmet defaults stamp `Cross-Origin-Resource-Policy:
+   * same-origin` — so in a browser, a missing image (a stale product card
+   * after a re-import, a mistyped URL) presents as a CORP block, and the
+   * console blames this route's security posture for what is really a
+   * missing asset (session 8 audit). Answering through the response object
+   * keeps the failure honest: 404, cross-origin, never cached.
+   */
+  private notFound(response: Response): void {
+    response
+      .status(404)
+      .setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+      .setHeader('Cache-Control', 'no-store')
+      .send('Not Found');
+  }
+
   @Get('*path')
   async deliver(@Param('path') path: string[], @Res() response: Response): Promise<void> {
     if (this.config.provider !== 'local') {
-      throw new NotFoundException();
+      return this.notFound(response);
     }
 
     const segments = [...path];
@@ -68,17 +86,17 @@ export class MediaDeliveryController {
     // lowercase words, digits, `/`, `-`, `_` — no dots, so no traversal and
     // no extension smuggled in through the URL.
     if (!/^[A-Za-z0-9][A-Za-z0-9_-]*(?:\/[A-Za-z0-9_-]+)+$/.test(publicId)) {
-      throw new NotFoundException();
+      return this.notFound(response);
     }
 
     const asset = await this.assets.find(publicId);
     if (asset === null) {
-      throw new NotFoundException();
+      return this.notFound(response);
     }
 
     const bytes = await this.storage.read(publicId, asset.format);
     if (bytes === undefined) {
-      throw new NotFoundException();
+      return this.notFound(response);
     }
 
     const contentType =

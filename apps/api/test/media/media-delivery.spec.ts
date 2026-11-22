@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
-import { NotFoundException } from '@nestjs/common';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -102,32 +101,43 @@ describe('MediaDeliveryController', () => {
     expect(captured.body?.equals(bytes)).toBe(true);
   });
 
+  // A 404 from this route is answered through the response object, not by
+  // throwing: the exception filter's helmet defaults would stamp CORP
+  // same-origin on it, and a missing image would present in the browser as
+  // a CORP block instead of an honest 404 (session 8 audit). Every refusal
+  // below asserts BOTH the status and the cross-origin posture.
+  const expectHonest404 = async (
+    run: (res: Response) => Promise<void>,
+  ): Promise<void> => {
+    const { res, captured } = fakeResponse();
+    await run(res);
+    expect(captured.status).toBe(404);
+    expect(captured.headers['cross-origin-resource-policy']).toBe('cross-origin');
+    expect(captured.headers['cache-control']).toBe('no-store');
+  };
+
   it('404s when the provider is not local — delivery belongs to the CDN', async () => {
-    const { res } = fakeResponse();
-    await expect(
+    await expectHonest404((res) =>
       controller('cloudinary').deliver(['v42', 'nest', 'products', 'abc123', 'img1'], res),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    );
   });
 
   it('404s for a publicId the ledger does not know, even if a file existed', async () => {
-    const { res } = fakeResponse();
-    await expect(
+    await expectHonest404((res) =>
       controller('local').deliver(['v1', 'nest', 'products', 'unknown', 'img9'], res),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    );
   });
 
   it('404s when the ledger knows the asset but the bytes are gone', async () => {
     await storage.destroy(publicId);
-    const { res } = fakeResponse();
-    await expect(
+    await expectHonest404((res) =>
       controller('local').deliver(['v42', 'nest', 'products', 'abc123', 'img1'], res),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    );
   });
 
   it('404s for a malformed identifier instead of touching the filesystem', async () => {
-    const { res } = fakeResponse();
-    await expect(
+    await expectHonest404((res) =>
       controller('local').deliver(['..', '..', 'etc', 'passwd'], res),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    );
   });
 });
