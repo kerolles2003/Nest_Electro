@@ -1,63 +1,73 @@
 @import "tailwindcss";
 @source "../../../../packages/ui/src";
 
-/* Concept 03, scoped to this application. No storefront tokens are changed. */
+/*
+ * Nest Electro brand theme — the admin console carries the SAME identity as
+ * the storefront (apps/storefront/src/app/globals.css): deep-navy ink
+ * (#1a1a2e), crimson primary (#cf3549), white cards on light slate surfaces,
+ * Albert Sans body / Urbanist headings. This replaces the earlier standalone
+ * "Concept 03" sage-and-cream identity, which belonged to a different brand.
+ * Token NAMES are unchanged, so every component inherits the brand without
+ * markup churn; the values below mirror the storefront token-for-token
+ * wherever the semantics match.
+ */
 @theme inline {
-  --color-background: #f8f7f4;
-  --color-foreground: #292f2c;
-  --color-card: #fffefa;
-  --color-card-foreground: #292f2c;
-  --color-popover: #fffefa;
-  --color-popover-foreground: #292f2c;
-  --color-primary: #3d604c;
-  --color-primary-foreground: #fffefa;
-  --color-primary-hover: #2d4b3a;
-  --color-primary-light: #e8eee5;
-  --color-secondary: #efefe7;
-  --color-secondary-foreground: #3b443c;
-  --color-secondary-hover: #e3e7dc;
-  --color-surface: #fffefa;
-  --color-surface-low: #efefe7;
-  --color-surface-high: #efefe7;
-  --color-surface-highest: #e6eade;
-  --color-muted: #eeeee7;
-  --color-muted-foreground: #62675f;
-  --color-foreground-muted: #62675f;
-  --color-foreground-subtle: #62675f;
-  --color-accent: #e8eee5;
-  --color-accent-foreground: #2d4b3a;
-  --color-destructive: #a1413c;
-  --color-destructive-foreground: #fffefa;
-  --color-danger: #a1413c;
-  --color-danger-light: #f4e6e1;
-  --color-success: #346b49;
-  --color-success-light: #e6ecdf;
-  --color-warning: #805515;
-  --color-warning-light: #f5ebd4;
-  --color-purple: #586b5c;
-  --color-purple-light: #e6ecdf;
-  --color-border: #e0e2d8;
-  --color-border-strong: #bac4b5;
-  --color-input: #cdd3c7;
-  --color-ring: #3d604c;
-  --radius-sm: 4px;
-  --radius-md: 6px;
+  --color-background: #f4f5f7;
+  --color-foreground: #1a1a2e;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a2e;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1a1a2e;
+  --color-primary: #cf3549;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #b82a40;
+  --color-primary-light: rgba(207, 53, 73, 0.08);
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #1a1a2e;
+  --color-secondary-hover: #e2e8f0;
+  --color-surface: #ffffff;
+  --color-surface-low: #f8f8f8;
+  --color-surface-high: #f1f5f9;
+  --color-surface-highest: #e2e8f0;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #6b7280;
+  --color-foreground-muted: #6b7280;
+  --color-foreground-subtle: #64707e;
+  --color-accent: rgba(207, 53, 73, 0.06);
+  --color-accent-foreground: #cf3549;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-danger: #dc2626;
+  --color-danger-light: rgba(220, 38, 38, 0.08);
+  --color-success: #16a34a;
+  --color-success-light: rgba(22, 163, 74, 0.08);
+  --color-warning: #b45309;
+  --color-warning-light: rgba(180, 83, 9, 0.08);
+  --color-purple: #7c3aed;
+  --color-purple-light: rgba(124, 58, 237, 0.08);
+  --color-border: #eaeaec;
+  --color-border-strong: #d1d1d6;
+  --color-input: #d1d1d6;
+  --color-ring: #eb414b;
+  --radius-sm: 6px;
+  --radius-md: 8px;
   --radius-lg: 12px;
-  --radius: 6px;
-  --shadow-subtle: 0 1px 2px rgb(41 47 44 / 3%);
-  --shadow-card: 0 1px 3px rgb(41 47 44 / 4%);
-  --shadow-elevated: 0 12px 40px rgb(41 47 44 / 12%);
-  --font-sans: "Segoe UI", Arial, Helvetica, sans-serif;
-  --font-heading: Georgia, "Times New Roman", serif;
-  --font-mono: Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow-subtle: 0 1px 2px rgb(26 26 46 / 4%);
+  --shadow-card: 0 1px 3px rgb(26 26 46 / 5%), 0 4px 14px rgb(26 26 46 / 4%);
+  --shadow-elevated: 0 12px 40px rgb(26 26 46 / 14%);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 :root {
   color-scheme: light;
-  --admin-sidebar: 224px;
-  --admin-peach: #ecd5c5;
-  --admin-sage: #e6ecdf;
-  --admin-slate: #e8eceb;
-  --admin-rose: #f1e9e3;
+  --admin-sidebar: 232px;
+  /* Stat-card tints, re-based on the brand family (crimson / navy / slate / violet). */
+  --admin-peach: rgba(207, 53, 73, 0.09);
+  --admin-sage: rgba(22, 163, 74, 0.09);
+  --admin-slate: rgba(26, 26, 46, 0.06);
+  --admin-rose: rgba(124, 58, 237, 0.08);
 }
 * {
   box-sizing: border-box;
@@ -78,16 +88,16 @@ body {
 }
 .admin-app :where(h1) {
   font-family: var(--font-heading);
-  font-size: 34px;
+  font-size: 30px;
   line-height: 1.2;
-  font-weight: 400;
-  letter-spacing: -0.025em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   text-transform: none;
   overflow-wrap: anywhere;
 }
 .admin-app :where(h2, h3) {
   font-family: var(--font-heading);
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: -0.015em;
   text-transform: none;
 }
@@ -345,12 +355,32 @@ body {
   display: grid;
   place-items: center;
   padding: 40px 20px;
+  /* The sign-in screen wears the brand's dark chrome, like the sidebar. */
+  background:
+    radial-gradient(720px 340px at 85% -60px, rgba(207, 53, 73, 0.28), transparent 65%),
+    #1a1a2e;
 }
 .admin-access-panel {
   width: min(440px, 100%);
 }
 .admin-access-panel h1 {
   font-size: 36px;
+  color: #ffffff;
+}
+.admin-access-panel p {
+  color: rgba(255, 255, 255, 0.7);
+}
+/* …but paragraphs inside the white card keep the card's dark-on-light scheme. */
+.admin-access-panel .admin-card p {
+  color: inherit;
+}
+/* Icon buttons inside the dark sidebar must stay on the dark scheme. */
+.admin-sidebar .admin-icon-button {
+  color: rgba(255, 255, 255, 0.75);
+}
+.admin-sidebar .admin-icon-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 .admin-queue-filters > div > form {
   flex-basis: 260px;
@@ -382,11 +412,11 @@ body {
   background: transparent;
 }
 .admin-queue-statuses > button:hover {
-  background: #f0f1e9;
+  background: var(--color-surface-high);
   box-shadow: none;
 }
 .admin-queue-statuses > button[aria-pressed="true"] {
-  background: #e6ecdf;
+  background: var(--color-primary-light);
   box-shadow: inset 0 -3px var(--color-primary);
 }
 .admin-queue-statuses > button > div {
@@ -405,23 +435,23 @@ body {
   margin-top: 8px;
 }
 .admin-metric-filters > button[aria-pressed="true"] {
-  background: #e6ecdf;
-  border-color: #a8baa0;
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
 }
 .admin-app .admin-status-placed {
-  color: #805515;
-  background: #f5ebd4;
-  border-color: #e4d1a6;
+  color: var(--color-warning);
+  background: var(--color-warning-light);
+  border-color: rgba(180, 83, 9, 0.35);
 }
 .admin-app .admin-status-confirmed {
-  color: #3d604c;
-  background: #e6ecdf;
-  border-color: #cad7c3;
+  color: var(--color-success);
+  background: var(--color-success-light);
+  border-color: rgba(22, 163, 74, 0.35);
 }
 .admin-app .admin-status-delivery_failed {
-  color: #a1413c;
-  background: #f4e6e1;
-  border-color: #e4c5bd;
+  color: var(--color-danger);
+  background: var(--color-danger-light);
+  border-color: rgba(220, 38, 38, 0.35);
 }
 @media (max-width: 1279px) {
   .admin-queue-statuses {
@@ -473,7 +503,7 @@ body {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  color: #51574e;
+  color: var(--color-muted-foreground);
   font-size: 12px;
 }
 .admin-stat-label svg {
@@ -571,10 +601,10 @@ body {
   border-radius: 3px;
 }
 .admin-status-row:nth-child(2n) .admin-status-track span {
-  background: #9aac94;
+  background: #7c3aed;
 }
 .admin-status-row:last-child .admin-status-track span {
-  background: #b6835a;
+  background: #b45309;
 }
 .admin-status-row strong {
   font-weight: 500;
@@ -880,34 +910,43 @@ body {
     background: white;
   }
 }
-/* The quiet editorial shell. */
+/*
+ * The brand shell. The sidebar is the storefront's dark chrome — the same
+ * deep navy as its top bar and footer (#1a1a2e) — with the crimson primary
+ * as the active-state colour, so the console and the shop read as one
+ * product. Text on navy uses the storefront top bar's own foreground
+ * (white at 85%).
+ */
 .admin-sidebar {
   position: fixed;
   inset: 0 auto 0 0;
   width: var(--admin-sidebar);
   display: flex;
   flex-direction: column;
-  background: #efefe7;
-  border-right: 1px solid var(--color-border);
+  background: #1a1a2e;
+  border-right: 1px solid #1a1a2e;
+  color: rgba(255, 255, 255, 0.85);
   z-index: 30;
 }
 .admin-brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 90px;
-  padding: 22px;
-  font-size: 29px;
-  font-weight: 650;
+  height: 76px;
+  padding: 18px 22px;
+  font-family: var(--font-heading);
+  font-size: 27px;
+  font-weight: 700;
   line-height: 1;
-  color: #292f2c;
-  letter-spacing: -0.8px;
+  color: #ffffff;
+  letter-spacing: -0.5px;
 }
 .admin-brand small {
   display: block;
   font: 9px var(--font-sans);
-  letter-spacing: 2px;
-  margin-top: 6px;
+  letter-spacing: 2.5px;
+  color: #ff8b99;
+  margin-top: 5px;
 }
 .admin-brand-mark {
   display: grid;
@@ -915,27 +954,27 @@ body {
   place-content: center;
   width: 37px;
   height: 37px;
-  border-radius: 50%;
-  background: #3d604c;
-  color: #fffefa;
+  border-radius: 10px;
+  background: #cf3549;
+  color: #ffffff;
   font-size: 29px;
   letter-spacing: -4px;
   padding-right: 4px;
 }
 .admin-brand-mark span {
-  color: #ecd5c5;
+  color: rgba(255, 255, 255, 0.65);
 }
 .admin-workspace-label {
   display: flex;
   align-items: center;
   gap: 9px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
   margin: 0 16px 20px;
   padding: 10px;
   font-size: 12px;
-  color: var(--color-muted-foreground);
-  background: var(--color-background);
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
 }
 .admin-navigation {
   overflow-y: auto;
@@ -950,8 +989,11 @@ body {
   width: 100%;
   align-items: center;
   justify-content: space-between;
-  color: var(--color-muted-foreground);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: 0 12px 7px;
 }
 .admin-nav-item {
@@ -961,16 +1003,18 @@ body {
   min-height: 38px;
   margin-bottom: 3px;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
-  color: #586050;
+  color: rgba(255, 255, 255, 0.78);
+  transition: background 120ms ease, color 120ms ease;
 }
 .admin-nav-item:hover {
-  background: #e5e9dc;
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
 }
 .admin-nav-item.is-active {
-  color: #2d4b3a;
-  background: #dae4d6;
+  color: #ffffff;
+  background: #cf3549;
   font-weight: 600;
 }
 .admin-sidebar-profile {
@@ -978,8 +1022,9 @@ body {
   align-items: center;
   gap: 9px;
   padding: 16px 12px;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
 }
 .admin-icon-button {
   display: inline-flex;
@@ -1004,8 +1049,9 @@ body {
   align-items: center;
   gap: 16px;
   padding: 0 32px;
-  background: var(--color-background);
+  background: var(--color-card);
   border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px rgb(26 26 46 / 4%);
   z-index: 20;
 }
 .admin-breadcrumb {
@@ -1074,7 +1120,8 @@ body {
   width: min(280px, calc(100vw - 32px));
   max-width: none;
   border-radius: 0;
-  background: #efefe7;
+  background: #1a1a2e;
+  color: rgba(255, 255, 255, 0.85);
   display: flex;
   flex-direction: column;
   gap: 0;
