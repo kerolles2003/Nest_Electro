@@ -877,3 +877,43 @@ seeed-studio 1, unbranded/generic 29 (bread-and-butter components).
 - 2940fbf feat(frontends): serve product images from the configured local media origin
 - 37f033a fix(storefront): category tile for the motors-robotics root category
 - (this log entry)
+
+---
+
+# Session 8 — Final Adversarial Audit & Release Gate (2026-11-22)
+
+**Branch:** `muse/full-admin-redesign-product-catalog` · **Start HEAD:** `560564c` (verified: branch, HEAD, clean tree; Session 7 diff = 20 files, +1043/−128) · **Mission:** independently audit everything Session 7 shipped (admin redesign, 60-product catalog, local media adapter), investigate the /coupons + /reviews RSC errors, N-1, and blog/ADV-3, fix confirmed issues on the branch, and issue an evidence-based release gate. No push, merge, or deploy.
+
+## Findings and fixes (detail: MUSE_FINAL_ADVERSARIAL_AUDIT.md)
+
+- **F8-01 (P1) — /coupons + /reviews crashed** in the sanctioned configuration: both are legacy Phase-8 pages (D-5) constructing a Supabase client during RSC render; with the env absent, construction throws and neither segment has an error boundary. Fixed by guarding the service acquisition so the pages render their header, DomainNotLiveNotice and ErrorState honestly (`1d60811`). Verified: zero console errors, zero server RSC errors, screenshot captured.
+- **F8-02 (P2) — N-1 CONFIRMED and fixed** (`3a1c6ce`): `decide()` dereferenced `order.payment.method` unguarded at the SoD audit metadata and the manual-transfer gate; a payment-less order 500'd instead of returning the audited refusal. Null-safe read once; audit records 'UNKNOWN'; two adversarial regression tests (owner → audited 403, other admin → 400).
+- **F8-03 (P2) — catalog gaps fixed in the data:** all 34 seed products lacked Arabic content + SEO; 13 categories + 7 brands lacked Arabic names. Faithful Arabic translations + English SEO applied via the admin API (34/13/7, 0 failures). Re-audit: 60 products, 0 gaps. The repo seed was deliberately NOT edited — its header declares it intentionally partial test infrastructure (D-6). (Process note: an early audit pass with wrong field names produced 402 phantom issues; discarded and re-derived against the real schema.)
+- **F8-04 (P2) — console-wide WCAG AA contrast failure, fixed at the token layer** (`4d229ff`): muted-foreground 4.41:1 on light surfaces / 3.52:1 in the navy sidebar; status hues on their own tints 2.95–4.41:1; crimson-on-tint 4.26–4.29:1 across five components. Fixes measured with the WCAG luminance formula; new `--color-primary-ink #a52338`; admin primary deepened one shade to `#c43047` (documented divergence from storefront); sidebar-scoped muted `#9aa5b5`; last Concept-03 remnants removed (table-header cream `#f3f3ed`, global-error cream). Storefront category tiles marked decorative (`alt=""`). **Axe: zero violations on every audited page.**
+- **F8-05 (P3) — B-3:** the catalogue import runner hardcoded `ar: null` in category/brand snapshots (its taxonomy index flattened names to English). Fixed at the mechanism (`9f9d47b`) with a copy-through regression test; a from-scratch rebuild now audits at 0 gaps with no repair step (previously exactly 7).
+- **F8-06 (P3):** media delivery 404s wore helmet's CORP same-origin via the exception filter, so missing images presented as CORP blocks. The route now answers refusals itself: 404 + CORP cross-origin + no-store (`a6e4939`); spec asserts it on every refusal path; verified live.
+- **Media adapter (Mission C) verified strong:** traversal probes all 404; planted orphan file 404 (ledger gate); production boot with `MEDIA_PROVIDER=local` refused by config validation at runtime; upload pipeline re-read (roles → 5 MB → sniff → re-encode). **F8-07 (P3, open):** 84 orphan files / 104.3 MB on disk, not servable; recommendation is a report-only reconciliation command before any prune — not built, not deleted.
+- **Blog/ADV-3:** documented with the four standing options; recommendation recorded (fail soft, symmetry with F8-01); no decision taken — it is the owner's product call.
+
+## Regression (detail: MUSE_TEST_EVIDENCE.md)
+
+Full Jest **76/77 suites, 1505/1520 tests, 0 failures** (delta vs Session 7 = exactly the 2 N-1 tests; cloudinary suite skipped by design; teardown residue 4 audit rows = baseline). Targeted re-runs: import suites 70/70, delivery spec 6/6. Type-checks ×3, builds ×3, API+admin lint clean, both OpenAPI gates pass (74 paths). Browser: full route sweep at 3 viewports clean; end-to-end smoke 100% clean three consecutive runs on the final build. Environment lessons recorded in the evidence doc: build frontends with `NODE_ENV=production` explicitly (a leaked dev NODE_ENV fails the `/_global-error` prerender — environment, not app), and `openapi:check` needs the API env sourced.
+
+## Decisions taken under the owner's delegation
+
+Graceful degradation over inventing Phase-8 backends (F8-01); catalog fixed in the populated data, not the D-6 seed (F8-03); token-layer contrast fixes accepting a documented one-shade admin/storefront primary divergence (F8-04); delivery refusals answered by the route, not a global filter special case (F8-06); orphan files documented, never deleted (F8-07); blog left to the owner (ADV-3); storefront lint config reported, not repaired (F8-11). Full reasoning in MUSE_RELEASE_READINESS_REPORT.md §4.
+
+## Scores and gate
+
+Overall project quality **8.5/10** (Session 7: 8.0); production readiness **6.5/10** (Session 7: 6.0). Safe for development: yes. Safe for staging: yes, with the media-provider caveat. **Merge: recommended** at the post-Session-8 HEAD. Production: no — Cloudinary (D-4), owner business inputs (payment details, verifiers, shipping D04/D05, policies, contact D16), Phase-8 scope (D-5), plus the standing `pnpm audit` / Playwright-in-CI gaps. Full scorecard in MUSE_RELEASE_READINESS_REPORT.md.
+
+## Commits added on muse/full-admin-redesign-product-catalog
+
+- 3a1c6ce fix(api): payment verification is null-safe for orders without payment data (N-1)
+- 9f9d47b fix(api): catalogue import copies Arabic taxonomy names into snapshots (B-3)
+- a6e4939 fix(api): media delivery 404s keep the route's cross-origin posture
+- 1d60811 fix(admin): Phase-8 pages degrade gracefully when the legacy service is unconfigured
+- 4d229ff fix(a11y): WCAG AA contrast pass for the admin console
+- (docs commit carrying the Session 8 deliverables + this log entry)
+
+Demo environment left running and populated (60 products, 0 audit gaps, 60/60 images, wallet + COD demo orders). NOT pushed; a new bundle would be needed to transfer the branch (v5 predates Session 8).

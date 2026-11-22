@@ -1,162 +1,102 @@
-# Test Evidence — Adversarial Audit Session (2026-11-21)
+# Muse — Test Evidence (Session 8, Final Adversarial Audit)
 
-Exact commands, environments, counts and limitations. Starting HEAD
-`1a9d76f2cfca31adc0379bf550b545c0490de045` (17 commits over base
-`bb7c331`). Nothing in this document is estimated; every number was
-observed in this session.
+**Date:** 2026-11-22 · **Branch:** `muse/full-admin-redesign-product-catalog`
+**Audited state:** `560564c` · **Final state:** fix commits `3a1c6ce`, `9f9d47b`, `a6e4939`, `1d60811`, `4d229ff` + docs commit
+*(Supersedes the Session 3 test evidence that previously occupied this file; that evidence remains in git history.)*
+Every result below is the actual output of the command named, run in this session against this branch. Environment: local MongoDB 8.x replica set `nest-test-rs0` (port 27018), production builds of all three apps, demo database `nest_browser_check`.
 
-## Environment
+---
 
-- Sandbox VM: 1.5 shared CPUs, 6 GB RAM. All timings below carry
-  that constraint; relative comparisons are meaningful, absolute
-  browser timings are not.
-- MongoDB 7.0.24, single-node replica set `nest-test-rs0`,
-  127.0.0.1:27018 (project test harness scratch databases only;
-  no development or production database was touched).
-- Node 24, pnpm 9.0.0 (shim), Playwright Chromium 1234
-  (headless shell), axe-core 4.11.3 (already in the dependency tree).
-- Jest harness env: `NEST_TEST_MONGODB_URI` pointing at the replica
-  set, throwaway random `JWT_SECRET` per run, `NODE_ENV=test`.
+## 1. Automated test suite (API, Jest)
 
-## New adversarial suites written for this audit
+**Full run** (after the N-1 fix and its tests; demo DB dropped first — the suite's scratch-DB guard refuses to run while a demo database exists):
 
-Command pattern (each):
-`cd apps/api && npx jest <path> --runInBand` with the harness env.
+```
+Test Suites: 1 skipped, 76 passed, 76 of 77 total
+Tests:       15 skipped, 1505 passed, 1520 total
+```
 
-| Suite | Tests | Result |
-| --- | --- | --- |
-| `test/checkout/payment-adversarial.spec.ts` | 11 | 11/11 pass after fixes (2 failed before: self-approval 200 vs expected 403; resubmit-on-cancelled 200 vs expected refusal) |
-| `test/security/security-adversarial.spec.ts` | 14 | 14/14 pass |
-| `test/database/integrity-adversarial.spec.ts` | 4 | 4/4 pass |
-| `test/checkout/manual-payment.spec.ts` (pre-existing, regression check after the payment fixes) | 11 | 11/11 pass |
+- Delta vs Session 7 (1503/1518): **exactly +2 tests** — the two N-1 regression tests. Zero failures.
+- The skipped suite is `cloudinary-integration.spec.ts`, skipped by design (no Cloudinary account exists, D-4). The 15 skipped tests are that suite's plus provider-conditional cases.
+- Teardown residue after the run: exactly **4 audit rows** — the established baseline, unchanged.
+- Coverage includes the adversarial suites from earlier sessions (payment races, SoD, PAY-3 fail-closed gate, CSP, import) — all green, so Sessions 4–6 guarantees are re-verified, not assumed.
 
-## Full regression
+**Targeted re-runs after the later fixes:**
 
-`cd apps/api && npx jest --runInBand` (all suites, real replica set):
-**72 of 73 suites ran: 71 passed, 1 skipped, 1 failed; 1461 of 1477
-tests passed, 15 skipped, 1 failed.** The single failure was
-`test/infrastructure/money-formatting.spec.ts`, caused by this
-session's own accessibility fix: the new `aria-valuetext` lines in
-`FilterSidebar.tsx` put a currency symbol beside a
-`toLocaleString()` value, which the project's money-formatting gate
-flags unless a written allowance is registered (the mechanism the
-project itself uses for the identical visible chips in the same
-file). Two allowances with justifications were registered and the
-gate suite re-run standalone: **4/4 pass**, including its
-stale-allowance check. No other suite was affected by the change
-(the edit touches only that spec's allowance list), so the full run
-was not repeated for it.
+| Suites | Result |
+|---|---|
+| `test/import/catalogue-import.spec.ts` + `test/p1/import-image-version.spec.ts` (after the B-3 fix) | **70 passed, 70 total** — includes the new snapshot-Arabic copy-through test |
+| `test/media/media-delivery.spec.ts` (after the honest-404 fix) | **6 passed, 6 total** — includes the new assertions that every refusal path returns 404 with `Cross-Origin-Resource-Policy: cross-origin` and `Cache-Control: no-store` |
 
-Type-checks after all session changes: api `tsc --noEmit` exit 0;
-storefront `tsc --noEmit` exit 0. Storefront production build after
-the FilterSidebar change: success (new BUILD_ID issued). OpenAPI
-drift gate after the payment-service changes:
-`pnpm --filter api openapi:check` → "drift gate: OK".
+**New/changed tests this session:** +2 in `payment-adversarial.spec.ts` (payment-less order: owner → audited 403 with `metadata.method 'UNKNOWN'`; other admin → 400), +1 in `catalogue-import.spec.ts` (snapshot copy-through), 4 delivery-spec tests rewritten from exception assertions to response assertions.
 
-## Production-mode Playwright probes (temporary, removed after use)
+## 2. Type-checks, builds, lint, contract gates
 
-Method: the projects' own Playwright configs were copied with the
-Next server command swapped from `next dev` to `next start`
-(production builds), `NEXT_DIST_DIR` pointed at the real `.next`,
-and a single probe spec each. Probe files were deleted after the
-runs; `git status` verified clean.
+| Check | Command | Result |
+|---|---|---|
+| API type-check | `tsc --noEmit` (apps/api) | ✅ exit 0 |
+| Admin type-check | `tsc --noEmit` (apps/admin) | ✅ exit 0 |
+| Storefront type-check | via `next build` type phase | ✅ exit 0 |
+| API build | `pnpm build` (apps/api) | ✅ exit 0 |
+| Admin build | `pnpm build` (apps/admin) | ✅ exit 0 |
+| Storefront build | `pnpm build` (apps/storefront) | ✅ exit 0 |
+| API lint | `pnpm lint` | ✅ exit 0 |
+| Admin lint | `pnpm lint` | ✅ exit 0 — 32 warnings, all pre-existing (legacy `no-explicit-any` in the Phase-8 coupon/review code and similar), none in files this session touched |
+| Storefront lint | `pnpm lint` | ⚠️ exit 2 — **pre-existing ESLint flat-config error** ("react-hooks plugin is not defined in your configuration file") thrown before any file is linted; independent of any Session 7/8 change (audit finding F8-11) |
+| OpenAPI drift gate | `pnpm openapi:check` | ✅ "drift gate: OK, the API matches docs/api/openapi.v1.json" |
+| OpenAPI page gate | `pnpm openapi:page:check` | ✅ OK — 74 paths, sha256 `c57739bc1b4f…`, 2 vendored assets verified |
 
-- **Storefront probe** (API + storefront, both production builds,
-  suite database `storefront-e2e`): 2/2 probe tests passed.
-  - Product page (`/products/usb-logic-analyser-8-channel`): zero
-    hydration errors; 2 JSON-LD scripts, both with content.
-  - Catalogue (`/products`): 7 images rendered (some external image
-    requests fail in this sandbox with proxy tunnel errors and are
-    excluded by construction); every loaded image had computed
-    opacity 1, before and after scrolling.
-- **Admin probe** (API + admin, production builds, suite database
-  `admin-e2e`): the probe test FAILED on its assertions, which is
-  the finding — 1 CSP violation recorded (chunk
-  `09s5_6c4yp62j.js` blocked under `strict-dynamic`), and the user
-  menu never became interactive ("Sign out" not visible after
-  10 s). Screenshot retained in the run output at the time.
+**Environment-classified failure (not an app defect):** `next build` for both frontends fails at the `/_global-error` prerender ("Cannot read properties of null (reading 'useContext')") when `NODE_ENV=development` leaks into the build shell from the demo env script. With `NODE_ENV=production` set explicitly, both builds exit 0. Recorded so the next session does not re-diagnose it: **always build the frontends with `NODE_ENV=production` in the command itself.** Similarly, `openapi:check` fails without the API env (it boots the app to generate the spec); with the env sourced it passes, as recorded above.
 
-For comparison, session 2's dev-mode runs: storefront 97/105,
-admin 13/33 with 168 CSP violations.
+## 3. Database and catalog evidence
 
-## Accessibility measurement
+Final audit of the populated demo catalog (direct MongoDB inspection, correct schema):
 
-Method: production storefront (`next start`) + production API on a
-seeded scratch database; axe-core 4.11.3 injected via Playwright
-`addScriptTag`; `axe.run(document, { resultTypes: ['violations'] })`
-on 6 public pages.
+```
+products=60  issues=0  []
+products: 60 — ok=60 noImage=0 broken=0 multiImage=0 uniquePublicIds=60   (delivery verification)
+```
 
-| Page | Violations (rule × axe impact × nodes) |
-| --- | --- |
-| `/` | color-contrast serious ×51; image-redundant-alt minor ×6 |
-| `/products` | color-contrast serious ×55; label critical ×2 (pre-fix run) |
-| `/products/esp32-devkit-v1` | color-contrast serious ×25 |
-| `/login` | color-contrast serious ×9; heading-order moderate ×2 |
-| `/register` | color-contrast serious ×8; heading-order moderate ×2 |
-| `/cart` | color-contrast serious ×7; heading-order moderate ×1 |
+- 60/60 products: bilingual name/short/description (Arabic ≥ 40 chars), SEO present, ≥ 3 specs, no negative stock, no invalid sale price, category/brand snapshots carry Arabic.
+- Taxonomy: 15 categories, 9 brands — all bilingual after the fix (13 categories + 7 brands patched via the admin API, 0 failures).
+- Images on disk: 60 source PNGs, **60 unique MD5 hashes, 0 duplicates**, valid PNG signatures, uniform square dimensions.
+- Demo orders present for UI verification: wallet order `NE-20261122-0001` in `PENDING_VERIFICATION`, COD order `NE-20261122-0002` placed; shipping rates seeded (27 rows).
+- The same rebuild performed *before* the B-3 import fix produced exactly 7 snapshot-Arabic gaps; *after* the fix it produces **0 with no repair step** — the mechanism fix proven end-to-end.
 
-Post-fix re-run (after `d00b69f`): `/products` shows **no `label`
-violations**; color-contrast persists on the other pages (51/25/9/8/7
-nodes). Variance note: one `/products` re-run reported
-document-title/landmark/region findings instead of contrast —
-axe results vary with which UI regions are mounted when the audit
-runs; the stable signals across runs are color-contrast (5 of 6
-pages, both rounds) and the label defect (present before, absent
-after). Measured contrast example: `#ffffff` on `#e14a5c`, 3.93:1
-vs 4.5:1 required.
+## 4. Media security evidence (live probes)
 
-## Performance measurement
+| Probe | Result |
+|---|---|
+| Traversal shapes (`..%2f`, `%2e%2e`, dotted ids, no-slash ids, unknown ids) | all **404** |
+| Orphan file on disk, no ledger row | **404** (ledger gate holds) |
+| Boot with `NODE_ENV=production` + `MEDIA_PROVIDER=local` | **refused** by config validation with the intended message (same for `memory`) |
+| Delivery of a known asset | 200, `Cross-Origin-Resource-Policy: cross-origin`, `Cache-Control: public, max-age=31536000, immutable` |
+| Delivery refusal (after F8-06 fix) | 404, `Cross-Origin-Resource-Policy: cross-origin`, `Cache-Control: no-store` — verified live with curl |
+| Cold probe (cleared optimizer cache, fresh API + browser) | 17/17 delivery responses 200 with correct CORP |
+| Orphan census | 84 files / 104.3 MB with no ledger row — not servable; hygiene finding F8-07 |
 
-- **API timings**: production API build against the seeded
-  `storefront-e2e` scratch database; `curl` total time, 9 sequential
-  warm requests per endpoint, median reported.
-  `GET /products` 8.1 ms; `GET /products?limit=100` 8.9 ms;
-  `GET /products/:slug` 4.2 ms; `GET /products?q=esp32` 4.7 ms;
-  `GET /products?category=development-boards` 4.9 ms;
-  `GET /categories` 1.4 ms; `GET /health` 1.1 ms.
-  Limitation: seed-scale data (tens of products) on localhost —
-  these numbers say the code paths are not pathologically slow;
-  they say nothing about production data volumes.
-- **Bundle sizes**: measured from the production builds' chunk
-  directories (uncompressed, all chunks): storefront 956 kB across
-  36 JS files (largest 227 kB); admin 1076 kB across 31 files
-  (largest 227 kB). Not per-route first-load figures.
-- **Lighthouse**: not available in this environment; not run.
+## 5. Browser evidence (production builds)
 
-## Release-engineering checks
+- **Route sweep** (all admin routes + storefront, viewports 1440/768/390): every route 200, **zero console errors** — including /coupons and /reviews after the F8-01 fix (pre-fix: server RSC error, digest `1375520748`).
+- **End-to-end smoke** (final build, three consecutive runs): home 29/29 images, products grid 16/16, search `?q=esp32` 16/16, category (displays) 6 cards, price-ascending sort 32 cards, product detail 5/5 images with specs, mobile grid 16/16, admin products 20/20, admin edit page image loads — **zero console/network errors**.
+- **Accessibility (axe, full ruleset):**
 
-- Env validation: booting the API with `JWT_SECRET` unset fails
-  immediately with "Configuration invalid — JWT_SECRET: Invalid or
-  missing value"; same for `MONGODB_URI`. Fail-fast, named, no
-  partial boot.
-- Security headers (real built server, `curl -I /api/v1/health`):
-  `Content-Security-Policy: default-src 'none'; frame-ancestors
-  'none'`, HSTS `max-age=31536000; includeSubDomains`,
-  `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`,
-  `Referrer-Policy: strict-origin-when-cross-origin`, CORP/COOP
-  `same-origin`.
-- CORS: preflight from `https://evil.example` and from an
-  unconfigured localhost origin both return **no**
-  `Access-Control-Allow-Origin`. `CORS_ORIGINS` defaults to empty
-  by design (server-to-server topology); fails closed.
-- CI (`.github/workflows/ci.yml`, read in full): jobs lint,
-  type-check, build, transaction-gate (runs the FULL Jest suite:
-  `pnpm --filter api test`, against the CI-named replica set with a
-  per-run throwaway `JWT_SECRET`), contract-gate (OpenAPI page +
-  drift checks). `permissions: contents: read`; no
-  `continue-on-error`; no secrets referenced. **No Playwright job
-  exists** — browser behaviour is not gated anywhere.
-- Dependency audit: `pnpm audit` could NOT be executed — the
-  sandbox's registry proxy denies the audit endpoint (HTTP 403,
-  policy_denied). Recorded as not verified, not as clean.
+| Page | Before Session 8 | After |
+|---|---|---|
+| Admin dashboard | serious color-contrast violations | **0 violations** |
+| Admin products | serious color-contrast (54 nodes) | **0 violations** |
+| Admin orders | serious color-contrast | **0 violations** |
+| Storefront home | minor image-redundant-alt ×8 | **0 violations** |
+| Storefront products | 0 | 0 |
+| Storefront detail | 0 | 0 |
 
-## Limitations of this evidence
+Contrast ratios quoted in the audit were computed with the WCAG relative-luminance formula, not eyeballed (e.g. success `#16a34a` on its tint = 2.95:1 → `#166534` = 6.40:1).
 
-- All browser work ran on 1.5 shared CPUs; dev-mode Playwright
-  numbers from session 2 and these probes are classification
-  evidence, not performance data.
-- The admin probe exercised login, the orders page, and the user
-  menu only — ADV-1 blocks deeper browser verification of the
-  console.
-- No coverage percentages were collected (a coverage run was not
-  performed); suite/test counts are reported instead.
+- **Screenshots** captured during the session (audit workspace `browser-check/shots-audit/`): the fixed coupons page, the route sweep set at three viewports, contrast before/after states.
+
+## 6. What was not run, and why
+
+- **Cloudinary integration suite** — skipped by design; the account is an owner deliverable (D-4) and no credentials exist in the sandbox.
+- **`pnpm audit`** — the sandbox proxy blocks the registry audit endpoint; carried as a known gap since Session 3.
+- **Playwright in CI** — no CI exists in the sandbox; browser verification above was run locally against production builds.
+- **DB-backed verification against any production/shared database** — none exists in scope; all evidence is from the local demo database, rebuilt from scratch three times during the session.

@@ -1,7 +1,58 @@
 # Muse — Remaining Work After the Autonomous Session
 
-Branch: `muse/autonomous-engineering`. Everything below was NOT done in
-this session, with the reason stated. Nothing here is silently dropped.
+Branch: `muse/full-admin-redesign-product-catalog` (Sessions 7–8; earlier
+sections below were written on `muse/autonomous-engineering` and remain
+accurate where not superseded). Everything below was NOT done, with the
+reason stated. Nothing here is silently dropped.
+
+## Session 8 closures (2026-11-22, final adversarial audit — all committed)
+
+- **N-1 — FIXED** (commit `3a1c6ce`). `decide()` in payment verification
+  no longer dereferences `order.payment` unguarded; a payment-less order
+  returns the audited 403 (owner) / 400 (other admin) instead of a 500.
+  Two adversarial regression tests pin both paths.
+- **/coupons + /reviews RSC crash — FIXED** (commit `1d60811`). With the
+  legacy service unconfigured the pages now render their header, the
+  DomainNotLiveNotice and an honest error state instead of crashing.
+  The domains themselves remain Phase 8 (D-5) — see item 16's family.
+- **Catalog completeness — FIXED in the populated catalog.** All 34 seed
+  products gained Arabic name/descriptions + SEO; 13 categories and 7
+  brands gained Arabic names (via the admin API). Re-audit: 60 products,
+  0 gaps. The repo seed stays deliberately partial test infrastructure
+  (D-6) — it is not the fix site.
+- **B-3 import snapshot defect — FIXED** (commit `9f9d47b`). The catalogue
+  import runner hardcoded `ar: null` in category/brand snapshots; it now
+  copies the taxonomy's Arabic names, like the API's own builders.
+  Regression test added; a from-scratch rebuild now audits at 0 gaps
+  with no repair step.
+- **Media delivery error posture — FIXED** (commit `a6e4939`). Delivery
+  404s now carry the route's CORP `cross-origin` + `no-store` instead of
+  helmet's same-origin, so a missing image reads as a 404, not a CORP
+  block. Spec asserts status + headers on every refusal path.
+- **WCAG AA contrast — FIXED console-wide** (commit `4d229ff`). Axe now
+  reports ZERO violations on every audited admin and storefront page
+  (was: serious contrast violations on every admin page). Token-level
+  fixes incl. a new `--color-primary-ink`; the last Concept-03 remnants
+  (table-header cream, global-error cream) are gone. This supersedes
+  item 17's "not tool-measured" note for contrast; see item 17.
+
+## Session 8 additions (new open items)
+
+18. **Orphan media-file reconciliation (F8-07, P3).** 84 files / 104.3 MB
+    sit in the local media directory with no ledger row (not servable —
+    the ledger gate holds). Build a report-only reconciliation command
+    (list orphans via the adapter's `list()`, delete nothing) before any
+    prune is proposed.
+19. **Storefront lint config (F8-11, INFO).** `pnpm lint` in the
+    storefront exits 2 on a pre-existing flat-config error (react-hooks
+    plugin not defined) before linting any file. Small tooling task of
+    its own; predates Sessions 7–8.
+20. **Blog decision still open (ADV-3).** `/blog` still 500s when
+    Supabase is unconfigured and the chrome links to it. Options on
+    record: configure Supabase, hide the link, fail soft (the Session 8
+    audit recommends this for symmetry with the coupons/reviews fix),
+    or migrate in Phase 8. Owner's product call — not taken in
+    Session 8.
 
 ## Overnight session closures (2026-11-22, all in the working tree)
 
@@ -178,8 +229,12 @@ this session, with the reason stated. Nothing here is silently dropped.
 16. Blog still reads legacy Supabase services (D11 deferral).
 17. Accessibility & performance received a static review in the
     continuation session (labels, pagination ARIA, image usage, product
-    indexes) but were still not tool-measured — no Lighthouse/axe run,
-    no bundle analysis.
+    indexes). **Update (Session 8, 2026-11-22):** accessibility is now
+    tool-measured — axe full-ruleset runs against production builds
+    report zero violations on all audited pages after the contrast pass
+    (see Session 8 closures). Still open: a Lighthouse/bundle-analysis
+    pass and axe coverage of every route/state (six representative
+    pages were swept).
 
 ## Explicitly not done (safety boundaries)
 
