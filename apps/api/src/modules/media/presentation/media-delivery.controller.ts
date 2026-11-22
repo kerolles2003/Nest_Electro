@@ -93,6 +93,12 @@ export class MediaDeliveryController {
       .setHeader('Content-Type', contentType)
       .setHeader('Content-Length', String(bytes.length))
       .setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+      // The storefront and admin are different origins from this API, and
+      // helmet's global `Cross-Origin-Resource-Policy: same-origin` would
+      // make the browser refuse to embed these bytes as <img> at all. The
+      // assets are public by design (above), so — exactly as a CDN would —
+      // this route alone opts into cross-origin embedding.
+      .setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
       .send(bytes);
   }
 }
