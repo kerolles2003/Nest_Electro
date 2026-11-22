@@ -1,6 +1,7 @@
 import { Controller, Get, Inject, NotFoundException, Param, Res } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { Public } from '../../../common/decorators/public.decorator';
 import { mediaConfig, type MediaConfig } from '../../../config/media.config';
 import { LocalMediaStorage } from '../../../providers/media/local/local-media-storage';
 import { MediaAssetRepository } from '../infrastructure/repositories/media-asset.repository';
@@ -42,6 +43,7 @@ import { MediaAssetRepository } from '../infrastructure/repositories/media-asset
  * the versioned URL makes safe.
  */
 @ApiExcludeController()
+@Public()
 @Controller('media-delivery')
 export class MediaDeliveryController {
   constructor(
