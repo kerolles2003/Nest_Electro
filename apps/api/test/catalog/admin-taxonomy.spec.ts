@@ -238,6 +238,23 @@ describe('categories — create', () => {
     expect(stored?.depth).toBe(2);
   });
 
+  it('refuses a missing `name` with a 400, not a 500', async () => {
+    /*
+     * Regression: `name` is a nested DTO, and ValidateNested skips an ABSENT
+     * property — so this body used to pass validation and the service
+     * dereferenced undefined, answering 500 INTERNAL_ERROR for a client
+     * error. The create DTO now carries @IsDefined on `name`.
+     */
+    const response = await http()
+      .post('/api/v1/admin/catalog/categories')
+      .set(...bearer(admin))
+      .send({ slug: `tax-noname-${RUN_ID}` })
+      .expect(400);
+
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    expect(response.body.error.details.some((d: { field: string }) => d.field === 'name')).toBe(true);
+  });
+
   it('refuses `path` and `depth` from the caller', async () => {
     /*
      * `path` is what every subtree query matches. A caller-supplied chain is one
@@ -775,6 +792,18 @@ describe('brands', () => {
 
     expect(product?.brand?.name.en).toBe('New Brand');
     expect(product?.brand?.slug).toBe(`${brand.slug}-v2`);
+  });
+
+  it('refuses a missing `name` with a 400, not a 500', async () => {
+    // Same nested-DTO hole as categories: see the category case above.
+    const response = await http()
+      .post('/api/v1/admin/catalog/brands')
+      .set(...bearer(admin))
+      .send({ slug: `taxb-noname-${RUN_ID}` })
+      .expect(400);
+
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    expect(response.body.error.details.some((d: { field: string }) => d.field === 'name')).toBe(true);
   });
 
   it('validates the website as an absolute http(s) URL', async () => {

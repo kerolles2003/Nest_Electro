@@ -418,6 +418,23 @@ describe('POST /admin/catalog/products — what it refuses', () => {
     expect(response.body.error.code).toBe('UNKNOWN_FIELD');
   });
 
+  it('refuses a missing `name` with a 400, not a 500', async () => {
+    /*
+     * Regression: `name` is a nested DTO, and ValidateNested skips an ABSENT
+     * property — so an otherwise-valid body with no `name` used to pass
+     * validation and the service dereferenced undefined, answering 500
+     * INTERNAL_ERROR for a client error. The create DTO now carries
+     * @IsDefined on `name` (the taxonomy create DTOs had the same hole).
+     */
+    const body = uniqueProduct();
+    delete body.name;
+
+    const response = await create(body, 400);
+
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    expect(response.body.error.details.some((d: { field: string }) => d.field === 'name')).toBe(true);
+  });
+
   it('refuses `effectivePrice`, `salesCount` and `rating`', async () => {
     for (const field of [
       { effectivePrice: 1 },
