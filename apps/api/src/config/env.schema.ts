@@ -387,7 +387,15 @@ export const envSchema = z.object({
   // dimension capture, publicId generation — is exercised on a machine with no
   // Cloudinary account, which today is every machine (D-4 credentials are not
   // yet supplied).
-  MEDIA_PROVIDER: z.enum(['memory', 'cloudinary']).default('memory'),
+  MEDIA_PROVIDER: z.enum(['memory', 'local', 'cloudinary']).default('memory'),
+
+  // Where the `local` media adapter persists uploaded bytes (relative to the
+  // API process working directory, or absolute). Ignored by the other
+  // providers. The local adapter exists so a machine with no Cloudinary
+  // account can still hold REAL assets on disk — the memory adapter's bytes
+  // vanish at restart, which makes it unusable for a catalogue that must
+  // survive long enough to be looked at.
+  MEDIA_LOCAL_DIR: z.string().min(1).default('./data/media'),
 
   // ---- Media provider credentials (vendor level) ----
   // All three are required together when `MEDIA_PROVIDER=cloudinary`, and are
@@ -468,6 +476,19 @@ const envSchemaWithConditionals = envSchema.superRefine((value, ctx) => {
       path: ['MEDIA_PROVIDER'],
       message:
         "Must not be 'memory' when NODE_ENV='production' — uploads would be lost at restart",
+    });
+  }
+
+  // The local adapter persists, so it is not a data-loss mode — but it pins
+  // every asset to one host's disk, and D-4 names Cloudinary as the
+  // production provider. A production process on 'local' would serve a
+  // catalogue only it can see. Refused, like 'memory', rather than warned.
+  if (value.NODE_ENV === 'production' && value.MEDIA_PROVIDER === 'local') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['MEDIA_PROVIDER'],
+      message:
+        "Must not be 'local' when NODE_ENV='production' — production media is Cloudinary (D-4); local disk does not leave this host",
     });
   }
 

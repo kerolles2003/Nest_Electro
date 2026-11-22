@@ -12,6 +12,7 @@ import { resendConfig, type ResendConfig } from './email/resend/resend.config';
 import { CloudinaryMediaStorage } from './media/cloudinary/cloudinary-media-storage';
 import { cloudinaryConfig, type CloudinaryConfig } from './media/cloudinary/cloudinary.config';
 import { InMemoryMediaStorage } from './media/memory/in-memory-media-storage';
+import { LocalMediaStorage } from './media/local/local-media-storage';
 
 /**
  * THE composition point for replaceable external implementations.
@@ -74,6 +75,15 @@ import { InMemoryMediaStorage } from './media/memory/in-memory-media-storage';
     ConsoleEmailSender,
     InMemoryMediaStorage,
     {
+      // Registered as its own provider (not only inside the port factory
+      // below) because the media DELIVERY controller reads bytes back from
+      // it under the `local` provider. Constructing it is free — a resolved
+      // path and a counter; no disk is touched until an upload or a read.
+      provide: LocalMediaStorage,
+      useFactory: (media: MediaConfig): LocalMediaStorage => new LocalMediaStorage(media.localDir),
+      inject: [mediaConfig.KEY],
+    },
+    {
       provide: EmailSenderPort,
       useFactory: (
         email: EmailConfig,
@@ -106,6 +116,7 @@ import { InMemoryMediaStorage } from './media/memory/in-memory-media-storage';
         media: MediaConfig,
         cloudinary: CloudinaryConfig,
         memoryStorage: InMemoryMediaStorage,
+        localStorage: LocalMediaStorage,
       ): MediaStoragePort => {
         // THE SECOND SWITCH, and the only other place in `src/` that names a
         // vendor. It is shaped exactly like the email one on purpose: a reader
@@ -119,13 +130,15 @@ import { InMemoryMediaStorage } from './media/memory/in-memory-media-storage';
         switch (media.provider) {
           case 'cloudinary':
             return new CloudinaryMediaStorage(cloudinary);
+          case 'local':
+            return localStorage;
           default:
             return memoryStorage;
         }
       },
-      inject: [mediaConfig.KEY, cloudinaryConfig.KEY, InMemoryMediaStorage],
+      inject: [mediaConfig.KEY, cloudinaryConfig.KEY, InMemoryMediaStorage, LocalMediaStorage],
     },
   ],
-  exports: [EmailSenderPort, MediaStoragePort],
+  exports: [EmailSenderPort, MediaStoragePort, LocalMediaStorage],
 })
 export class ProvidersModule {}

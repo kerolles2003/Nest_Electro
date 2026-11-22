@@ -51,6 +51,14 @@ export const mediaConfig = registerAs('media', () => {
      */
     provider: e.MEDIA_PROVIDER,
 
+    /**
+     * Where the `local` adapter persists bytes. Read from the environment
+     * like `folderRoot` below — a filesystem location is a property of the
+     * host, not a product decision, so it does not belong with the frozen
+     * limits. Ignored unless the provider is `local`.
+     */
+    localDir: e.MEDIA_LOCAL_DIR,
+
     /** 5 MB. Ported from the legacy product/blog/review bucket limit. */
     maxBytes: 5 * 1024 * 1024,
 

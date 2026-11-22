@@ -15,6 +15,7 @@ import {
   type CloudinaryConfig,
 } from '../../src/providers/media/cloudinary/cloudinary.config';
 import { InMemoryMediaStorage } from '../../src/providers/media/memory/in-memory-media-storage';
+import { LocalMediaStorage } from '../../src/providers/media/local/local-media-storage';
 import { ProvidersModule } from '../../src/providers/providers.module';
 
 /**
@@ -82,6 +83,7 @@ async function compileProviders(options: {
     .overrideProvider(mediaConfig.KEY)
     .useValue({
       provider: media,
+      localDir: './data/media',
       maxBytes: 5 * 1024 * 1024,
       allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
       minEdge: 200,
@@ -222,6 +224,13 @@ describe('MEDIA_PROVIDER selects the implementation', () => {
     const storage = await resolveMediaPort('cloudinary');
 
     expect(storage).toBeInstanceOf(CloudinaryMediaStorage);
+    expect(storage).toBeInstanceOf(MediaStoragePort);
+  });
+
+  it("binds the local disk store when the value is 'local'", async () => {
+    const storage = await resolveMediaPort('local');
+
+    expect(storage).toBeInstanceOf(LocalMediaStorage);
     expect(storage).toBeInstanceOf(MediaStoragePort);
   });
 

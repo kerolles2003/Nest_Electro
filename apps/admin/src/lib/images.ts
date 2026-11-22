@@ -43,6 +43,14 @@ import type { AdminProductImage } from './api/types';
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? '';
 
 /**
+ * The local media provider's delivery base (the API's `/media-delivery`
+ * route), for machines with no Cloudinary account. Consulted ONLY when no
+ * cloud name is configured — a real account's URLs always win. Mirrors the
+ * storefront's fallback in apps/storefront/src/lib/images.ts.
+ */
+const MEDIA_BASE = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? '').replace(/\/$/, '');
+
+/**
  * Named presets rather than transformation strings scattered through
  * components.
  *
@@ -76,16 +84,25 @@ export function imageUrl(
   image: Pick<AdminProductImage, 'publicId' | 'version'> | null | undefined,
   preset: ImagePreset = 'row',
 ): string | null {
-  if (image === null || image === undefined || CLOUD_NAME === '') return null;
+  if (image === null || image === undefined) return null;
 
-  return (
-    `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/` +
-    `${PRESETS[preset]}/v${String(image.version)}/${image.publicId}`
-  );
+  if (CLOUD_NAME !== '') {
+    return (
+      `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/` +
+      `${PRESETS[preset]}/v${String(image.version)}/${image.publicId}`
+    );
+  }
+
+  // Local provider: same versioned shape, no transformation presets.
+  if (MEDIA_BASE !== '') {
+    return `${MEDIA_BASE}/v${String(image.version)}/${image.publicId}`;
+  }
+
+  return null;
 }
 
-/** Whether a CDN is configured at all — so a screen can explain an absence. */
-export const CDN_CONFIGURED = CLOUD_NAME !== '';
+/** Whether any delivery provider is configured — so a screen can explain an absence. */
+export const CDN_CONFIGURED = CLOUD_NAME !== '' || MEDIA_BASE !== '';
 
 /**
  * The primary image, or the first, or nothing.
