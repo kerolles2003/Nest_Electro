@@ -1,3 +1,20 @@
+/**
+ * Origin of the local media delivery route, when the operator configured one
+ * (`NEXT_PUBLIC_MEDIA_BASE_URL`, e.g. the API's `/media-delivery` in
+ * development). Product images are served from that origin, so `img-src`
+ * must name it — the same configuration-not-code treatment the Cloudinary
+ * host gets below. Unset (the production shape, Cloudinary) adds nothing.
+ */
+function mediaBaseOrigin(): string {
+  const raw = process.env['NEXT_PUBLIC_MEDIA_BASE_URL'] ?? '';
+  if (!raw) return '';
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return '';
+  }
+}
+
 /** Browser policy only: API/provider calls run on the Next server, not in the browser. */
 export function contentSecurityPolicy(nonce: string, development: boolean, requestUrl: string): string {
   if (!/^[A-Za-z0-9+/=_-]+$/.test(nonce)) throw new Error('Invalid CSP nonce');
@@ -10,7 +27,7 @@ export function contentSecurityPolicy(nonce: string, development: boolean, reque
     // React style props, Framer Motion/Radix positioning, and Next development styles.
     // This exception is CSS-only; executable inline scripts still require a nonce.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://ampere-electronics.com https://placehold.co https://quhllllvwwuizjfrxvdz.supabase.co",
+    `img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://ampere-electronics.com https://placehold.co https://quhllllvwwuizjfrxvdz.supabase.co${mediaBaseOrigin() ? ` ${mediaBaseOrigin()}` : ''}`,
     "font-src 'self'",
     `connect-src 'self'${development ? ` ${websocket.origin}` : ''}`,
     "object-src 'none'",

@@ -1,5 +1,29 @@
 import type { NextConfig } from "next";
 
+/**
+ * Local media provider (development only): when `NEXT_PUBLIC_MEDIA_BASE_URL`
+ * points at the API's delivery route, the image optimizer may fetch product
+ * images from that origin. Unset — the production shape, where media comes
+ * from Cloudinary — this contributes no pattern at all.
+ */
+function localMediaPatterns(): Array<{ protocol: 'http' | 'https'; hostname: string; port: string; pathname: string }> {
+  const raw = process.env['NEXT_PUBLIC_MEDIA_BASE_URL'] ?? '';
+  if (!raw) return [];
+  try {
+    const url = new URL(raw);
+    return [{
+      protocol: url.protocol.replace(':', '') as 'http' | 'https',
+      hostname: url.hostname,
+      port: url.port,
+      pathname: '/**',
+    }];
+  } catch {
+    return [];
+  }
+}
+
+const LOCAL_MEDIA_PATTERNS = localMediaPatterns();
+
 const nextConfig: NextConfig = {
   /**
    * Where compiled output goes, and why the browser suite gets its own.
@@ -154,7 +178,15 @@ const nextConfig: NextConfig = {
         hostname: 'quhllllvwwuizjfrxvdz.supabase.co',
         pathname: '/**',
       },
+      ...LOCAL_MEDIA_PATTERNS,
     ],
+    /*
+     * The local media origin is a loopback/private address by construction,
+     * and Next's optimizer refuses those unless explicitly allowed. Scoped
+     * to exactly the configuration above: with no local media base URL set
+     * (production), this stays false and the SSRF guard is untouched.
+     */
+    dangerouslyAllowLocalIP: LOCAL_MEDIA_PATTERNS.length > 0,
   },
 };
 
