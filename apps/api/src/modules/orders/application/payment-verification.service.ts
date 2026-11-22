@@ -8,7 +8,7 @@ import { AuditService, type AuditContext } from '../../audit/application/audit.s
 import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
 import { Role } from '../../users/infrastructure/schemas/user.schema';
 import { UsersService } from '../../users/application/users.service';
-import { isManualTransfer, OrderStatus, PaymentStatus } from '../domain/order-status';
+import { isManualTransfer, OrderStatus, PaymentMethod, PaymentStatus } from '../domain/order-status';
 import { Order, type OrderLean } from '../infrastructure/schemas/order.schema';
 
 /**
@@ -93,6 +93,17 @@ export class PaymentVerificationService {
       if (order === null) throw AppException.orderNotFound();
 
       /*
+       * The payment subdocument is typed as always present, but F-1
+       * established that corrupt records without one exist (it is why the
+       * order DTOs render payment as honestly nullable). Every read of the
+       * method in this function goes through this defensive binding, so a
+       * payment-less record meets the refusals below — the audited 403 for
+       * its owner, the validation refusal for anyone else — instead of a
+       * TypeError and a 500 (finding N-1, adversarial review 2026-11-22).
+       */
+      const paymentMethod = (order.payment as { method?: PaymentMethod } | undefined)?.method;
+
+      /*
        * Segregation of duties — OWNER-APPROVED policy (2026-11-22,
        * ratifying the adversarial-audit fix of 2026-11-21): the decider
        * must not be the customer who placed the order, for BOTH approval
@@ -120,7 +131,7 @@ export class PaymentVerificationService {
             outcome: 'refused',
             decision,
             reason: 'SEGREGATION_OF_DUTIES',
-            method: order.payment.method,
+            method: paymentMethod ?? 'UNKNOWN',
           },
           context: input.context,
         });
@@ -131,7 +142,7 @@ export class PaymentVerificationService {
         );
       }
 
-      if (!isManualTransfer(order.payment.method)) {
+      if (paymentMethod === undefined || !isManualTransfer(paymentMethod)) {
         throw AppException.validation([
           {
             field: 'paymentMethod',

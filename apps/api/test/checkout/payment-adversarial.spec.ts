@@ -374,6 +374,48 @@ describe('segregation of duties and stale authority', () => {
     expect((await orderRow(id)).payment.status).toBe('PENDING_VERIFICATION');
   });
 
+  it('N-1: a payment-less corrupt order decided by its owner gets the audited 403, not a 500', async () => {
+    // F-1 established that orders without a payment subdocument exist.
+    // decide() used to dereference order.payment.method while building the
+    // SoD audit metadata, so this exact case — the owner deciding on a
+    // payment-less record — crashed with a 500 BEFORE the audit row or the
+    // 403 could happen (finding N-1, adversarial review 2026-11-22).
+    const boss = await createAccount('boss-n1');
+    const id = await placeWalletOrder(boss);
+    const total = (await orderRow(id)).pricing.grandTotal;
+    await orders.updateOne({ _id: new Types.ObjectId(id) }, { $unset: { payment: 1 } }).exec();
+
+    await users.updateOne({ _id: boss.id }, { $set: { role: Role.ADMIN } }).exec();
+    boss.token = await login(boss.email);
+
+    const response = await verify(id, boss, total);
+    expect(response.status).toBe(403);
+
+    const rows = await auditLogs
+      .find({ 'entity.id': new Types.ObjectId(id), action: 'ORDER_PAYMENT_CHANGED' })
+      .lean()
+      .exec();
+    const refused = rows.filter(
+      d => (d as { metadata?: { outcome?: string } }).metadata?.outcome === 'refused',
+    );
+    expect(refused).toHaveLength(1);
+    expect(
+      (refused[0] as { metadata?: { reason?: string } }).metadata?.reason,
+    ).toBe('SEGREGATION_OF_DUTIES');
+    expect(
+      (refused[0] as { metadata?: { method?: string } }).metadata?.method,
+    ).toBe('UNKNOWN');
+  });
+
+  it('N-1: a payment-less corrupt order decided by another admin gets a validation refusal, not a 500', async () => {
+    const id = await placeWalletOrder();
+    const total = (await orderRow(id)).pricing.grandTotal;
+    await orders.updateOne({ _id: new Types.ObjectId(id) }, { $unset: { payment: 1 } }).exec();
+
+    const response = await verify(id, admin, total);
+    expect(response.status).toBe(400);
+  });
+
   it('a token issued as ADMIN stops working for decisions once the DB role is revoked', async () => {
     const id = await placeWalletOrder();
     const total = (await orderRow(id)).pricing.grandTotal;
