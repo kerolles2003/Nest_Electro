@@ -25,7 +25,14 @@
   /* Light mode (default) */
   --color-background: #ffffff;
   --color-foreground: #1a1a2e;
-  --color-foreground-muted: #6b7280;
+  /*
+   * Muted deepened from #6b7280 to #5f6873 (2026-11-22): #6b7280 measures
+   * 4.83:1 on white but only 4.39:1 on the #f4f4f5 surface tint (axe,
+   * mobile bottom-nav labels over the cart page) — below the 4.5:1 AA
+   * floor for 10px text. #5f6873 measures ~4.8:1 on that tint and ~5.9:1
+   * on white. Same value the admin theme adopted for the same role.
+   */
+  --color-foreground-muted: #5f6873;
   --color-foreground-subtle: #64707e;
   --color-foreground-disabled: #d1d1d6;
   /*
@@ -50,7 +57,7 @@
   --color-popover: #ffffff;
   --color-popover-foreground: #1a1a2e;
   --color-muted: #f8f8f8;
-  --color-muted-foreground: #6b7280;
+  --color-muted-foreground: #5f6873;
   --color-accent: rgba(207, 53, 73, 0.06);
   --color-accent-foreground: #cf3549;
   --color-border: #eaeaec;
@@ -113,7 +120,7 @@
   --color-border: #eaeaec;
   --color-border-strong: #d1d1d6;
   --color-foreground: #1a1a2e;
-  --color-foreground-muted: #6b7280;
+  --color-foreground-muted: #5f6873;
   --color-foreground-subtle: #64707e;
   --color-primary: #cf3549;
   --color-primary-hover: #b82a40;

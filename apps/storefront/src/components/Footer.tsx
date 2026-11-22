@@ -45,7 +45,7 @@ export function Footer() {
 
           {/* Shop */}
           <div>
-            <h3 className="text-sm font-semibold text-topbar-foreground mb-4">Shop</h3>
+            <h2 className="text-sm font-semibold text-topbar-foreground mb-4">Shop</h2>
             <Link href={ROUTES.products} className="block text-sm text-topbar-muted hover:text-primary hover:underline underline-offset-4 transition-colors duration-150 mb-2.5">Products</Link>
             <Link href="/categories" className="block text-sm text-topbar-muted hover:text-primary hover:underline underline-offset-4 transition-colors duration-150 mb-2.5">Categories</Link>
             <Link href="/products?sort=newest" className="block text-sm text-topbar-muted hover:text-primary hover:underline underline-offset-4 transition-colors duration-150 mb-2.5">New Arrivals</Link>
@@ -54,7 +54,7 @@ export function Footer() {
 
           {/* Account */}
           <div>
-            <h3 className="text-sm font-semibold text-topbar-foreground mb-4">Account</h3>
+            <h2 className="text-sm font-semibold text-topbar-foreground mb-4">Account</h2>
             <Link href={ROUTES.account.orders} className="block text-sm text-topbar-muted hover:text-primary hover:underline underline-offset-4 transition-colors duration-150 mb-2.5">My Orders</Link>
             <Link href={ROUTES.wishlist} className="block text-sm text-topbar-muted hover:text-primary hover:underline underline-offset-4 transition-colors duration-150 mb-2.5">Wishlist</Link>
             <Link href={ROUTES.account.profile} className="block text-sm text-topbar-muted hover:text-primary hover:underline underline-offset-4 transition-colors duration-150 mb-2.5">Profile</Link>
@@ -63,7 +63,7 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-sm font-semibold text-topbar-foreground mb-4">Support</h3>
+            <h2 className="text-sm font-semibold text-topbar-foreground mb-4">Support</h2>
             <Link href="/contact" className="block text-sm text-topbar-muted hover:text-primary hover:underline underline-offset-4 transition-colors duration-150 mb-2.5">Contact Us</Link>
           </div>
         </div>
