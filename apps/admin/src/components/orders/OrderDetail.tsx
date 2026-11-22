@@ -247,7 +247,7 @@ export default function OrderDetail({ order, viewerEmail }: OrderDetailProps) {
         <div className="rounded-lg border border-warning/20 bg-warning/5 px-4 py-2.5 flex items-center gap-2 text-xs text-warning">
           <Route className="h-3.5 w-3.5 shrink-0" />
           <span className="font-semibold">Cash on delivery:</span>
-          <span className="text-warning/80">
+          <span>
             marking this order delivered records the cash as collected, in the same write.
           </span>
         </div>
