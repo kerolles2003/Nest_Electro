@@ -277,7 +277,11 @@ export class ImportRunner {
       category: {
         id: input.category.id,
         slug: input.category.slug,
-        name: { en: input.category.name, ar: null },
+        // The snapshot copies the category's CURRENT names, exactly like the
+        // API's own snapshot builder (product-admin.service.ts). Hardcoding
+        // ar: null here silently stripped the Arabic name from every
+        // imported product's snapshot (session 8 audit finding B-3).
+        name: { en: input.category.name, ar: input.category.nameAr },
         path: input.category.path,
       },
       'pricing.basePrice': basePrice,
@@ -296,7 +300,7 @@ export class ImportRunner {
       changes.brand =
         input.brand === null
           ? null
-          : { id: input.brand.id, slug: input.brand.slug, name: { en: input.brand.name, ar: null } };
+          : { id: input.brand.id, slug: input.brand.slug, name: { en: input.brand.name, ar: input.brand.nameAr } };
     }
     if (has('isFeatured')) changes.isFeatured = mapped.isFeatured === true;
     if (has('weight')) changes.weight = numberOrNull(mapped.weight);
@@ -446,7 +450,7 @@ export class ImportRunner {
   private async categoryIndex(): Promise<Map<string, CategoryRef>> {
     const rows = await this.models.categories
       .find({ deletedAt: null })
-      .lean<{ _id: Types.ObjectId; slug: string; name: { en: string }; path: Types.ObjectId[] }[]>()
+      .lean<{ _id: Types.ObjectId; slug: string; name: { en: string; ar: string | null }; path: Types.ObjectId[] }[]>()
       .exec();
 
     return new Map(
@@ -454,7 +458,7 @@ export class ImportRunner {
         row.slug,
         // The INCLUSIVE chain, matching the seed: a subtree filter is then a
         // single indexed match rather than a recursive lookup.
-        { id: row._id, slug: row.slug, name: row.name.en, path: [...row.path, row._id] },
+        { id: row._id, slug: row.slug, name: row.name.en, nameAr: row.name.ar, path: [...row.path, row._id] },
       ]),
     );
   }
@@ -462,10 +466,10 @@ export class ImportRunner {
   private async brandIndex(): Promise<Map<string, BrandRef>> {
     const rows = await this.models.brands
       .find({ deletedAt: null })
-      .lean<{ _id: Types.ObjectId; slug: string; name: { en: string } }[]>()
+      .lean<{ _id: Types.ObjectId; slug: string; name: { en: string; ar: string | null } }[]>()
       .exec();
 
-    return new Map(rows.map((row) => [row.slug, { id: row._id, slug: row.slug, name: row.name.en }]));
+    return new Map(rows.map((row) => [row.slug, { id: row._id, slug: row.slug, name: row.name.en, nameAr: row.name.ar }]));
   }
 }
 
@@ -473,12 +477,14 @@ interface CategoryRef {
   id: Types.ObjectId;
   slug: string;
   name: string;
+  nameAr: string | null;
   path: Types.ObjectId[];
 }
 interface BrandRef {
   id: Types.ObjectId;
   slug: string;
   name: string;
+  nameAr: string | null;
 }
 
 type MappedRow = Partial<Record<ImportableField, string | number | boolean | string[] | null>>;

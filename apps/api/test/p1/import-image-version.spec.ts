@@ -50,7 +50,7 @@ function harness(version: number | undefined = 0) {
   const upsert = () => runner['upsert']({ line: 2, key: 'FIXTURE', upsertKey: 'sku', dryRun: false,
     mapped: { sku: 'FIXTURE', name: 'Fixture', basePrice: 1000, onHand: 1, imagePaths: ['synthetic.jpg'] },
     mappedFields: new Set(['sku', 'name', 'basePrice', 'onHand', 'imagePaths']),
-    category: { id: new Types.ObjectId(), slug: 'fixture', name: 'Fixture', path: [] }, brand: null });
+    category: { id: new Types.ObjectId(), slug: 'fixture', name: 'Fixture', nameAr: null, path: [] }, brand: null });
   const replace = () => transactions.run(s => writeProductImages(products as never, id, [{ publicId: 'admin-image' }], product.imageVersion ?? 0, s as never));
   return { run, upsert, uploading, finish, arrange, replace, importer, product: () => product };
 }

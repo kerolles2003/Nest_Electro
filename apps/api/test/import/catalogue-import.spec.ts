@@ -43,8 +43,8 @@ interface StoredProduct {
   slug: string;
   name: { en: string; ar: string | null };
   shortDescription: { en: string } | null;
-  category: { slug: string };
-  brand: { slug: string } | null;
+  category: { slug: string; name: { en: string; ar: string | null } };
+  brand: { slug: string; name: { en: string; ar: string | null } } | null;
   pricing: {
     basePrice: number;
     salePrice: number | null;
@@ -319,6 +319,24 @@ describe('a first import', () => {
     expect(alpha?.stock).toMatchObject({ onHand: 149, lowStockThreshold: 10 });
     expect(alpha?.category.slug).toBe('development-boards');
     expect(alpha?.brand?.slug).toBe('espressif');
+  });
+
+  it('copies the taxonomy Arabic names into the product snapshots (B-3)', async () => {
+    // The API's own snapshot builder copies name.ar; the import runner used
+    // to hardcode ar: null, so every imported product silently lost the
+    // Arabic category/brand name even when the taxonomy had one (session 8
+    // audit). The assertion compares against the taxonomy rows themselves,
+    // so it pins the copy-through whatever the seed names are.
+    const categories = app.get<Model<Category>>(getModelToken(Category.name));
+    const brands = app.get<Model<Brand>>(getModelToken(Brand.name));
+    const category = await categories.findOne({ slug: 'development-boards' }).lean().exec();
+    const brand = await brands.findOne({ slug: 'espressif' }).lean().exec();
+
+    await run(NEST_CSV, loadProfile('nest-standard'));
+    const alpha = await products.findOne({ sku: sku('A') }).lean<StoredProduct>().exec();
+
+    expect(alpha?.category.name.ar).toBe(category?.name.ar ?? null);
+    expect(alpha?.brand?.name.ar).toBe(brand?.name.ar ?? null);
   });
 
   it('derives the slug when the column is blank and keeps it when it is not', async () => {
