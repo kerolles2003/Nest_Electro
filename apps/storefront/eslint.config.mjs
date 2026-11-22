@@ -15,6 +15,17 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    /*
+     * The CSP harnesses in scripts/ are standalone CommonJS Node scripts,
+     * run directly by node — not app code. The Next preset cannot lint
+     * them: it registers the react-hooks plugin only for
+     * js/jsx/mjs/ts/tsx/mts/cts files, so the rule overrides below crashed
+     * the whole run on them ("could not find plugin react-hooks",
+     * exit 2), and the rules that do reach .cjs forbid the only import
+     * mechanism the format has (require). Excluded by name, like the
+     * build output above; everything else in the app is linted as before.
+     */
+    "scripts/**",
   ]),
   {
     /**
