@@ -156,6 +156,7 @@ export class AdminOrdersController {
 
     const outcome = await this.orders.listForStaff({
       ...(query.status !== undefined ? { statuses: query.status } : {}),
+      ...(query.paymentStatus !== undefined ? { paymentStatuses: query.paymentStatus } : {}),
       ...(query.page !== undefined ? { page: query.page } : {}),
       ...(query.limit !== undefined ? { limit: query.limit } : {}),
       ...(search !== null ? { search } : {}),

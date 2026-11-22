@@ -109,7 +109,9 @@ export interface OrderSummary {
   id: string;
   orderNumber: string;
   status: OrderStatus;
-  payment: OrderPayment;
+  /** Null when the stored record has no payment data (corrupt/legacy) —
+   *  the API says so explicitly rather than failing the whole queue. */
+  payment: OrderPayment | null;
   pricing: PricingBreakdown;
   itemCount: number;
   totalQuantity: number;
@@ -201,7 +203,8 @@ export interface AdminOrder {
   items: OrderItem[];
   currency: string;
   pricing: PricingBreakdown;
-  payment: OrderPayment;
+  /** Null when the stored record has no payment data (corrupt/legacy). */
+  payment: OrderPayment | null;
   shippingAddress: OrderShippingAddress;
   customerNote: string | null;
   cancellation: OrderCancellation | null;

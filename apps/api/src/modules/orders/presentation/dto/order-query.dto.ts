@@ -4,7 +4,7 @@ import { IsArray, IsDate, IsEnum, IsOptional, IsString, Matches, MaxLength } fro
 import { OBJECT_ID_PATTERN } from '../../../../common/dto/object-id';
 import { PaginationQueryDto } from '../../../../common/dto/pagination-query.dto';
 import { MAX_SEARCH_LENGTH } from '../../domain/order-search';
-import { OrderStatus } from '../../domain/order-status';
+import { OrderStatus, PaymentStatus } from '../../domain/order-status';
 
 /** `?status=A&status=B` arrives as an array, `?status=A` as a string. Normalise both. */
 function toStringArray({ value }: { value: unknown }): unknown {
@@ -123,6 +123,26 @@ function toDateBound(endOfDay: boolean) {
  * caller is likely to guess, like `?userId=` or `?sort=createdAt`.
  */
 export class AdminOrderQueueQueryDto extends OrderHistoryQueryDto {
+  @ApiPropertyOptional({
+    isArray: true,
+    enum: PaymentStatus,
+    example: [PaymentStatus.PENDING_VERIFICATION],
+    description:
+      'Filter by PAYMENT status, independently of the lifecycle `status`. Repeatable. ' +
+      'This is what backs the console\'s "Payment review" queue: ' +
+      '`?paymentStatus=PENDING_VERIFICATION` lists exactly the manual transfers awaiting ' +
+      'an authorized decision, whatever fulfilment state their orders are in. ' +
+      'An unrecognised value is a `400`, not a silent empty page.',
+  })
+  @IsOptional()
+  @Transform(toStringArray)
+  @IsArray()
+  @IsEnum(PaymentStatus, {
+    each: true,
+    message: `paymentStatus must be one of: ${Object.values(PaymentStatus).join(', ')}`,
+  })
+  paymentStatus?: PaymentStatus[];
+
   @ApiPropertyOptional({
     example: 'NE-20260903',
     maxLength: MAX_SEARCH_LENGTH,

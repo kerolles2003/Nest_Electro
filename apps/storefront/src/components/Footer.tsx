@@ -35,7 +35,7 @@ export function Footer() {
           <div>
             <div className="flex flex-col leading-none mb-4">
               <span className="font-heading font-bold text-xl text-topbar-foreground tracking-tight">NEST</span>
-              <span className="text-[10px] tracking-[0.2em] text-primary uppercase font-semibold">ELECTRONICS</span>
+              <span className="text-[10px] tracking-[0.2em] text-primary-bright uppercase font-semibold">ELECTRONICS</span>
             </div>
             <p className="text-sm text-topbar-muted leading-relaxed mb-4">
               Egypt&apos;s electronics store for engineers and makers. Quality components with fast delivery.

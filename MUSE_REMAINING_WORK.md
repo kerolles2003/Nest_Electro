@@ -3,6 +3,33 @@
 Branch: `muse/autonomous-engineering`. Everything below was NOT done in
 this session, with the reason stated. Nothing here is silently dropped.
 
+## Overnight session closures (2026-11-22, all in the working tree)
+
+- **Segregation of duties is now an OWNER-APPROVED policy**
+  (2026-11-22): an admin cannot approve OR reject payment evidence
+  for an order they placed. The API already enforced both (403,
+  before any mutation); this session added the missing pieces —
+  the refused attempt is now AUDITED (an ORDER_PAYMENT_CHANGED row
+  with outcome `refused`, reason `SEGREGATION_OF_DUTIES`, written
+  outside the aborting transaction so it survives), tests cover
+  rejection and the audit record, and the console explains the
+  restriction in advance on the payment panel and disables the
+  decision buttons for the order's owner. No longer a pending
+  decision.
+- **Order DTO null-safety (pre-commit review finding F-1) — FIXED.**
+  `OrderDto.payment` and `OrderSummaryDto.payment` are now honestly
+  nullable; a corrupt order without a payment subdocument serialises
+  with `payment: null` instead of 500ing the admin queue/detail and
+  the customer's order page. Both frontends render an explicit
+  "payment data missing" state. (Correction to the review's F-1:
+  there is ONE shared mapper — `AdminOrderDto` extends `OrderDto` —
+  plus the summary mapper; the admin DTO file itself contains no
+  payment code.)
+- **Payment-review queue filter** (item 11) and **color contrast**
+  — closed; see their entries below.
+- A JSX whitespace defect in OrderDetail ("cancelled ispossible")
+  was found by screenshot review and fixed.
+
 ## Critical blockers
 
 1. **Repository authority — RESOLVED (2026-11-21).** The owner confirmed
@@ -45,14 +72,17 @@ this session, with the reason stated. Nothing here is silently dropped.
 
 ## Browser-e2e findings (updated by the adversarial audit, third session)
 
-6. **Admin console is broken by its own CSP — IN PRODUCTION TOO.**
-   `script-src 'self' 'nonce-…' 'strict-dynamic'` blocks Next.js chunk
-   loads that carry no nonce: 168 violations in dev mode (13/33 e2e),
-   and a production-build probe still showed a blocked chunk and a
-   dead user menu (ADV-1 in MUSE_ADVERSARIAL_AUDIT.md). Fix by
-   threading the nonce into dynamic chunk loading
-   (`__webpack_nonce__` / Next nonce propagation) and gate admin e2e
-   on a production build. Do NOT relax the CSP.
+6. **Admin CSP defect (ADV-1) — FIXED in the remediation session
+   (working tree, uncommitted).** Root cause: the `RefreshButton`
+   chunk — the console's only client leaf under a server module —
+   was hoisted into page HTML without the request nonce and blocked
+   by `strict-dynamic` on every cold sub-route load. Fixed by
+   registering the module in the dashboard layout's client graph
+   (one load-bearing import in `(dashboard)/layout.tsx`); verified
+   on the production build: 0 violations on all 11 routes, Sign Out
+   works, CSP untouched. See `MUSE_CSP_REMEDIATION_REPORT.md`.
+   Remaining guard: gate admin e2e on a production build in CI so a
+   future lone client leaf cannot reintroduce this silently.
 7. **Product-page JSON-LD hydration error — CLOSED as dev-only.**
    Production-build probe: zero hydration errors; the JSON-LD
    scripts render with content. No fix planned; if the health gate
@@ -78,17 +108,40 @@ this session, with the reason stated. Nothing here is silently dropped.
 
 ## Adversarial-audit additions (third session)
 
-- **PAY-3 (owner decision): fulfilment does not wait for payment
-  verification.** A VERIFICATION_REJECTED Wallet order was
-  confirmed, shipped and delivered in a test. Decide whether
-  manual-transfer orders require PAID before SHIPPED; the
-  adversarial suite's EVIDENCE test is the one to flip if gated.
-- **Color contrast (design decision).** axe-core against the
-  production storefront: `color-contrast` (serious) on every page
-  tested (7–55 nodes; white on `#e14a5c` measured at 3.93:1 vs
-  4.5:1). Traces to a few shared tokens/components. The critical
-  `label` finding on the price filter was fixed (`d00b69f`);
-  heading-order and redundant-alt items remain.
+- **PAY-3 — DECIDED, IMPLEMENTED, and made FAIL-CLOSED
+  (working tree, uncommitted).** The independent review found the
+  first gate fail-open on a missing payment subdocument; the
+  2026-11-22 session replaced it with a validator
+  (`assertPaymentGate`): missing/null/unrecognized payment data
+  is refused with a structured 422 on CONFIRMED, SHIPPED and
+  DELIVERED, unknown data is never read as COD, and the delivery
+  effect reads the method fail-closed. Evidence:
+  `MUSE_PAY3_FAIL_CLOSED_REMEDIATION_REPORT.md` and the 12-test
+  `pay3-fail-closed.spec.ts`. The same session audited all 37
+  Admin Server Actions + 2 route handlers for authorization
+  independent of the navigation proxy — all PASS, no bypass, no
+  code changed (`MUSE_SERVER_ACTIONS_AUTHORIZATION_AUDIT.md`). The owner ruled manual-transfer
+  orders must be PAID before fulfilment; the gate lives in
+  `OrderLifecycleService.apply()` (422
+  `PAYMENT_REQUIRED_BEFORE_FULFILMENT` on CONFIRMED/SHIPPED for
+  unpaid Wallet/InstaPay; COD untouched), with a 10-scenario suite
+  (`test/orders/pay3-fulfilment-gate.spec.ts`). See
+  `MUSE_PAY3_REMEDIATION_REPORT.md`. Follow-ups: annotate
+  `ORDER-LIFECYCLE.md` with the decision; the admin
+  PENDING_VERIFICATION queue filter (item 11) is now the natural
+  companion so operators verify before they try to fulfil.
+- **Color contrast — CLOSED in the overnight session (2026-11-22,
+  working tree).** axe-core against the production storefront now
+  reports ZERO `color-contrast` violations on the home page and
+  /products (was: every page, 21–24 nodes measured this session).
+  Fixes: `--color-primary` deepened `#e14a5c` → `#cf3549` (4.93:1,
+  hue preserved; hover `#b82a40`); the shared ProductCard sale badge
+  used a hardcoded `#E14A5C` and now uses `bg-primary`;
+  `--color-foreground-subtle` darkened `#9ca3af` → `#64707e`;
+  a rating-count label no longer compounds `opacity-80` onto muted
+  text; the footer's eyebrow on dark chrome uses a new
+  `--color-primary-bright` token (7.64:1). Remaining axe items are
+  heading-order and redundant-alt (unchanged, low severity).
 - **`pnpm audit` has never been run successfully** — the sandbox
   proxy blocks the audit endpoint. Run it in CI or on a dev
   machine and triage before release.
@@ -98,9 +151,14 @@ this session, with the reason stated. Nothing here is silently dropped.
 
 ## High priority
 
-11. **Admin queue filter for PENDING_VERIFICATION orders.** Verification
-    actions exist on the order detail; a dedicated queue filter would make
-    the daily workflow faster.
+11. **Admin queue filter for PENDING_VERIFICATION orders — DONE in
+    the overnight session (2026-11-22, working tree).** The API queue
+    gained a `paymentStatus` filter (enum-narrowed, repeatable; the
+    repository applies it on `payment.status`), and the console gained
+    a "Payment review" toggle in QueueFilters. Verified end-to-end in
+    the browser against a seeded stack: the toggle narrowed 3 orders
+    to exactly the 2 awaiting verification. API test in
+    `admin-orders.spec.ts`.
 
 ## Medium priority
 

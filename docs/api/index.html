@@ -18,7 +18,7 @@
   Swagger UI is vendored alongside this file rather than loaded from a CDN,
   so the whole page works with no server and no network.
 -->
-<meta name="openapi-artifact-sha256" content="0458813a0a0609e49bd2bff4d45fb20647cda2e6c6ff68e52c49012807f01720">
+<meta name="openapi-artifact-sha256" content="c57739bc1b4f5bc1c1334dd0fcd5412db5cfe6ab874a95e62e1ce7cf6e30485c">
 <meta name="swagger-ui-version" content="5.17.14">
 <meta name="vendored-asset-sha256" content="swagger-ui-bundle.js c2e4a9ef08144839ff47c14202063ecfe4e59e70a4e7154a26bd50d880c88ba1">
 <meta name="vendored-asset-sha256" content="swagger-ui.css 40170f0ee859d17f92131ba707329a88a070e4f66874d11365e9a77d232f6117">
@@ -6388,6 +6388,28 @@
             }
           },
           {
+            "name": "paymentStatus",
+            "required": false,
+            "in": "query",
+            "description": "Filter by PAYMENT status, independently of the lifecycle `status`. Repeatable. This is what backs the console's \"Payment review\" queue: `?paymentStatus=PENDING_VERIFICATION` lists exactly the manual transfers awaiting an authorized decision, whatever fulfilment state their orders are in. An unrecognised value is a `400`, not a silent empty page.",
+            "schema": {
+              "example": [
+                "PENDING_VERIFICATION"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "PENDING_VERIFICATION",
+                  "VERIFICATION_REJECTED",
+                  "PAID",
+                  "REFUNDED"
+                ]
+              }
+            }
+          },
+          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -7831,6 +7853,7 @@
               "IDEMPOTENCY_KEY_REUSED",
               "CART_EMPTY",
               "ADDRESS_LIMIT_REACHED",
+              "PAYMENT_REQUIRED_BEFORE_FULFILMENT",
               "INVALID_UPLOAD",
               "MEDIA_ASSET_NOT_FOUND",
               "MEDIA_ASSET_IN_USE",
@@ -12539,7 +12562,13 @@
             ]
           },
           "payment": {
-            "$ref": "#/components/schemas/OrderPaymentDto"
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderPaymentDto"
+              }
+            ]
           },
           "shippingAddress": {
             "$ref": "#/components/schemas/OrderShippingAddressDto"
@@ -12630,7 +12659,13 @@
             "description": "Handle every value exhaustively — an order moves through this vocabulary over its life, and a client that assumes only PLACED will break the first time an order is confirmed."
           },
           "payment": {
-            "$ref": "#/components/schemas/OrderPaymentDto"
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderPaymentDto"
+              }
+            ]
           },
           "pricing": {
             "description": "The frozen financial snapshot. `grandTotal` is the amount due on delivery — render it directly and never re-derive it from anything.",
@@ -12965,7 +13000,13 @@
             ]
           },
           "payment": {
-            "$ref": "#/components/schemas/OrderPaymentDto"
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderPaymentDto"
+              }
+            ]
           },
           "shippingAddress": {
             "$ref": "#/components/schemas/OrderShippingAddressDto"

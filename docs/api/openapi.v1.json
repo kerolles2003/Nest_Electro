@@ -6340,6 +6340,28 @@
             }
           },
           {
+            "name": "paymentStatus",
+            "required": false,
+            "in": "query",
+            "description": "Filter by PAYMENT status, independently of the lifecycle `status`. Repeatable. This is what backs the console's \"Payment review\" queue: `?paymentStatus=PENDING_VERIFICATION` lists exactly the manual transfers awaiting an authorized decision, whatever fulfilment state their orders are in. An unrecognised value is a `400`, not a silent empty page.",
+            "schema": {
+              "example": [
+                "PENDING_VERIFICATION"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "PENDING_VERIFICATION",
+                  "VERIFICATION_REJECTED",
+                  "PAID",
+                  "REFUNDED"
+                ]
+              }
+            }
+          },
+          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -7783,6 +7805,7 @@
               "IDEMPOTENCY_KEY_REUSED",
               "CART_EMPTY",
               "ADDRESS_LIMIT_REACHED",
+              "PAYMENT_REQUIRED_BEFORE_FULFILMENT",
               "INVALID_UPLOAD",
               "MEDIA_ASSET_NOT_FOUND",
               "MEDIA_ASSET_IN_USE",
@@ -12491,7 +12514,13 @@
             ]
           },
           "payment": {
-            "$ref": "#/components/schemas/OrderPaymentDto"
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderPaymentDto"
+              }
+            ]
           },
           "shippingAddress": {
             "$ref": "#/components/schemas/OrderShippingAddressDto"
@@ -12582,7 +12611,13 @@
             "description": "Handle every value exhaustively — an order moves through this vocabulary over its life, and a client that assumes only PLACED will break the first time an order is confirmed."
           },
           "payment": {
-            "$ref": "#/components/schemas/OrderPaymentDto"
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderPaymentDto"
+              }
+            ]
           },
           "pricing": {
             "description": "The frozen financial snapshot. `grandTotal` is the amount due on delivery — render it directly and never re-derive it from anything.",
@@ -12917,7 +12952,13 @@
             ]
           },
           "payment": {
-            "$ref": "#/components/schemas/OrderPaymentDto"
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderPaymentDto"
+              }
+            ]
           },
           "shippingAddress": {
             "$ref": "#/components/schemas/OrderShippingAddressDto"

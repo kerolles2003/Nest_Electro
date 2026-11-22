@@ -243,7 +243,11 @@ export default function OrdersTable({
                   </td>
                   <td className="px-5 py-3">
                     <span data-testid="order-payment">
-                      <StatusBadge status={order.payment.status} />
+                      {order.payment !== null ? (
+                        <StatusBadge status={order.payment.status} />
+                      ) : (
+                        <span className="text-xs font-semibold text-destructive">Missing</span>
+                      )}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-right">

@@ -1,13 +1,19 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { Types } from 'mongoose';
 import { OrderLifecycleService } from '../../src/modules/orders/application/order-lifecycle.service';
-import { OrderStatus } from '../../src/modules/orders/domain/order-status';
+import { OrderStatus, PaymentMethod, PaymentStatus } from '../../src/modules/orders/domain/order-status';
 import { Role } from '../../src/modules/users/infrastructure/schemas/user.schema';
 
 function harness() {
   const session = {};
   const actor = { _id: new Types.ObjectId(), role: Role.ADMIN, fullName: 'Fixture', email: 'fixture@example.invalid' };
-  let order = { _id: new Types.ObjectId(), orderNumber: 'P1-ORDER', status: OrderStatus.PLACED, items: [], statusHistory: [] as unknown[] };
+  // The payment subdocument is part of the fixture because it is part of
+  // every real order (required by the schema): an explicit COD order, the
+  // canonical confirm case. Under the fail-closed PAY-3 gate a
+  // payment-less fixture order is refused before any audit behaviour
+  // could be observed — which is the gate working, not this suite's
+  // subject. This suite's subject is the audit transaction boundary.
+  let order = { _id: new Types.ObjectId(), orderNumber: 'P1-ORDER', status: OrderStatus.PLACED, items: [], statusHistory: [] as unknown[], payment: { method: PaymentMethod.COD, status: PaymentStatus.PENDING, verification: null, collectedAt: null, refundedAmount: null, refundNote: null } };
   let evidence: unknown[] = [];
   let tail = Promise.resolve();
   const transactions = { run: (work: (session: object) => Promise<unknown>) => {

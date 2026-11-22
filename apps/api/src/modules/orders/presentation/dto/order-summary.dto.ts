@@ -35,8 +35,11 @@ export class OrderSummaryDto {
   })
   status!: OrderStatus;
 
-  @ApiProperty({ type: OrderPaymentDto })
-  payment!: OrderPaymentDto;
+  /* Nullable for the same reason as `OrderDto.payment`: a corrupt
+   * record without a payment subdocument must still serialise so the
+   * queue can show it. `null` means "payment data missing". */
+  @ApiProperty({ type: OrderPaymentDto, nullable: true })
+  payment!: OrderPaymentDto | null;
 
   @ApiProperty({
     type: PricingBreakdownDto,
@@ -70,20 +73,23 @@ export class OrderSummaryDto {
       id: row._id.toHexString(),
       orderNumber: row.orderNumber,
       status: row.status,
-      payment: {
-        method: row.payment.method,
-        status: row.payment.status,
-        collectedAt: row.payment.collectedAt?.toISOString() ?? null,
-        verification:
-          row.payment.verification == null
-            ? null
-            : {
-                transferSender: row.payment.verification.transferSender,
-                submittedAt: row.payment.verification.submittedAt?.toISOString() ?? null,
-                decidedAt: row.payment.verification.decidedAt?.toISOString() ?? null,
-                decisionNote: row.payment.verification.decisionNote,
-              },
-      },
+      payment:
+        row.payment == null
+          ? null
+          : {
+              method: row.payment.method,
+              status: row.payment.status,
+              collectedAt: row.payment.collectedAt?.toISOString() ?? null,
+              verification:
+                row.payment.verification == null
+                  ? null
+                  : {
+                      transferSender: row.payment.verification.transferSender,
+                      submittedAt: row.payment.verification.submittedAt?.toISOString() ?? null,
+                      decidedAt: row.payment.verification.decidedAt?.toISOString() ?? null,
+                      decisionNote: row.payment.verification.decisionNote,
+                    },
+            },
       pricing: PricingBreakdownDto.of(
         row.pricing,
         row.currency,

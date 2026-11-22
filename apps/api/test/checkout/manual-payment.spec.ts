@@ -39,7 +39,8 @@ import { Role, User, type UserLean } from '../../src/modules/users/infrastructur
  *     first is refused, so an order cannot be paid twice or re-decided.
  *  5. Rejection keeps the order, shows the customer the reason, and a
  *     customer resubmission starts a fresh round.
- *  6. DELIVERED does not pay a manual order (the COD rule is COD-only).
+ *  6. A manual order cannot enter fulfilment before PAID (PAY-3 gate);
+ *     delivery never pays a manual order (the COD rule is COD-only).
  *  7. COD behaviour is unchanged.
  */
 
@@ -402,10 +403,28 @@ describe('admin verification decisions', () => {
 });
 
 describe('delivery and COD interplay', () => {
-  it('DELIVERED does not pay an unverified manual order', async () => {
+  it('an unverified manual order cannot be delivered at all (PAY-3 gate); a verified one delivers as PAID', async () => {
     const placed = await placeManualOrder();
     const id = placed.body.data!.id;
+    const total = (await orderRow(id)).pricing.grandTotal;
 
+    // PAY-3 (owner decision 2026-11-21): fulfilment is blocked until the
+    // payment is PAID, so the pre-PAY-3 walk this test used to perform —
+    // deliver an unverified manual order and observe it stay unpaid —
+    // is no longer reachable. The refusal at the first fulfilment step
+    // is the stronger form of the same guarantee.
+    const refused = await http().post(`/api/v1/admin/orders/${id}/confirm`).set(...bearer(admin)).send({});
+    expect(refused.status).toBe(422);
+    expect(refused.body.error.code).toBe('PAYMENT_REQUIRED_BEFORE_FULFILMENT');
+
+    // After authorized verification the same walk succeeds, and delivery
+    // itself contributes nothing to the payment state: it was PAID by
+    // the verification, before any fulfilment step ran.
+    await http()
+      .post(`/api/v1/admin/orders/${id}/payment/verify`)
+      .set(...bearer(admin))
+      .send({ confirmedAmount: total })
+      .expect(200);
     await http().post(`/api/v1/admin/orders/${id}/confirm`).set(...bearer(admin)).send({}).expect(200);
     await http()
       .post(`/api/v1/admin/orders/${id}/ship`)
@@ -419,7 +438,7 @@ describe('delivery and COD interplay', () => {
       .expect(200);
 
     expect(delivered.body.data.status).toBe('DELIVERED');
-    expect(delivered.body.data.payment.status).toBe('PENDING_VERIFICATION');
+    expect(delivered.body.data.payment.status).toBe('PAID');
   });
 
   it('COD is unchanged: placed PENDING, paid at DELIVERED', async () => {

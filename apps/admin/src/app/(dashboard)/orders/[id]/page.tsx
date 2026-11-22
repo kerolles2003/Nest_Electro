@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, } from 'lucide-react';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
-import { requireAdmin } from '@/lib/api/identity';
+import { readIdentity, requireAdmin } from '@/lib/api/identity';
 import OrderDetail from '@/components/orders/OrderDetail';
 
 /**
@@ -17,12 +17,19 @@ import OrderDetail from '@/components/orders/OrderDetail';
  * `OrderDetail` so it could send it back up with every mutation. The API
  * derives the operator from the token and records it itself, so there is
  * nothing to pass and nothing for a client to forge.
+ *
+ * The viewer's EMAIL is passed, for display only: it drives the
+ * segregation-of-duties hint on the payment panel ("you placed this
+ * order — another administrator must decide"). It is never sent back to
+ * the API and grants nothing; the API enforces the rule by account id.
  */
 
 export const dynamic = 'force-dynamic';
 
 export default async function OrderDetailPage(props: { params: Promise<{ id: string }> }) {
   await requireAdmin();
+  const identity = await readIdentity();
+  const viewerEmail = identity.status === 'ok' ? identity.identity.email : undefined;
 
   const { id } = await props.params;
   const result = await tryApi(() => api.getOrder(id));
@@ -48,7 +55,7 @@ export default async function OrderDetailPage(props: { params: Promise<{ id: str
     <div className="space-y-5">
       <PageHeader context={<BackLink />} title={<span data-testid="order-number">{order.orderNumber}</span>} description="Order details, fulfilment and customer information." />
 
-      <OrderDetail order={order} />
+      <OrderDetail order={order} viewerEmail={viewerEmail} />
     </div>
   );
 }

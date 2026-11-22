@@ -241,8 +241,16 @@ export class OrderDto {
   })
   pricing!: PricingBreakdownDto;
 
-  @ApiProperty({ type: OrderPaymentDto })
-  payment!: OrderPaymentDto;
+  /*
+   * Nullable since the fail-closed remediation (2026-11-22): the schema
+   * requires a payment subdocument, but a pre-schema or otherwise corrupt
+   * record can lack one, and serialising such an order must not throw —
+   * the operator needs this very response to see and repair the record.
+   * `null` means "payment data missing", never a payment state; the
+   * lifecycle gate refuses to fulfil such an order (PAY-3 fail-closed).
+   */
+  @ApiProperty({ type: OrderPaymentDto, nullable: true })
+  payment!: OrderPaymentDto | null;
 
   @ApiProperty({ type: OrderShippingAddressDto })
   shippingAddress!: OrderShippingAddressDto;
@@ -307,20 +315,23 @@ export class OrderDto {
         order.pricing.vatInclusive,
         order.pricing.vatRateBps,
       ),
-      payment: {
-        method: order.payment.method,
-        status: order.payment.status,
-        collectedAt: order.payment.collectedAt?.toISOString() ?? null,
-        verification:
-          order.payment.verification == null
-            ? null
-            : {
-                transferSender: order.payment.verification.transferSender,
-                submittedAt: order.payment.verification.submittedAt?.toISOString() ?? null,
-                decidedAt: order.payment.verification.decidedAt?.toISOString() ?? null,
-                decisionNote: order.payment.verification.decisionNote,
-              },
-      },
+      payment:
+        order.payment == null
+          ? null
+          : {
+              method: order.payment.method,
+              status: order.payment.status,
+              collectedAt: order.payment.collectedAt?.toISOString() ?? null,
+              verification:
+                order.payment.verification == null
+                  ? null
+                  : {
+                      transferSender: order.payment.verification.transferSender,
+                      submittedAt: order.payment.verification.submittedAt?.toISOString() ?? null,
+                      decidedAt: order.payment.verification.decidedAt?.toISOString() ?? null,
+                      decisionNote: order.payment.verification.decisionNote,
+                    },
+            },
       shippingAddress: {
         fullName: order.shippingAddress.fullName,
         phone: order.shippingAddress.phone,

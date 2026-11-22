@@ -398,3 +398,299 @@ justifications were registered for the two new lines (the project's
 own mechanism, used for the identical visible chips in the same
 file) and the gate re-ran green, 4/4. Type-checks: api and
 storefront exit 0. Details in `MUSE_TEST_EVIDENCE.md`.
+
+---
+
+# Remediation session (2026-11-21, fourth session) — PAY-3 + ADV-1
+
+Scope set by the owner: implement the approved PAY-3 fulfilment gate
+and fix the ADV-1 production CSP defect; nothing else. **No commits
+were made** (the mission withheld staging/committing authorization);
+all work is in the working tree on `muse/autonomous-engineering`,
+HEAD unchanged at `bb217fa`. Starting state verified: branch
+`muse/autonomous-engineering`, 22 commits on `bb7c331`, clean tree.
+
+## PAY-3 — fulfilment gate (owner decision, approved verbatim)
+
+- Gate added in `OrderLifecycleService.apply()` (the single choke
+  point for every staff transition and the customer cancel): a
+  transition to CONFIRMED or SHIPPED on a manual-transfer order whose
+  payment is not PAID is refused with a new additive error code
+  `PAYMENT_REQUIRED_BEFORE_FULFILMENT` (HTTP 422). The check runs
+  inside the transition transaction against the transition's own
+  snapshot. COD untouched (still fulfils unpaid, PAID only at
+  DELIVERED). Retry-shipment is covered by the SHIPPED target, which
+  also gates pre-gate data.
+- New suite `test/orders/pay3-fulfilment-gate.spec.ts`: 10 tests
+  covering the brief's scenario list 1:1 (pending blocked, rejected
+  blocked, PAID passes, COD passes unpaid, shipping does not pay COD,
+  delivery pays COD, verify∥confirm race invariant, direct-ship and
+  retry-shipment bypass attempts, customer/anonymous refusal, full
+  valid cycle). All pass.
+- Two existing tests encoded the old behaviour and were reworked
+  with the reasoning recorded inline: the payment-adversarial
+  EVIDENCE test (now asserts the gate) and its RETURNED-order test
+  (state now constructed directly, as pre-gate data), and the
+  manual-payment delivery test (blocked at confirm; verified walk
+  delivers as PAID).
+- OpenAPI artefacts regenerated; both contract gates pass.
+- Detail: `MUSE_PAY3_REMEDIATION_REPORT.md`.
+
+## ADV-1 — Admin production CSP
+
+- Reproduced on the production build (`next build` + `next start`):
+  cold load of every dashboard sub-route produced exactly 1 CSP
+  violation — chunk `09s5_6c4yp62j.js` (`script-src-elem`). Raw HTML
+  showed 15 script tags with the request nonce and exactly one
+  without: the chunk holding `RefreshButton`, the console's only
+  client leaf under a server module (`components/ui/admin.tsx`);
+  its hoisted tag is emitted through React's preinit path, which
+  drops the nonce in Next 16.2.4/Turbopack. CDP initiator: parser.
+- Fix: one load-bearing import of `@/components/ui/refresh-button`
+  in the dashboard layout, folding the module into the shell's
+  standard (nonced) script set; the dedicated chunk no longer
+  exists in the build. CSP policy untouched.
+- Verified on the production build: 0 violations on all 11 routes;
+  15/15 script tags nonced on /admin/orders; Sign Out completes to
+  /admin/login; the RefreshButton demonstrably executes (pending
+  state + RSC refresh with the API stopped). Pre-existing RSC
+  render errors on /admin/coupons and /admin/reviews are unchanged
+  and unrelated (legacy domains, ADV-3).
+- Detail: `MUSE_CSP_REMEDIATION_REPORT.md`.
+
+## Verification
+
+- Targeted suites (pay3 gate, manual-payment, payment-adversarial,
+  order-lifecycle, admin-orders): 119/119.
+- Type-checks: api, admin, storefront — exit 0. Lint: api, admin —
+  exit 0. Production builds: api, admin, storefront — pass.
+- Full Jest regression, first run: 72/74 suites, 1469/1487 tests,
+  3 failures — all in `test/p1/order-audit.spec.ts`, all one root
+  cause in the new gate: it read `order.payment.method`
+  unconditionally, and that spec's mocked order fixture has no
+  `payment` subdocument (TypeError → 500). The gate was made
+  null-safe (a payment-less legacy document is not classifiable as
+  a manual transfer and is not gated; schema-valid orders are
+  unaffected). Affected suites re-ran green (13/13).
+- Full Jest regression, FINAL run on the finished code:
+  **73/74 suites passed (1 skipped), 1472/1487 tests passed,
+  0 failures** — the cleanest full run in the project's history
+  (session 3 closed at 1461 passed with 1 failure).
+
+---
+
+# Fail-closed + Server Actions session (2026-11-22, fifth session)
+
+Scope set by the owner after independent review: (A) make the
+PAY-3 gate fail-closed for missing/null/unrecognized payment
+data; (B) audit Admin Server Actions authorization independently
+of the navigation proxy. CSP explicitly out of scope and
+untouched (diff fingerprint of layout + CSP builder + proxy +
+next.config identical before and after: md5
+270edf53641e07dcb618a911339269c7). No commits; HEAD unchanged at
+`bb217fa`; all prior uncommitted work preserved.
+
+## A. PAY-3 fail-closed
+
+- `OrderLifecycleService.apply()` now routes CONFIRMED, SHIPPED
+  and DELIVERED through a new `assertPaymentGate(order, to)`:
+  missing/null payment → 422 `PAYMENT_DATA_MISSING`;
+  unrecognized/absent method → `PAYMENT_METHOD_UNRECOGNIZED`;
+  unrecognized/absent status → `PAYMENT_STATUS_UNRECOGNIZED`
+  (all under the existing `PAYMENT_REQUIRED_BEFORE_FULFILMENT`
+  code — no new error codes). CONFIRMED/SHIPPED keep the payment
+  rule (explicit COD exempt, manual requires PAID,
+  `PAYMENT_REQUIRED` detail as before). Unknown data is never
+  read as COD and never repaired.
+- `effectsFor` DELIVERED branch reads `order.payment?.method`:
+  only an explicit COD method collects cash.
+- `test/p1/order-audit.spec.ts` fixture corrected: its mocked
+  order had no payment subdocument (schema-impossible); it now
+  carries a canonical COD payment. No assertion changed.
+- New suite `test/orders/pay3-fail-closed.spec.ts`: 12/12 —
+  undefined/null payment, missing method, unknown method (CARD),
+  missing/unknown status, SHIPPED blocked from CONFIRMED state,
+  delivery with missing payment (422, no auto-pay, no 500),
+  delivery with unknown method (not marked PAID), COD control
+  walk, legacy DELIVERY_FAILED + VERIFICATION_REJECTED
+  retry-shipment refusal, verified INSTAPAY delivery control.
+- Targeted scope (gate 10 + fail-closed 12 + manual-payment +
+  payment-adversarial + order-lifecycle + admin-orders +
+  order-audit): **134/134**.
+
+## B. Server Actions authorization audit
+
+- All 37 exported actions in `apps/admin/src/actions/` (9 files)
+  plus the check-slug and session/renew route handlers were read
+  and traced. Every mutation/read action calls
+  `requireAdminActor()` before any API call (order actions via
+  their shared `run()` funnel); identity is resolved from the
+  API's `/auth/me` answer server-side, and `apiFetch` attaches
+  the caller's own httpOnly-cookie token so the API's RolesGuard
+  independently enforces. loginAction checks the API-issued role
+  and revokes non-staff sessions; logout and renew act only on
+  the caller's own session (renew reads the token only from the
+  cookie). **No bypass found; no admin code changed.**
+  Report: `MUSE_SERVER_ACTIONS_AUTHORIZATION_AUDIT.md`.
+
+## Verification
+
+- Full Jest, clean run (nothing else executing): **74/75 suites
+  (1 skipped — cloudinary-integration, by design), 1484/1499
+  tests, 0 failures.** Teardown residue again exactly 4 audit
+  rows (unchanged baseline).
+- A first full run overlapped with the production builds and
+  failed one unrelated test (`addresses.spec.ts`,
+  `read ECONNRESET`, suite time 106 s under CPU contention); it
+  passes in the clean run. Recorded as environmental.
+- Type-checks: api, admin, storefront — exit 0. Lint: api,
+  admin — exit 0. Builds: api, admin, storefront — pass.
+  OpenAPI drift + page gates — pass (contract unchanged this
+  session; an initial drift-gate failure was missing env vars,
+  not drift).
+
+---
+
+# OVERNIGHT AUTONOMOUS SESSION — SoD RATIFICATION, DTO NULL-SAFETY, PAYMENT-REVIEW QUEUE, CONTRAST CLOSURE (2026-11-22)
+
+Authorization: the owner's overnight mission directive (2026-11-22,
+~03:31 EET, work until 12:00 EET). The mission RATIFIED the
+segregation-of-duties policy that had been pending since the
+adversarial session: an admin cannot approve OR reject payment
+evidence for an order the same admin placed. Scope: close the
+payment/order safety work (Priority A), admin UX (B), storefront
+UX/a11y (C), technical quality (D). Nothing staged, committed,
+pushed, merged, or deployed; HEAD remains bb217fa.
+
+## Priority A — payment & order safety
+
+1. **SoD verified against the approved spec, gaps closed.**
+   `PaymentVerificationService.decide()` already blocked both
+   approve and reject for the order's owner with 403, before any
+   mutation (the guard precedes the decision branches). Two gaps
+   were closed:
+   - *Auditability.* A refused self-decision previously left no
+     audit record (the refusal throws before the transaction). It
+     now writes an `ORDER_PAYMENT_CHANGED` row with
+     `outcome: 'refused'`, `reason: 'SEGREGATION_OF_DUTIES'`,
+     deliberately OUTSIDE the transaction session so the record
+     survives the abort it causes; `record()` without `required`
+     never throws, so a logging failure cannot mask the 403.
+   - *Tests.* The adversarial suite covered self-APPROVAL only.
+     Added: self-REJECTION → 403 with payment still
+     PENDING_VERIFICATION and `decidedBy` still null; and an
+     audit test asserting exactly one `refused` row, zero
+     `succeeded` rows, and unchanged payment state.
+   - The code comment now records the policy as owner-approved
+     (2026-11-22), not merely audit-derived.
+2. **Console communicates SoD in advance (Priority A/B).** The
+   order page passes the viewer's email (display-only, from
+   `readIdentity()`); `OrderDetail` compares it with the order's
+   customer email — the snapshot carries no account id, by design —
+   and the verification panel shows the restriction notice and
+   disables both decision buttons for the owner. The API remains
+   the authority (account-id comparison, 403 + in-place message).
+   Verified live in the browser both ways: another admin gets an
+   enabled panel; the owner gets the notice + disabled buttons.
+3. **DTO null-safety (pre-commit review F-1) — FIXED.**
+   `OrderDto.payment` and `OrderSummaryDto.payment` are now
+   nullable in type and OpenAPI contract; both mappers emit
+   `payment: null` for a record without a payment subdocument
+   instead of throwing. Frontends render an explicit missing-data
+   state (admin badge cell "Missing", a destructive notice on the
+   detail page, neutral copy on the customer's order page;
+   `ManualPaymentPanel` renders nothing). Correction to the
+   review text: there is ONE shared detail mapper
+   (`AdminOrderDto extends OrderDto`) plus the summary mapper —
+   the admin DTO file contains no payment code.
+4. **Fail-closed test gaps closed** (from the review's §6):
+   DELIVERED with `payment === null` → refused, still SHIPPED, no
+   500; and a no-side-effects test: a gate refusal leaves the
+   order's `updatedAt` byte-identical, adds no status-history
+   entry and no `ORDER_STATUS_CHANGED` audit row (the middleware's
+   by-design INTENT rows are excluded from the count, with the
+   reason recorded in the test).
+5. **OpenAPI regenerated** for the nullable payment fields and
+   the new queue parameter; drift + page gates pass.
+
+## Priority B — admin UX
+
+6. **Payment-review queue filter (remaining-work item 11) —
+   DONE.** API: `AdminOrderQueueQueryDto.paymentStatus`
+   (repeatable, enum-narrowed to `PaymentStatus`, 400 on unknown
+   values) → `OrderQueueQuery.paymentStatuses` →
+   `OrderQueueCriteria` → `queueFilter` on `payment.status`.
+   Console: a "Payment review" toggle in `QueueFilters`
+   (URL-driven like every other filter, cleared by Clear filters),
+   `endpoints.listOrders` serialises the repeated key. API test in
+   `admin-orders.spec.ts` (filter correctness + true total + bad
+   value 400). Browser-verified: 3 seeded orders → toggle → exactly
+   the 2 PENDING_VERIFICATION rows.
+7. **Copy defect found by screenshot review:** the unroutable-moves
+   sentence rendered "cancelled ispossible for this order" (JSX
+   whitespace collapsing ate the spaces around the verb). Fixed by
+   composing the sentence as one template string; re-verified in
+   the browser after rebuild.
+
+## Priority C — storefront accessibility
+
+8. **Color contrast CLOSED.** axe-core (production build, real
+   browser) on `/` and `/products`: **0 color-contrast violations**
+   (21 and 24 nodes respectively before the fix). Changes, all
+   measured before choosing:
+   - `--color-primary` `#e14a5c` → `#cf3549` (white on it:
+     3.94 → 4.93:1; hue preserved), hover `#c73a4b` → `#b82a40`
+     (6.10:1), in both storefront themes; tint rgba updated to
+     match; a comment in globals.css records the measurement so
+     the value is not "restored" blindly.
+   - The shared `ProductCard` sale badge hardcoded `#E14A5C`
+     (bypassing the token) → `bg-primary`.
+   - `--color-foreground-subtle` `#9ca3af` → `#64707e`
+     (2.53 → 5.05:1 on white; 4.75:1 on #f8f8f8).
+   - The rating-count label compounded `opacity-80` onto muted
+     text (3.28:1) → opacity removed (4.83:1).
+   - The footer eyebrow used `text-primary` on the dark chrome
+     (3.45:1) → new `--color-primary-bright` token `#ff8b99`
+     (7.64:1 on #1a1a2e), defined in both themes.
+
+## Browser verification (Priority B/C evidence)
+
+A full local stack was run (API + admin + storefront production
+builds against a dedicated `nest_browser_check` database on the
+test replica set, seeded with the repo's own fixtures; 3 orders
+placed through the real API: sandbox WALLET PENDING_VERIFICATION,
+sandbox COD, and a WALLET order whose owner was then promoted to
+ADMIN for the SoD case). Screenshots: admin queue, payment-review
+queue, wallet panel (other admin), SoD panel (owner), storefront
+home desktop + mobile. The demo database was dropped afterwards;
+notably, Jest's scratch-database guard REFUSED a full run while
+that non-test database existed on the shared instance — the guard
+working as designed — and the run was restarted after the drop.
+
+## Verification
+
+- Targeted suites during the session: pay3-fail-closed 14/14,
+  payment-adversarial (incl. 2 new SoD tests) green,
+  admin-orders + pay3 gate + manual-payment 73/73.
+- Type-checks: api, admin, storefront — exit 0. Builds: all
+  three production builds pass. OpenAPI gates pass.
+- Full regression: see the addendum below this entry.
+
+## Addendum — final verification (overnight session)
+
+- **Full Jest regression (clean, nothing else running):
+  74/75 suites, 1489/1504 tests, 0 failures.** The skipped suite
+  is the cloudinary integration suite (skips by design; its 15
+  tests are the 15 skipped). Delta vs the fail-closed session:
+  +5 tests, all new this session (2 SoD, 2 fail-closed, 1 queue
+  filter). Global-teardown residue is again exactly 4 audit rows
+  — the unchanged pre-existing baseline.
+- Lint: api exit 0, admin exit 0 (run after the full suite, not
+  in parallel, to keep the regression clean).
+- An earlier full-run attempt aborted in globalSetup: the
+  scratch-database guard refused because the browser-check demo
+  database (`nest_browser_check`) lived on the same instance.
+  The demo DB was dropped and the clean run above is the result.
+- Working tree at session end: HEAD still bb217fa, nothing
+  staged; the overnight changes join the sessions 4–5 uncommitted
+  work awaiting the owner's commit decision.

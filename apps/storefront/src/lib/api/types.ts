@@ -377,6 +377,7 @@ export interface Order {
   items: OrderItem[];
   currency: string;
   pricing: PricingBreakdown;
+  /** Null when the stored record has no payment data (corrupt/legacy). */
   payment: {
     method: string;
     status: 'PENDING' | 'PENDING_VERIFICATION' | 'VERIFICATION_REJECTED' | 'PAID' | 'REFUNDED';
@@ -387,7 +388,7 @@ export interface Order {
       decidedAt: string | null;
       decisionNote: string | null;
     } | null;
-  };
+  } | null;
   shippingAddress: OrderShippingAddress;
   customerNote: string | null;
   cancellation: { reason: string | null; cancelledAt: string } | null;
@@ -399,7 +400,7 @@ export interface OrderSummary {
   id: string;
   orderNumber: string;
   status: OrderStatus;
-  payment: { method: string; status: string; collectedAt: string | null };
+  payment: { method: string; status: string; collectedAt: string | null } | null;
   pricing: PricingBreakdown;
   itemCount: number;
   totalQuantity: number;

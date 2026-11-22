@@ -328,6 +328,52 @@ describe('segregation of duties and stale authority', () => {
     expect(row.payment.status).toBe('PENDING_VERIFICATION');
   });
 
+  it('an admin cannot reject a payment on their OWN order either', async () => {
+    // Segregation of duties covers rejection as well as approval
+    // (owner-approved 2026-11-22): the same guard runs before the
+    // decision branches, and this test pins that it stays that way.
+    const boss = await createAccount('boss-reject');
+    const id = await placeWalletOrder(boss);
+
+    await users.updateOne({ _id: boss.id }, { $set: { role: Role.ADMIN } }).exec();
+    boss.token = await login(boss.email);
+
+    await reject(id, boss).expect(403);
+
+    const row = await orderRow(id);
+    expect(row.payment.status).toBe('PENDING_VERIFICATION');
+    expect(row.payment.verification?.decidedBy ?? null).toBeNull();
+  });
+
+  it('a refused self-decision is audited as refused (and nothing succeeded)', async () => {
+    const boss = await createAccount('boss-audit');
+    const id = await placeWalletOrder(boss);
+    const total = (await orderRow(id)).pricing.grandTotal;
+
+    await users.updateOne({ _id: boss.id }, { $set: { role: Role.ADMIN } }).exec();
+    boss.token = await login(boss.email);
+
+    const response = await verify(id, boss, total);
+    expect(response.status).toBe(403);
+
+    const rows = await auditLogs
+      .find({ 'entity.id': new Types.ObjectId(id), action: 'ORDER_PAYMENT_CHANGED' })
+      .lean()
+      .exec();
+    const refused = rows.filter(
+      d => (d as { metadata?: { outcome?: string } }).metadata?.outcome === 'refused',
+    );
+    expect(refused).toHaveLength(1);
+    expect(
+      (refused[0] as { metadata?: { reason?: string } }).metadata?.reason,
+    ).toBe('SEGREGATION_OF_DUTIES');
+    const succeeded = rows.filter(
+      d => (d as { metadata?: { outcome?: string } }).metadata?.outcome === 'succeeded',
+    );
+    expect(succeeded).toHaveLength(0);
+    expect((await orderRow(id)).payment.status).toBe('PENDING_VERIFICATION');
+  });
+
   it('a token issued as ADMIN stops working for decisions once the DB role is revoked', async () => {
     const id = await placeWalletOrder();
     const total = (await orderRow(id)).pricing.grandTotal;
@@ -372,23 +418,13 @@ describe('terminal and returned orders', () => {
     const id = await placeWalletOrder();
     const total = (await orderRow(id)).pricing.grandTotal;
 
-    // Walk the order to RETURNED without any payment decision.
-    await http().post(`/api/v1/admin/orders/${id}/confirm`).set(...bearer(admin)).send({}).expect(200);
-    await http()
-      .post(`/api/v1/admin/orders/${id}/ship`)
-      .set(...bearer(admin))
-      .send({ carrier: 'Aramex', trackingNumber: 'ARX-987654321' })
-      .expect(200);
-    await http()
-      .post(`/api/v1/admin/orders/${id}/delivery-failed`)
-      .set(...bearer(admin))
-      .send({ reason: 'Customer refused the parcel.' })
-      .expect(200);
-    await http()
-      .post(`/api/v1/admin/orders/${id}/return`)
-      .set(...bearer(admin))
-      .send({ reason: 'Parcel came back to the warehouse.' })
-      .expect(200);
+    // This test originally WALKED the order to RETURNED through the API
+    // without any payment decision. Since the PAY-3 gate (owner
+    // decision, 2026-11-21) that walk is refused at CONFIRMED, so the
+    // RETURNED + PENDING_VERIFICATION state — still reachable in
+    // pre-gate data — is constructed directly, and the behaviour under
+    // test is unchanged: decide() must refuse a terminal order.
+    await orders.updateOne({ _id: new Types.ObjectId(id) }, { $set: { status: 'RETURNED' } }).exec();
     expect((await orderRow(id)).status).toBe('RETURNED');
 
     const response = await verify(id, admin, total);
@@ -471,28 +507,28 @@ describe('endpoint misuse', () => {
   });
 });
 
-describe('EVIDENCE: fulfilment does not wait for verification', () => {
-  it('an unverified — even rejected — manual order can be confirmed, shipped and delivered', async () => {
+describe('PAY-3 (owner decision 2026-11-21): fulfilment waits for verification', () => {
+  it('a payment-REJECTED wallet order can no longer be confirmed for fulfilment', async () => {
     const id = await placeWalletOrder();
 
     await reject(id, admin).expect(200);
     expect((await orderRow(id)).payment.status).toBe('VERIFICATION_REJECTED');
 
-    await http().post(`/api/v1/admin/orders/${id}/confirm`).set(...bearer(admin)).send({}).expect(200);
-    await http()
-      .post(`/api/v1/admin/orders/${id}/ship`)
+    // This test previously DOCUMENTED the opposite behaviour as audit
+    // evidence (PAY-3): the order could be confirmed, shipped and
+    // delivered with the payment rejected. The owner has since decided
+    // the rule — manual-transfer orders must be PAID before fulfilment
+    // — and the gate now refuses at the first fulfilment step. The full
+    // scenario matrix lives in test/orders/pay3-fulfilment-gate.spec.ts.
+    const refused = await http()
+      .post(`/api/v1/admin/orders/${id}/confirm`)
       .set(...bearer(admin))
-      .send({ carrier: 'Aramex', trackingNumber: 'ARX-111222333' })
-      .expect(200);
-    await http().post(`/api/v1/admin/orders/${id}/deliver`).set(...bearer(admin)).send({}).expect(200);
+      .send({});
+    expect(refused.status).toBe(422);
+    expect(refused.body.error.code).toBe('PAYMENT_REQUIRED_BEFORE_FULFILMENT');
 
     const row = await orderRow(id);
-    // The goods are with the customer; the money was never verified. This
-    // is recorded as audit evidence for an owner decision on fulfilment
-    // gating — the lifecycle deliberately separates delivery from payment
-    // for manual methods (ADR-ORDER-002), and this suite does not change
-    // business rules.
-    expect(row.status).toBe('DELIVERED');
+    expect(row.status).toBe('PLACED');
     expect(row.payment.status).toBe('VERIFICATION_REJECTED');
   });
 });

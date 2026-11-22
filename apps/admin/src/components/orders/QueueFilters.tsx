@@ -42,9 +42,11 @@ export interface QueueFiltersProps {
   placedFrom: string;
   placedTo: string;
   sort: OrderQueueSort;
+  /** The "Payment review" toggle: queue narrowed to PENDING_VERIFICATION. */
+  paymentReview: boolean;
 }
 
-export default function QueueFilters({ q, placedFrom, placedTo, sort }: QueueFiltersProps) {
+export default function QueueFilters({ q, placedFrom, placedTo, sort, paymentReview }: QueueFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -73,7 +75,7 @@ export default function QueueFilters({ q, placedFrom, placedTo, sort }: QueueFil
     });
   };
 
-  const hasFilters = q !== '' || placedFrom !== '' || placedTo !== '';
+  const hasFilters = q !== '' || placedFrom !== '' || placedTo !== '' || paymentReview;
 
   return (
     <FilterBar className="admin-queue-filters">
@@ -169,19 +171,45 @@ export default function QueueFilters({ q, placedFrom, placedTo, sort }: QueueFil
         </div>
       </div>
 
-      {hasFilters && (
+      <div className="flex flex-wrap items-center gap-3">
+        {/*
+          The payment-review queue. Manual transfers awaiting a decision
+          were previously only findable by scanning the full queue for a
+          badge; the API now filters on the payment axis
+          (`paymentStatus=PENDING_VERIFICATION`), so this toggle is a real
+          filter, not a client-side hide.
+        */}
         <button
           type="button"
-          data-testid="queue-clear-filters"
-          onClick={() => {
-            apply({ q: '', placedFrom: '', placedTo: '' });
-          }}
+          data-testid="queue-payment-review"
+          aria-pressed={paymentReview}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+          onClick={() => {
+            apply({ paymentStatus: paymentReview ? '' : 'PENDING_VERIFICATION' });
+          }}
+          className={
+            paymentReview
+              ? 'inline-flex items-center gap-1.5 rounded-full border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs font-semibold text-warning'
+              : 'inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground'
+          }
         >
-          <X className="h-3.5 w-3.5" /> Clear search and dates
+          Payment review
         </button>
-      )}
+
+        {hasFilters && (
+          <button
+            type="button"
+            data-testid="queue-clear-filters"
+            onClick={() => {
+              apply({ q: '', placedFrom: '', placedTo: '', paymentStatus: '' });
+            }}
+            disabled={isPending}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" /> Clear filters
+          </button>
+        )}
+      </div>
     </FilterBar>
   );
 }

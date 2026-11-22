@@ -26,11 +26,20 @@
   --color-background: #ffffff;
   --color-foreground: #1a1a2e;
   --color-foreground-muted: #6b7280;
-  --color-foreground-subtle: #9ca3af;
+  --color-foreground-subtle: #64707e;
   --color-foreground-disabled: #d1d1d6;
-  --color-primary: #e14a5c;
-  --color-primary-hover: #c73a4b;
-  --color-primary-light: rgba(225, 74, 92, 0.08);
+  /*
+   * Primary deepened from #e14a5c to #cf3549 (2026-11-22): white text on
+   * the old value measured 3.93:1 (axe, WCAG AA needs 4.5:1 for text).
+   * #cf3549 measures 4.93:1 and keeps the brand hue; hover #b82a40 is
+   * 6.10:1. Do not lighten without re-measuring.
+   */
+  --color-primary: #cf3549;
+  --color-primary-hover: #b82a40;
+  /* Primary for DARK surfaces (footer/header eyebrows): #cf3549 on the
+   * dark chrome (#1a1a2e) is only 3.45:1; this tint measures 7.64:1. */
+  --color-primary-bright: #ff8b99;
+  --color-primary-light: rgba(207, 53, 73, 0.08);
   --color-primary-foreground: #ffffff;
   --color-secondary: #f1f5f9;
   --color-secondary-foreground: #1a1a2e;
@@ -42,8 +51,8 @@
   --color-popover-foreground: #1a1a2e;
   --color-muted: #f8f8f8;
   --color-muted-foreground: #6b7280;
-  --color-accent: rgba(225, 74, 92, 0.06);
-  --color-accent-foreground: #e14a5c;
+  --color-accent: rgba(207, 53, 73, 0.06);
+  --color-accent-foreground: #cf3549;
   --color-border: #eaeaec;
   --color-border-strong: #d1d1d6;
   --color-input: #eaeaec;
@@ -90,7 +99,7 @@
   --color-topbar-muted: rgba(255, 255, 255, 0.62);
   --color-header-main: #1a1a2e;
   --color-header-foreground: #ffffff;
-  --color-category-bar: #e14a5c;
+  --color-category-bar: #cf3549;
   --color-category-foreground: #ffffff;
   --font-sans: var(--font-body);
   --font-heading: var(--font-body);
@@ -105,17 +114,18 @@
   --color-border-strong: #d1d1d6;
   --color-foreground: #1a1a2e;
   --color-foreground-muted: #6b7280;
-  --color-foreground-subtle: #9ca3af;
-  --color-primary: #e14a5c;
-  --color-primary-hover: #c73a4b;
+  --color-foreground-subtle: #64707e;
+  --color-primary: #cf3549;
+  --color-primary-hover: #b82a40;
+  --color-primary-bright: #ff8b99;
   --color-primary-foreground: #ffffff;
   --color-card: #ffffff;
   --color-card-foreground: #1a1a2e;
   --color-topbar: #1a1a2e;
   --color-header-main: #1a1a2e;
-  --color-category-bar: #e14a5c;
+  --color-category-bar: #cf3549;
   --color-muted: #f8f8f8;
-  --color-accent: rgba(225, 74, 92, 0.03);
+  --color-accent: rgba(207, 53, 73, 0.03);
   --color-input: #eaeaec;
   --color-danger: #dc2626;
   --color-success: #16a34a;

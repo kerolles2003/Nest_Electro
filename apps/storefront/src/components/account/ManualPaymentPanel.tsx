@@ -27,7 +27,9 @@ export function ManualPaymentPanel({
   const [sender, setSender] = useState('');
   const payment = order.payment;
 
-  if (payment.method === 'COD') return null;
+  // No payment data (corrupt/legacy record): there is nothing truthful
+  // this panel can show — no method, no status, no instructions.
+  if (payment === null || payment.method === 'COD') return null;
 
   const whatsappText = encodeURIComponent(
     `Hello, I transferred ${order.pricing.grandTotal.formatted} for order ${order.orderNumber}. My transfer screenshot is attached.`,

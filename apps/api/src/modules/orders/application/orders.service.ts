@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from '../../../common/dto/pagination-query.dto';
 import { AppException } from '../../../common/errors/app.exception';
-import { ORDER_STATUSES, OrderStatus } from '../domain/order-status';
+import { ORDER_STATUSES, OrderStatus, PaymentStatus } from '../domain/order-status';
 import type { OrderSearchTerm } from '../domain/order-search';
 import type { OrderQueueSort } from '../infrastructure/repositories/order.repository';
 
@@ -28,6 +28,8 @@ export interface OrderHistoryQuery {
  * place to make it impossible rather than merely absent.
  */
 export interface OrderQueueQuery extends OrderHistoryQuery {
+  /** OR within the list. Absent means every payment status. */
+  readonly paymentStatuses?: readonly PaymentStatus[];
   readonly search?: OrderSearchTerm;
   readonly placedFrom?: Date;
   readonly placedTo?: Date;
@@ -143,6 +145,7 @@ export class OrdersService {
       page,
       limit,
       ...(query.statuses ? { statuses: query.statuses } : {}),
+      ...(query.paymentStatuses ? { paymentStatuses: query.paymentStatuses } : {}),
       ...(query.search ? { search: query.search } : {}),
       ...(query.placedFrom ? { placedFrom: query.placedFrom } : {}),
       ...(query.placedTo ? { placedTo: query.placedTo } : {}),

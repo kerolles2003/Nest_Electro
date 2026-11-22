@@ -101,6 +101,8 @@ export interface OrderQueueParams {
   page?: number;
   limit?: number;
   status?: readonly OrderStatus[];
+  /** Payment-axis filter, e.g. `['PENDING_VERIFICATION']` for the review queue. */
+  paymentStatus?: readonly string[];
   /** Order number, customer name, email or phone. */
   q?: string;
   /** `YYYY-MM-DD` or a full ISO timestamp. A bare date bounds the whole day. */
@@ -117,6 +119,8 @@ export function listOrders(params: OrderQueueParams = {}): Promise<PagedEnvelope
   // Repeated key, not a comma-joined string: the DTO reads `?status=A&status=B`
   // and a joined value would be one unrecognised enum member and a 400.
   for (const status of params.status ?? []) query.append('status', status);
+  // Same repeated-key rule as `status`: the DTO reads `?paymentStatus=A&paymentStatus=B`.
+  for (const paymentStatus of params.paymentStatus ?? []) query.append('paymentStatus', paymentStatus);
 
   /*
    * Empty strings are DROPPED rather than sent.

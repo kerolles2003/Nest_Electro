@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import type { ClientSession } from 'mongoose';
 import { Types } from 'mongoose';
 import { AuditService, type AuditContext, type AuditActorInput } from '../../audit/application/audit.service';
 import { AuditAction, AuditEntityType } from '../../audit/domain/audit-action';
 import { AppException } from '../../../common/errors/app.exception';
+import { ErrorCode } from '../../../common/errors/error-code.enum';
 import { TransactionService } from '../../../database/transaction.service';
 import { InventoryService } from '../../inventory/application/inventory.service';
 import { InventoryEventType } from '../../inventory/infrastructure/schemas/inventory-event.schema';
@@ -310,6 +311,35 @@ export class OrderLifecycleService {
       throw AppException.forbidden();
     }
 
+    // PAY-3 payment gate — FAIL-CLOSED (owner decision, 2026-11-21;
+    // fail-closed remediation after independent review). Every
+    // fulfilment transition (CONFIRMED, SHIPPED, DELIVERED) first
+    // validates the order's payment data, inside the transition
+    // transaction and against the same snapshot the guarded update
+    // matches on:
+    //
+    //  - Missing, null, or unrecognized payment data is REFUSED with
+    //    a structured 422. Unknown data is never read as COD, never
+    //    defaulted, and never silently repaired — a schema-valid
+    //    order always carries a payment subdocument, so anything
+    //    else is corrupt or pre-schema data an operator must fix.
+    //  - CONFIRMED / SHIPPED additionally require the payment rule:
+    //    an explicitly recognized COD method (the only exemption),
+    //    or a manual transfer already PAID through the authorized
+    //    verification workflow. Screenshots, WhatsApp messages and
+    //    customer claims never move the payment state, so they can
+    //    never open this gate.
+    //  - DELIVERED validates the data so its payment effect (COD
+    //    cash collection) is never computed from garbage; the effect
+    //    itself still only ever pays an explicit COD order.
+    if (
+      command.to === OrderStatus.CONFIRMED ||
+      command.to === OrderStatus.SHIPPED ||
+      command.to === OrderStatus.DELIVERED
+    ) {
+      OrderLifecycleService.assertPaymentGate(order, command.to);
+    }
+
     const at = new Date();
     const historyEntry: OrderStatusHistoryEntry = {
       from,
@@ -387,6 +417,79 @@ export class OrderLifecycleService {
     return updated;
   }
 
+  /**
+   * The PAY-3 gate, fail-closed. Validates `order.payment` for a
+   * fulfilment transition and throws a structured 422
+   * (`PAYMENT_REQUIRED_BEFORE_FULFILMENT`) on ANY doubt:
+   *
+   *  1. No payment subdocument (missing or null) — refused
+   *     (`PAYMENT_DATA_MISSING`). Never treated as COD.
+   *  2. Unrecognized method or status (anything outside the frozen
+   *     enums, including an absent field) — refused
+   *     (`PAYMENT_METHOD_UNRECOGNIZED` / `PAYMENT_STATUS_UNRECOGNIZED`).
+   *  3. For CONFIRMED / SHIPPED: a manual transfer whose status is
+   *     not PAID — refused (`PAYMENT_REQUIRED`). An explicitly
+   *     recognized COD method is the only exemption, per the owner
+   *     decision; COD's own collection still happens only at
+   *     DELIVERED (see `effectsFor`).
+   *
+   * DELIVERED runs steps 1–2 only: by the time an order can be
+   * delivered its entry into fulfilment was already gated, and the
+   * delivery effect keys exclusively on an explicit COD method.
+   */
+  private static assertPaymentGate(order: OrderLean, to: OrderStatus): void {
+    const refuse = (message: string, detailCode: string): never => {
+      throw new AppException(
+        ErrorCode.PAYMENT_REQUIRED_BEFORE_FULFILMENT,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        message,
+        [{ field: 'payment', code: detailCode, message }],
+      );
+    };
+
+    const payment = order.payment;
+
+    if (payment === undefined || payment === null) {
+      refuse(
+        'This order has no payment record, so its fulfilment cannot be validated. The transition is refused until the payment data is corrected.',
+        'PAYMENT_DATA_MISSING',
+      );
+    }
+
+    if (!(Object.values(PaymentMethod) as string[]).includes(payment.method)) {
+      refuse(
+        `This order's payment method (${String(payment.method)}) is not a recognized payment method, so its fulfilment cannot be validated.`,
+        'PAYMENT_METHOD_UNRECOGNIZED',
+      );
+    }
+
+    if (!(Object.values(PaymentStatus) as string[]).includes(payment.status)) {
+      refuse(
+        `This order's payment status (${String(payment.status)}) is not a recognized payment status, so its fulfilment cannot be validated.`,
+        'PAYMENT_STATUS_UNRECOGNIZED',
+      );
+    }
+
+    if (to === OrderStatus.DELIVERED) return;
+
+    if (payment.method === PaymentMethod.COD) return;
+
+    if (payment.status !== PaymentStatus.PAID) {
+      throw new AppException(
+        ErrorCode.PAYMENT_REQUIRED_BEFORE_FULFILMENT,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        'This order is paid by wallet or InstaPay transfer and cannot enter fulfilment until the payment has been verified and marked PAID.',
+        [
+          {
+            field: 'paymentStatus',
+            code: 'PAYMENT_REQUIRED',
+            message: `Payment is ${payment.status}; fulfilment requires PAID.`,
+          },
+        ],
+      );
+    }
+  }
+
   // --- side effects ---------------------------------------------------------
 
   /**
@@ -416,7 +519,11 @@ export class OrderLifecycleService {
         // mark a Wallet/InstaPay order PAID — an unverified order that gets
         // delivered stays PENDING_VERIFICATION until an authorized admin
         // approves the transfer, and a rejected one stays rejected.
-        if (order.payment.method !== PaymentMethod.COD) {
+        // Fail-closed read: only an EXPLICIT COD method collects cash
+        // here. A missing or unrecognized payment record can never be
+        // auto-marked PAID (the gate in apply() refuses such orders
+        // before this runs; this read stays safe even if that changes).
+        if (order.payment?.method !== PaymentMethod.COD) {
           return {
             set: {
               ...(order.shipment !== null ? { 'shipment.deliveredAt': at } : {}),

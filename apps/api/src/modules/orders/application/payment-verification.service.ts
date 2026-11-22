@@ -93,13 +93,37 @@ export class PaymentVerificationService {
       if (order === null) throw AppException.orderNotFound();
 
       /*
-       * Segregation of duties (adversarial audit, 2026-11-21): the decider
-       * must not be the customer who placed the order. An administrator who
-       * buys from the shop could otherwise approve their own declared
-       * transfer — the one path by which a screenshot becomes money without
-       * a second pair of eyes. Another administrator can always decide.
+       * Segregation of duties — OWNER-APPROVED policy (2026-11-22,
+       * ratifying the adversarial-audit fix of 2026-11-21): the decider
+       * must not be the customer who placed the order, for BOTH approval
+       * and rejection. An administrator who buys from the shop could
+       * otherwise approve their own declared transfer — the one path by
+       * which a screenshot becomes money without a second pair of
+       * eyes. Another administrator can always decide.
        */
       if (String(order.userId) === input.actorId.toHexString()) {
+        /*
+         * The refused attempt is itself audited, and the record is
+         * deliberately written WITHOUT the transaction session: this
+         * transaction is about to abort because of the refusal, and a
+         * record inside it would roll back with everything else. A
+         * refused self-decision is exactly what an investigator asks
+         * about, so it must survive. record() without `required` never
+         * throws, so a logging failure can never mask the 403.
+         */
+        await this.audit.record({
+          actor: { id: actor._id, role: actor.role, name: actor.fullName, email: actor.email },
+          action: AuditAction.ORDER_PAYMENT_CHANGED,
+          entity: { type: AuditEntityType.ORDER, id: input.orderId, label: order.orderNumber },
+          changes: null,
+          metadata: {
+            outcome: 'refused',
+            decision,
+            reason: 'SEGREGATION_OF_DUTIES',
+            method: order.payment.method,
+          },
+          context: input.context,
+        });
         throw new AppException(
           ErrorCode.FORBIDDEN,
           HttpStatus.FORBIDDEN,

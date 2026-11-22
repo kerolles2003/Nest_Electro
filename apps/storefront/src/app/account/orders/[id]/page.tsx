@@ -88,13 +88,13 @@ export default async function OrderDetailPage({
 
   // Manual payment instructions are owner configuration; a failure to load
   // them degrades the panel to status-only rather than breaking the page.
-  const isManual = order.payment.method !== 'COD';
+  const isManual = order.payment !== null && order.payment.method !== 'COD';
   const instructionsResult = isManual ? await tryApi(() => api.getPaymentMethods()) : null;
   const instructions = instructionsResult?.ok ? instructionsResult.data.data : null;
   const destination =
-    order.payment.method === 'WALLET'
+    order.payment?.method === 'WALLET'
       ? (instructions?.walletNumber ?? null)
-      : order.payment.method === 'INSTAPAY'
+      : order.payment?.method === 'INSTAPAY'
         ? (instructions?.instapayAddress ?? null)
         : null;
 
@@ -191,7 +191,9 @@ export default async function OrderDetailPage({
             Payment
           </h3>
           <p className="mt-3 text-sm text-foreground-muted">
-            {order.payment.method} · {order.payment.status}
+            {order.payment !== null
+              ? `${order.payment.method} · ${order.payment.status}`
+              : 'Payment information is unavailable for this order — please contact us.'}
           </p>
         </div>
       </section>
@@ -233,8 +235,10 @@ function PlacedBanner({ order }: { order: Order }) {
         </h1>
         <p className="mt-1 text-sm font-medium text-foreground-muted">
           Your order number is <strong className="text-foreground">{order.orderNumber}</strong>.
-          {order.payment.method === 'COD' ? (
+          {order.payment?.method === 'COD' ? (
             <> Pay {order.pricing.grandTotal.formatted} in cash when it arrives.</>
+          ) : order.payment === null ? (
+            <> We are checking the payment details for this order.</>
           ) : (
             <>
               {' '}
