@@ -18,7 +18,16 @@
   --color-card-foreground: #1a1a2e;
   --color-popover: #ffffff;
   --color-popover-foreground: #1a1a2e;
-  --color-primary: #cf3549;
+  /* One shade deeper than the storefront's #cf3549: crimson TEXT also sits
+     on its own 8% tint in this console (pressed filter chips, row actions),
+     where #cf3549 measures 4.26:1. #c43047 passes on the tint (4.71:1), on
+     white (5.44:1), and under white button text (5.44:1). Session 8 a11y fix. */
+  --color-primary: #c43047;
+  /* Crimson INK: primary-coloured TEXT on primary's own 10% tint (status
+     tabs, "Active" pills, badges), where --color-primary itself measures
+     4.29:1. #a52338 passes on the tint (5.72:1) and on white. Fills keep
+     --color-primary; text on tint takes the ink. */
+  --color-primary-ink: #a52338;
   --color-primary-foreground: #ffffff;
   --color-primary-hover: #b82a40;
   --color-primary-light: rgba(207, 53, 73, 0.08);
@@ -30,18 +39,25 @@
   --color-surface-high: #f1f5f9;
   --color-surface-highest: #e2e8f0;
   --color-muted: #f1f5f9;
-  --color-muted-foreground: #6b7280;
+  /* #6b7280 measured 4.41–4.43:1 on the app's light surfaces — a hair under
+     WCAG AA. #5f6873 passes everywhere it is used (5.16:1 on #f1f5f9). */
+  --color-muted-foreground: #5f6873;
   --color-foreground-muted: #6b7280;
   --color-foreground-subtle: #64707e;
   --color-accent: rgba(207, 53, 73, 0.06);
   --color-accent-foreground: #cf3549;
-  --color-destructive: #dc2626;
+  --color-destructive: #b91c1c;
   --color-destructive-foreground: #ffffff;
-  --color-danger: #dc2626;
+  /* Status colours double as TEXT on their own light tints (order status
+     pills), where the brighter shades failed WCAG AA (#16a34a = 2.95:1,
+     #dc2626 = 4.12:1, #b45309 = 4.41:1). The 700/800 shades pass with
+     margin (6.40 / 5.51 / 6.23:1) and still read as the same hues; white
+     text on the solid forms passes too. Session 8 a11y fix. */
+  --color-danger: #b91c1c;
   --color-danger-light: rgba(220, 38, 38, 0.08);
-  --color-success: #16a34a;
+  --color-success: #166534;
   --color-success-light: rgba(22, 163, 74, 0.08);
-  --color-warning: #b45309;
+  --color-warning: #92400e;
   --color-warning-light: rgba(180, 83, 9, 0.08);
   --color-purple: #7c3aed;
   --color-purple-light: rgba(124, 58, 237, 0.08);
@@ -233,7 +249,10 @@ body {
   text-transform: none;
   letter-spacing: 0;
   white-space: nowrap;
-  background: #f3f3ed;
+  /* Was the legacy Concept 03 cream #f3f3ed — the one surface the redesign
+     missed. Table headers take the brand's surface tint like every other
+     raised surface in the console. */
+  background: var(--color-surface-high);
   padding-top: 14px;
   padding-bottom: 14px;
 }
@@ -374,6 +393,13 @@ body {
 .admin-access-panel .admin-card p {
   color: inherit;
 }
+/* Muted text inside the dark sidebar sits on navy, where the global
+   muted-foreground (tuned for light surfaces) measures 3.52:1. Inside the
+   sidebar it takes the light slate the dark chrome needs (6.84:1 on navy).
+   Portalled dropdowns render outside .admin-sidebar and are unaffected. */
+.admin-sidebar .text-muted-foreground {
+  color: #9aa5b5;
+}
 /* Icon buttons inside the dark sidebar must stay on the dark scheme. */
 .admin-sidebar .admin-icon-button {
   color: rgba(255, 255, 255, 0.75);
@@ -437,21 +463,24 @@ body {
 .admin-metric-filters > button[aria-pressed="true"] {
   background: var(--color-primary-light);
   border-color: var(--color-primary);
+  /* Primary text on the pressed chip's tint measured 4.29:1; the ink
+     shade exists for exactly this pairing and passes (5.72:1). */
+  color: var(--color-primary-ink);
 }
 .admin-app .admin-status-placed {
   color: var(--color-warning);
   background: var(--color-warning-light);
-  border-color: rgba(180, 83, 9, 0.35);
+  border-color: rgba(146, 64, 14, 0.35);
 }
 .admin-app .admin-status-confirmed {
   color: var(--color-success);
   background: var(--color-success-light);
-  border-color: rgba(22, 163, 74, 0.35);
+  border-color: rgba(22, 101, 52, 0.35);
 }
 .admin-app .admin-status-delivery_failed {
   color: var(--color-danger);
   background: var(--color-danger-light);
-  border-color: rgba(220, 38, 38, 0.35);
+  border-color: rgba(185, 28, 28, 0.35);
 }
 @media (max-width: 1279px) {
   .admin-queue-statuses {

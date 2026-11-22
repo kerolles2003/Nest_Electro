@@ -177,7 +177,7 @@ export function ProductTable({
               onClick={() => updateQueryParam('state', tab.key)}
               className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
                 active
-                  ? 'border-primary bg-primary/10 text-primary'
+                  ? 'border-primary bg-primary/10 text-primary-ink'
                   : 'border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >

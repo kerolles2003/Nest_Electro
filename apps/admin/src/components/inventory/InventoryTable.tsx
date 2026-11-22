@@ -227,7 +227,7 @@ export function InventoryTable({
               onClick={() => updateQueryParam('inactive', includeInactive ? '' : 'true')}
               className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-all ${
                 includeInactive
-                  ? 'border-primary bg-primary/10 text-primary'
+                  ? 'border-primary bg-primary/10 text-primary-ink'
                   : 'border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
               title="Unpublished products are hidden by default: a draft is not something anybody is about to run out of."

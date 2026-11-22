@@ -15,7 +15,7 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body style={{ margin: 0, background: '#f8f7f4', color: '#1a1a2e', fontFamily: 'Segoe UI, Arial, sans-serif' }}>
+      <body style={{ margin: 0, background: '#f4f5f7', color: '#1a1a2e', fontFamily: 'Segoe UI, Arial, sans-serif' }}>
         <div style={{
           display: 'flex',
           flexDirection: 'column',

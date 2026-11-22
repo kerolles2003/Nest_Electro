@@ -127,7 +127,7 @@ export default function OrdersTable({
                   <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
                 {active && (
-                  <span className="text-[10px] font-bold px-1.5 py-[2px] rounded-full bg-primary/10 text-primary">
+                  <span className="text-[10px] font-bold px-1.5 py-[2px] rounded-full bg-primary/10 text-primary-ink">
                     Active
                   </span>
                 )}

@@ -77,7 +77,7 @@ function tone(action: string): string {
     return 'border-success/20 bg-success/10 text-success';
   }
 
-  return 'border-primary/20 bg-primary/10 text-primary';
+  return 'border-primary/20 bg-primary/10 text-primary-ink';
 }
 
 function when(value: string): string {
