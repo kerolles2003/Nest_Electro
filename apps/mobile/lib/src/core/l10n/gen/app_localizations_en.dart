@@ -437,4 +437,199 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filterAll => 'All';
+
+  @override
+  String get addToCart => 'Add to cart';
+
+  @override
+  String get addedToCart => 'Added to cart';
+
+  @override
+  String get viewCart => 'View cart';
+
+  @override
+  String get cartEmpty => 'Your cart is empty';
+
+  @override
+  String get cartEmptyHint =>
+      'Browse the catalogue and add the parts you need.';
+
+  @override
+  String get cartSubtotal => 'Subtotal';
+
+  @override
+  String get cartCheckout => 'Proceed to checkout';
+
+  @override
+  String get cartClear => 'Clear cart';
+
+  @override
+  String get cartLoginToCheckout => 'Log in to check out';
+
+  @override
+  String get cartBlockingIssues =>
+      'Some items need your attention before checkout.';
+
+  @override
+  String get cartLinePriceChanged => 'Price changed since you added it';
+
+  @override
+  String cartLineReducedStock(int count) {
+    return 'Only $count left — quantity reduced';
+  }
+
+  @override
+  String get cartLineOutOfStock => 'Out of stock';
+
+  @override
+  String get cartLineUnavailable => 'No longer available';
+
+  @override
+  String cartGuestBanner(int count) {
+    return 'You have $count item(s) in your guest basket.';
+  }
+
+  @override
+  String get cartMoveToAccount => 'Move to my account';
+
+  @override
+  String get cartMovedToAccount => 'Guest basket moved to your account.';
+
+  @override
+  String cartItemCount(int count) {
+    return '$count items';
+  }
+
+  @override
+  String get checkoutAddress => 'Delivery address';
+
+  @override
+  String get checkoutAddAddress => 'Add an address';
+
+  @override
+  String get checkoutNoAddress => 'Add a delivery address to continue.';
+
+  @override
+  String get checkoutQuote => 'Order summary';
+
+  @override
+  String get checkoutShipping => 'Shipping';
+
+  @override
+  String get checkoutShippingUnpriced => 'Calculated at delivery';
+
+  @override
+  String get checkoutGrandTotal => 'Total';
+
+  @override
+  String get checkoutVatIncluded => 'VAT included';
+
+  @override
+  String get checkoutPaymentMethod => 'Payment method';
+
+  @override
+  String get checkoutCodNote => 'Pay in cash when your order arrives.';
+
+  @override
+  String get checkoutWalletInstructions =>
+      'Transfer the total to this wallet number, then send a screenshot of the transfer via WhatsApp.';
+
+  @override
+  String get checkoutInstapayInstructions =>
+      'Transfer the total to this InstaPay address, then send a screenshot of the transfer via WhatsApp.';
+
+  @override
+  String get checkoutTransferSender =>
+      'Your wallet / InstaPay account (the one you sent from)';
+
+  @override
+  String get checkoutTransferSenderHint => 'e.g. 01xxxxxxxxx';
+
+  @override
+  String get checkoutCustomerNote => 'Order note (optional)';
+
+  @override
+  String get checkoutPlaceOrder => 'Place order';
+
+  @override
+  String get checkoutPlacingOrder => 'Placing your order…';
+
+  @override
+  String get checkoutCannotPlaceOrder =>
+      'This order can\'t be placed yet — check the items above.';
+
+  @override
+  String get checkoutPaymentMethodsUnavailable =>
+      'Payment instructions couldn\'t be loaded — cash on delivery is available.';
+
+  @override
+  String get orderConfirmationTitle => 'Order placed';
+
+  @override
+  String get orderPlacedMessage => 'Thank you! Your order has been placed.';
+
+  @override
+  String get orderNumber => 'Order';
+
+  @override
+  String get orderContinueShopping => 'Continue shopping';
+
+  @override
+  String get orderViewOrder => 'View order';
+
+  @override
+  String get orderPaymentPendingVerification =>
+      'Your payment is pending verification. Send the transfer screenshot via WhatsApp so we can confirm it.';
+
+  @override
+  String get orderCodPending =>
+      'Please have the total ready in cash on delivery.';
+
+  @override
+  String get addressLabel => 'Label (e.g. Home, Work)';
+
+  @override
+  String get addressFullName => 'Full name';
+
+  @override
+  String get addressPhone => 'Phone';
+
+  @override
+  String get addressStreet => 'Street address';
+
+  @override
+  String get addressCity => 'City';
+
+  @override
+  String get addressGovernorate => 'Governorate';
+
+  @override
+  String get addressPostalCode => 'Postal code (optional)';
+
+  @override
+  String get addressIsDefault => 'Set as default address';
+
+  @override
+  String get addressSave => 'Save address';
+
+  @override
+  String get addressAdded => 'Address saved.';
+
+  @override
+  String get quantityLabel => 'Quantity';
+
+  @override
+  String get removeItem => 'Remove';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get requiredField => 'This field is required';
+
+  @override
+  String get checkoutDiscount => 'Discount';
+
+  @override
+  String get addressDefaultBadge => 'Default';
 }

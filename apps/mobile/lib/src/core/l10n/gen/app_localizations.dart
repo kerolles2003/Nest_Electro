@@ -913,6 +913,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All'**
   String get filterAll;
+
+  /// No description provided for @addToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to cart'**
+  String get addToCart;
+
+  /// No description provided for @addedToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to cart'**
+  String get addedToCart;
+
+  /// No description provided for @viewCart.
+  ///
+  /// In en, this message translates to:
+  /// **'View cart'**
+  String get viewCart;
+
+  /// No description provided for @cartEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartEmpty;
+
+  /// No description provided for @cartEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse the catalogue and add the parts you need.'**
+  String get cartEmptyHint;
+
+  /// No description provided for @cartSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get cartSubtotal;
+
+  /// No description provided for @cartCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed to checkout'**
+  String get cartCheckout;
+
+  /// No description provided for @cartClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cart'**
+  String get cartClear;
+
+  /// No description provided for @cartLoginToCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to check out'**
+  String get cartLoginToCheckout;
+
+  /// No description provided for @cartBlockingIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items need your attention before checkout.'**
+  String get cartBlockingIssues;
+
+  /// No description provided for @cartLinePriceChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Price changed since you added it'**
+  String get cartLinePriceChanged;
+
+  /// No description provided for @cartLineReducedStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {count} left — quantity reduced'**
+  String cartLineReducedStock(int count);
+
+  /// No description provided for @cartLineOutOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock'**
+  String get cartLineOutOfStock;
+
+  /// No description provided for @cartLineUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer available'**
+  String get cartLineUnavailable;
+
+  /// No description provided for @cartGuestBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {count} item(s) in your guest basket.'**
+  String cartGuestBanner(int count);
+
+  /// No description provided for @cartMoveToAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to my account'**
+  String get cartMoveToAccount;
+
+  /// No description provided for @cartMovedToAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest basket moved to your account.'**
+  String get cartMovedToAccount;
+
+  /// No description provided for @cartItemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items'**
+  String cartItemCount(int count);
+
+  /// No description provided for @checkoutAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery address'**
+  String get checkoutAddress;
+
+  /// No description provided for @checkoutAddAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an address'**
+  String get checkoutAddAddress;
+
+  /// No description provided for @checkoutNoAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a delivery address to continue.'**
+  String get checkoutNoAddress;
+
+  /// No description provided for @checkoutQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Order summary'**
+  String get checkoutQuote;
+
+  /// No description provided for @checkoutShipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping'**
+  String get checkoutShipping;
+
+  /// No description provided for @checkoutShippingUnpriced.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated at delivery'**
+  String get checkoutShippingUnpriced;
+
+  /// No description provided for @checkoutGrandTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get checkoutGrandTotal;
+
+  /// No description provided for @checkoutVatIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT included'**
+  String get checkoutVatIncluded;
+
+  /// No description provided for @checkoutPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method'**
+  String get checkoutPaymentMethod;
+
+  /// No description provided for @checkoutCodNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in cash when your order arrives.'**
+  String get checkoutCodNote;
+
+  /// No description provided for @checkoutWalletInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer the total to this wallet number, then send a screenshot of the transfer via WhatsApp.'**
+  String get checkoutWalletInstructions;
+
+  /// No description provided for @checkoutInstapayInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer the total to this InstaPay address, then send a screenshot of the transfer via WhatsApp.'**
+  String get checkoutInstapayInstructions;
+
+  /// No description provided for @checkoutTransferSender.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet / InstaPay account (the one you sent from)'**
+  String get checkoutTransferSender;
+
+  /// No description provided for @checkoutTransferSenderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 01xxxxxxxxx'**
+  String get checkoutTransferSenderHint;
+
+  /// No description provided for @checkoutCustomerNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Order note (optional)'**
+  String get checkoutCustomerNote;
+
+  /// No description provided for @checkoutPlaceOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Place order'**
+  String get checkoutPlaceOrder;
+
+  /// No description provided for @checkoutPlacingOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Placing your order…'**
+  String get checkoutPlacingOrder;
+
+  /// No description provided for @checkoutCannotPlaceOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'This order can\'t be placed yet — check the items above.'**
+  String get checkoutCannotPlaceOrder;
+
+  /// No description provided for @checkoutPaymentMethodsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment instructions couldn\'t be loaded — cash on delivery is available.'**
+  String get checkoutPaymentMethodsUnavailable;
+
+  /// No description provided for @orderConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order placed'**
+  String get orderConfirmationTitle;
+
+  /// No description provided for @orderPlacedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Your order has been placed.'**
+  String get orderPlacedMessage;
+
+  /// No description provided for @orderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get orderNumber;
+
+  /// No description provided for @orderContinueShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue shopping'**
+  String get orderContinueShopping;
+
+  /// No description provided for @orderViewOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'View order'**
+  String get orderViewOrder;
+
+  /// No description provided for @orderPaymentPendingVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment is pending verification. Send the transfer screenshot via WhatsApp so we can confirm it.'**
+  String get orderPaymentPendingVerification;
+
+  /// No description provided for @orderCodPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Please have the total ready in cash on delivery.'**
+  String get orderCodPending;
+
+  /// No description provided for @addressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Label (e.g. Home, Work)'**
+  String get addressLabel;
+
+  /// No description provided for @addressFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get addressFullName;
+
+  /// No description provided for @addressPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get addressPhone;
+
+  /// No description provided for @addressStreet.
+  ///
+  /// In en, this message translates to:
+  /// **'Street address'**
+  String get addressStreet;
+
+  /// No description provided for @addressCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get addressCity;
+
+  /// No description provided for @addressGovernorate.
+  ///
+  /// In en, this message translates to:
+  /// **'Governorate'**
+  String get addressGovernorate;
+
+  /// No description provided for @addressPostalCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Postal code (optional)'**
+  String get addressPostalCode;
+
+  /// No description provided for @addressIsDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as default address'**
+  String get addressIsDefault;
+
+  /// No description provided for @addressSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save address'**
+  String get addressSave;
+
+  /// No description provided for @addressAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Address saved.'**
+  String get addressAdded;
+
+  /// No description provided for @quantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantityLabel;
+
+  /// No description provided for @removeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeItem;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @requiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get requiredField;
+
+  /// No description provided for @checkoutDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get checkoutDiscount;
+
+  /// No description provided for @addressDefaultBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get addressDefaultBadge;
 }
 
 class _AppLocalizationsDelegate

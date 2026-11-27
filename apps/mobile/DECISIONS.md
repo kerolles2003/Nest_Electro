@@ -165,3 +165,25 @@ The hero carousel's 8-second `Timer.periodic` auto-advance never
 settles, so `pumpAndSettle` times out once the home screen is real.
 `test/widget_test.dart` now pumps two 1-second frames instead. The timer
 itself is correct app behaviour (the web hero auto-advances too).
+
+## D-20 — Guest basket moves into the account only on an explicit tap (2026-11-27)
+
+The API has no cart-merge endpoint, so the guest basket is NOT moved
+automatically on login: silent mutation of the server cart would
+surprise the user (and could silently overwrite quantities). The cart
+screen shows a banner ("You have items in your guest cart") with a
+"Move to my account" button when signed in with guest lines; the tap
+adds each line sequentially via `POST /cart/items` and clears the local
+lines only after all adds succeed. Live-verified: `POST /cart/preview`
+prices a guest basket (2 × 380.00 EGP = 760.00 EGP, status `OK`).
+
+## D-21 — `/cart` is guest-accessible; `/checkout` stays auth-only (2026-11-27)
+
+The API was designed for guests to price a basket via
+`POST /cart/preview`, so `/cart` was removed from the router's
+auth-only paths and renders the local basket (SharedPreferences,
+`nest_guest_cart_v1`) with the preview's priced `CartDto`. `/checkout`
+stays auth-only because `POST /orders` requires a session; guests
+tapping checkout are sent to `/login?redirect=/checkout`. The router's
+auth-only matcher now also covers the `/checkout/` prefix so
+`/checkout/confirmation` is guarded too.

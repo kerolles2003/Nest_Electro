@@ -6,6 +6,8 @@ import 'package:nest_electro/src/core/config/api_config.dart';
 import 'package:nest_electro/src/core/l10n/gen/app_localizations.dart';
 import 'package:nest_electro/src/core/models/enums.dart';
 import 'package:nest_electro/src/core/models/product.dart';
+import 'package:nest_electro/src/features/cart/presentation/cart_controller.dart';
+import 'package:nest_electro/src/features/cart/presentation/widgets/cart_button.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/catalogue_providers.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/widgets/availability_chip.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/widgets/product_rail.dart';
@@ -31,7 +33,11 @@ class ProductDetailScreen extends ConsumerWidget {
     return detail.when(
       data: (ProductDetailDto product) => Scaffold(
         key: const Key('product-detail-screen'),
-        appBar: AppBar(title: Text(product.name)),
+        appBar: AppBar(
+          title: Text(product.name),
+          actions: const <Widget>[CartButton()],
+        ),
+        bottomNavigationBar: _AddToCartBar(product: product),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,6 +276,62 @@ class ProductDetailScreen extends ConsumerWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom bar: effective price + add-to-cart. Out-of-stock products get
+/// a disabled button (the API would reject the add anyway).
+class _AddToCartBar extends ConsumerWidget {
+  const _AddToCartBar({required this.product});
+
+  final ProductDetailDto product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final CartState cartState = ref.watch(cartControllerProvider);
+    final bool outOfStock =
+        product.availability == Availability.outOfStock;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: <Widget>[
+            Text(
+              product.pricing.effectivePrice.formatted,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: FilledButton.icon(
+                icon: const Icon(Icons.add_shopping_cart),
+                label: Text(l10n.addToCart),
+                onPressed: outOfStock || cartState.isBusy
+                    ? null
+                    : () async {
+                        final bool ok = await ref
+                            .read(cartControllerProvider.notifier)
+                            .add(product.id, 1);
+                        if (ok && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l10n.addedToCart),
+                              action: SnackBarAction(
+                                label: l10n.viewCart,
+                                onPressed: () => context.push('/cart'),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+              ),
+            ),
+          ],
         ),
       ),
     );

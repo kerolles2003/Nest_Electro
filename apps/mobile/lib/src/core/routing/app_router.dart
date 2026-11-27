@@ -9,6 +9,7 @@ import 'package:nest_electro/src/features/auth/presentation/login_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/register_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/reset_password_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/verify_email_screen.dart';
+import 'package:nest_electro/src/features/cart/presentation/cart_screen.dart';
 import 'package:nest_electro/src/features/catalogue/data/product_query.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/brand_screen.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/categories_screen.dart';
@@ -16,13 +17,16 @@ import 'package:nest_electro/src/features/catalogue/presentation/category_screen
 import 'package:nest_electro/src/features/catalogue/presentation/product_detail_screen.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/product_list_screen.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/search_screen.dart';
+import 'package:nest_electro/src/features/checkout/presentation/checkout_screen.dart';
+import 'package:nest_electro/src/features/checkout/presentation/order_confirmation_screen.dart';
 import 'package:nest_electro/src/features/common/presentation/placeholder_screen.dart';
 import 'package:nest_electro/src/features/home/presentation/home_screen.dart';
 
 /// Routes that require a session. Guests are sent to /login with the
-/// original location kept in `?redirect=...`.
+/// original location kept in `?redirect=...`. Note `/cart` is NOT here:
+/// guests keep a local basket priced by `POST /cart/preview` (D-20); only
+/// checkout (which places the order) needs a session.
 const Set<String> _authOnlyPaths = <String>{
-  '/cart',
   '/checkout',
   '/account',
 };
@@ -37,7 +41,8 @@ bool _isAuthOnly(String location) {
   if (_authOnlyPaths.contains(location)) {
     return true;
   }
-  return location.startsWith('/account/');
+  return location.startsWith('/account/') ||
+      location.startsWith('/checkout/');
 }
 
 /// Builds a [ProductQuery] from the listing URL. Params mirror the web
@@ -140,12 +145,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/cart',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'cart'),
+            const CartScreen(),
       ),
       GoRoute(
         path: '/checkout',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'checkout'),
+            const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: '/checkout/confirmation',
+        builder: (BuildContext context, GoRouterState state) {
+          final Object? extra = state.extra;
+          if (extra is! OrderConfirmationArgs) {
+            return const PlaceholderScreen(label: 'not-found');
+          }
+          return OrderConfirmationScreen(args: extra);
+        },
       ),
       GoRoute(
         path: '/login',
