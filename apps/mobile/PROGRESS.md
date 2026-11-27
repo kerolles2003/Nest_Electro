@@ -14,51 +14,62 @@ Demo API: http://127.0.0.1:3002/api/v1 (health ok, 60 products). Do NOT run a
 full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
 `MUSE_FINAL_GITHUB_HANDOFF_REVIEW.md` in the repo root.
 
-## Current phase: 7 — Polish (NOT started)
+## Current phase: 8 — Quality (NOT started)
 
 ## Last completed step
 
-- Phase 6 (Account) DONE and merged locally.
-  - Phase branch `flutter/phase-6-account`, commit `5d5d594`
-    ("feat(mobile): phase 6 account", 33 files, +4600).
-  - Merged into `flutter-app` with merge commit `9a55103`.
+- Phase 7 (Polish) DONE and merged locally.
+  - Phase branch `flutter/phase-7-polish`, commit `a0da7cc`
+    ("feat(mobile): phase 7 polish", 50 files, +811/−743).
+  - Merged into `flutter-app` with merge commit `44e8ad2`.
   - Gate: `flutter analyze` clean (no issues); `flutter test` green
-    112/112 (was 79/79 — 33 new tests). `flutter build web` also passes.
-  - Live-verified against the demo API with a fresh verified customer
-    account: `GET /auth/me`, `GET /orders` (empty `{data, meta}`
-    envelope), `GET /users/me/addresses` (`{data: []}`), `PATCH /users/me`
-    (name updated). Cancel/resubmit verified vs OpenAPI + repo tests
-    only (the test accounts have no orders).
-  - Decisions D-22 (address list/create duplicated between checkout and
-    account repos, deliberate), D-23 (wishlist local-only +
-    guest-accessible), D-24 (order-status array param + explicit wire
-    values; cancel/resubmit rules), D-25 (documented sandbox login fails
-    against this demo DB; two test customer accounts created in the demo
-    DB: phase6-test@ / phase6-test2@nest-electronics.test).
-  - Fixes during the phase: order-row trailing `Column` overflowed 8px —
-    restructured as a custom InkWell row; `tokenStorage.clear()` lives
-    inside the real `AuthRepository.logout()`, not the controller
-    (test expectation was wrong, not the app); lazy `ListView` children
-    don't exist until scrolled — widget tests must drag the list, not
-    `scrollUntilVisible` (which threw "Too many elements" here) and must
-    target dialog fields with `find.descendant(of: AlertDialog)`.
+    116/116 (was 112/112 — 4 new tests in `test/rtl_and_a11y_test.dart`).
+    `flutter build web` also passes.
+  - Image caching: the last 3 `Image.network` uses (orders, order detail,
+    wishlist) are now `CachedNetworkImage` with placeholder + error widget.
+    No `Image.network` left in `lib/`.
+  - Pull-to-refresh added to home, product list, cart, checkout, profile,
+    product detail and categories (orders/addresses/wishlist already had
+    it). Search is query-driven — no refresh. Each refresh re-runs the
+    screen's own loader; failures surface through the screen's error
+    state, so refresh errors are swallowed.
+  - Accessibility: tooltips added to the 3 IconButtons missing them
+    (password show/hide, search clear, order-confirmation copy — 3 new
+    ARB keys); the WCAG contrast test caught a REAL defect — dark white
+    on #EF4444 was 3.76:1, fixed by making dark `onError` the near-black
+    background #0C1322 (4.97:1, D-26); the error token itself is unchanged.
+  - RTL: hero gradient now uses `AlignmentDirectional`, product-card
+    corner badges use `Positioned.directional`, categories child indent
+    uses `EdgeInsetsDirectional`; symmetric `fromLTRB(16,…,16,…)` paddings
+    are RTL-harmless. Two widget tests pump home + product list in
+    Arabic and assert `TextDirection.rtl` + Arabic strings + no overflow.
+  - App icon placeholder: navy #1a1a2e + crimson #cf3549 "N" PNG generated
+    (`assets/icon/icon.png`), applied to Android/iOS/web via
+    `flutter_launcher_icons` (devDependency). Owner to replace with the
+    real brand mark (D-28). Generated icon PNGs are binary — EXCLUDE from
+    any connector `push_files` manifest at the final sync.
+  - Decisions D-26 (dark onError), D-27 (`onSurfaceVariant` is the
+    Material default, not the storefront muted token — contrast-verified),
+    D-28 (icon placeholder + binary exclusion), D-29 (`AppTheme` cannot
+    be constructed in tests — google_fonts runtime fetch; contrast test
+    pins the token wiring directly).
+  - Fixes during the phase: paren-counting lesson — when wrapping a
+    scrollable in `RefreshIndicator`, anchor the closing edit on a unique
+    block (the bottom-bar tails look identical and swallowed two edits);
+    `AppTheme` in tests fails at file load (google_fonts) — see D-29.
+  - Empty/loading/error sweep: every screen already had all three states
+    except the brand/category header fallback (title falls back to the
+    slug when the detail fetch fails — acceptable, the list carries the
+    states). No gaps filled beyond the refresh/tooltip/contrast work.
 
 ## Next step
 
-- Phase 7 (Polish): cut `flutter/phase-7-polish` from `flutter-app`.
-  Sweep every screen for empty/loading/error states (most exist — audit
-  and fill gaps), pull-to-refresh on list screens (orders/addresses/
-  wishlist/cart already have it — check home, product list, search,
-  profile), image caching (cached_network_image is a dependency — check
-  where plain Image.network is still used: orders, order detail,
-  wishlist, cart lines, product detail gallery), accessibility
-  (semantics labels, contrast — run the axe-style manual check via
-  widget tests where cheap), RTL check on every screen (Arabic is
-  default — verify layout mirroring in widget tests), app icon
-  placeholder (flutter_launcher_icons or a checked-in placeholder
-  asset + pubspec entry; icon PNGs are binary and must be EXCLUDED from
-  any connector push_files manifest — see the snapshot-push rules).
-  Then gate (analyze clean, test green) → commit → local merge → heartbeat.
+- Phase 8 (Quality): cut `flutter/phase-8-quality` from `flutter-app`.
+  Unit tests for repositories and notifiers, widget tests for the key
+  screens, one integration test of the happy path (browse → cart →
+  checkout) against mocks. Add a GitHub Actions workflow for analyze +
+  test on apps/mobile only. Then gate (analyze clean, test green) →
+  commit → local merge → heartbeat.
 
 ## Phases done
 
@@ -77,10 +88,13 @@ full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
   Gate: analyze clean, test 79/79, `flutter build web` passes.
 - Phase 6 Account — DONE (commit `5d5d594`, merge `9a55103`).
   Gate: analyze clean, test 112/112, `flutter build web` passes.
+- Phase 7 Polish — DONE (commit `a0da7cc`, merge
+  `44e8ad2`). Gate: analyze clean, test 116/116,
+  `flutter build web` passes.
 
 ## Phases remaining
 
-- 7 Polish · 8 Quality · 9 Wrap-up (README.md + REPORT.md + final PR
+- 8 Quality · 9 Wrap-up (README.md + REPORT.md + final PR
   `flutter-app` → `phase-1-2-overnight`, NOT merged; one GitHub sync
   when the owner is awake; if sync cannot complete, prepare a git bundle
   of `flutter-app` + phase branches and record its path in REPORT.md).
