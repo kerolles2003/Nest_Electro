@@ -172,6 +172,7 @@ class _CopyableRow extends StatelessWidget {
           Expanded(child: SelectableText(value)),
           IconButton(
             icon: const Icon(Icons.copy, size: 18),
+            tooltip: label,
             onPressed: () {
               Clipboard.setData(ClipboardData(text: value));
               ScaffoldMessenger.of(context).showSnackBar(

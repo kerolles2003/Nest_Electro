@@ -42,121 +42,103 @@ class ProductDetailScreen extends ConsumerWidget {
           ],
         ),
         bottomNavigationBar: _AddToCartBar(product: product),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _Gallery(product: product),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    if (product.brand != null)
-                      InkWell(
-                        onTap: () => context.push(
-                          '/brands/${product.brand!.slug}',
+        body: RefreshIndicator(
+          onRefresh: () => _refresh(ref, slug),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _Gallery(product: product),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (product.brand != null)
+                        InkWell(
+                          onTap: () =>
+                              context.push('/brands/${product.brand!.slug}'),
+                          child: Text(
+                            product.brand!.name,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
                         ),
-                        child: Text(
-                          product.brand!.name,
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                      ),
-                    const SizedBox(height: 4),
-                    Text(
-                      product.name,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.star,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(product.rating.average.toStringAsFixed(1)),
-                        const SizedBox(width: 4),
-                        Text(
-                          l10n.ratingCount(product.rating.count),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          '${l10n.detailSku}: ${product.sku}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _PriceBlock(product: product),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: <Widget>[
-                        AvailabilityChip(
-                          availability: product.availability,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          product.availability == Availability.outOfStock
-                              ? l10n.detailOutOfStockNote
-                              : l10n.detailStockCount(product.stockOnHand),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                    if (product.salesCount > 0) ...<Widget>[
                       const SizedBox(height: 4),
                       Text(
-                        l10n.detailSoldCount(product.salesCount),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant,
+                        product.name,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.star,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(product.rating.average.toStringAsFixed(1)),
+                          const SizedBox(width: 4),
+                          Text(
+                            l10n.ratingCount(product.rating.count),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '${l10n.detailSku}: ${product.sku}',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _PriceBlock(product: product),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: <Widget>[
+                          AvailabilityChip(availability: product.availability),
+                          const SizedBox(width: 8),
+                          Text(
+                            product.availability == Availability.outOfStock
+                                ? l10n.detailOutOfStockNote
+                                : l10n.detailStockCount(product.stockOnHand),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                      if (product.salesCount > 0) ...<Widget>[
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.detailSoldCount(product.salesCount),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                         ),
+                      ],
+                      const SizedBox(height: 12),
+                      Text(
+                        product.shortDescription,
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ],
-                    const SizedBox(height: 12),
-                    Text(
-                      product.shortDescription,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              const Divider(),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      l10n.detailDescription,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      product.description,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              if (product.specs.isNotEmpty) ...<Widget>[
                 const Divider(),
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -164,92 +146,114 @@ class ProductDetailScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        l10n.detailSpecs,
+                        l10n.detailDescription,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8),
-                      ...product.specs.map(
-                        (ProductSpecDto spec) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  spec.label,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  spec.unit == null
-                                      ? spec.value
-                                      : '${spec.value} ${spec.unit}',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      Text(
+                        product.description,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
                 ),
-              ],
-              const Divider(),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      l10n.detailReviews,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
+                if (product.specs.isNotEmpty) ...<Widget>[
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Icon(
-                          Icons.rate_review_outlined,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant,
+                        Text(
+                          l10n.detailSpecs,
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            l10n.detailReviewsComingSoon,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
+                        const SizedBox(height: 8),
+                        ...product.specs.map(
+                          (ProductSpecDto spec) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    spec.label,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                  ),
                                 ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    spec.unit == null
+                                        ? spec.value
+                                        : '${spec.value} ${spec.unit}',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ],
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        l10n.detailReviews,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.rate_review_outlined,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.detailReviewsComingSoon,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              ProductRail(
-                title: l10n.detailRelated,
-                products: ref.watch(relatedProductsProvider(slug)),
-                onProductTap: (related) =>
-                    context.push('/products/${related.slug}'),
-                onRetry: () => ref.invalidate(relatedProductsProvider(slug)),
-              ),
-              const SizedBox(height: 24),
-            ],
+                ProductRail(
+                  title: l10n.detailRelated,
+                  products: ref.watch(relatedProductsProvider(slug)),
+                  onProductTap: (related) =>
+                      context.push('/products/${related.slug}'),
+                  onRetry: () => ref.invalidate(relatedProductsProvider(slug)),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -273,8 +277,7 @@ class ProductDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 FilledButton(
-                  onPressed: () =>
-                      ref.invalidate(productDetailProvider(slug)),
+                  onPressed: () => ref.invalidate(productDetailProvider(slug)),
                   child: Text(l10n.retry),
                 ),
               ],
@@ -283,6 +286,23 @@ class ProductDetailScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Re-fetches the product and its related rail. Errors surface through
+  /// the screen's error state, so they are swallowed here.
+  Future<void> _refresh(WidgetRef ref, String slug) async {
+    await Future.wait(<Future<void>>[
+      _guard(ref.refresh(productDetailProvider(slug).future)),
+      _guard(ref.refresh(relatedProductsProvider(slug).future)),
+    ]);
+  }
+
+  Future<void> _guard(Future<Object?> future) async {
+    try {
+      await future;
+    } catch (_) {
+      // The screen's error state shows the failure.
+    }
   }
 }
 
@@ -296,8 +316,9 @@ class _WishlistButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final bool saved =
-        ref.watch(wishlistControllerProvider).isSaved(product.id);
+    final bool saved = ref
+        .watch(wishlistControllerProvider)
+        .isSaved(product.id);
     return IconButton(
       icon: Icon(saved ? Icons.favorite : Icons.favorite_border),
       tooltip: l10n.wishlistTitle,
@@ -330,8 +351,7 @@ class _AddToCartBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final CartState cartState = ref.watch(cartControllerProvider);
-    final bool outOfStock =
-        product.availability == Availability.outOfStock;
+    final bool outOfStock = product.availability == Availability.outOfStock;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -339,9 +359,9 @@ class _AddToCartBar extends ConsumerWidget {
           children: <Widget>[
             Text(
               product.pricing.effectivePrice.formatted,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -447,7 +467,9 @@ class _GalleryState extends State<_Gallery> {
       return widget.product.images;
     }
     final ProductImageDto? primary = widget.product.primaryImage;
-    return primary == null ? const <ProductImageDto>[] : <ProductImageDto>[primary];
+    return primary == null
+        ? const <ProductImageDto>[]
+        : <ProductImageDto>[primary];
   }
 
   @override
@@ -570,9 +592,8 @@ class _GalleryState extends State<_Gallery> {
                         version: image.version,
                       ),
                       fit: BoxFit.cover,
-                      errorWidget: (_, _, _) => const Icon(
-                        Icons.broken_image_outlined,
-                      ),
+                      errorWidget: (_, _, _) =>
+                          const Icon(Icons.broken_image_outlined),
                     ),
                   ),
                 );

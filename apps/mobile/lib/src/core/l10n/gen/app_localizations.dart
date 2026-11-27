@@ -1561,6 +1561,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get errorGeneric;
+
+  /// No description provided for @passwordShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get passwordShow;
+
+  /// No description provided for @passwordHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get passwordHide;
+
+  /// No description provided for @searchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClear;
 }
 
 class _AppLocalizationsDelegate

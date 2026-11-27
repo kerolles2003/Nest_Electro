@@ -53,11 +53,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          ok ? l10n.profileSaved : l10n.errorGeneric,
-        ),
-      ),
+      SnackBar(content: Text(ok ? l10n.profileSaved : l10n.errorGeneric)),
     );
     if (ok) {
       setState(() => _editing = false);
@@ -71,9 +67,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final AuthUserDto? user = state.user;
     ref.listen<AccountState>(accountControllerProvider, (_, AccountState next) {
       if (next.error != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error!.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.error!.message)));
       }
     });
     if (user != null) {
@@ -114,83 +110,87 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             );
           }
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: <Widget>[
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(user.email),
-                subtitle: Text(
-                  user.emailVerified
-                      ? l10n.profileEmailVerified
-                      : l10n.profileEmailNotVerified,
+          return RefreshIndicator(
+            onRefresh: () =>
+                ref.read(accountControllerProvider.notifier).reload(),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: <Widget>[
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(user.email),
+                  subtitle: Text(
+                    user.emailVerified
+                        ? l10n.profileEmailVerified
+                        : l10n.profileEmailNotVerified,
+                  ),
+                  trailing: Icon(
+                    user.emailVerified
+                        ? Icons.verified_outlined
+                        : Icons.warning_amber_outlined,
+                    color: user.emailVerified
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.error,
+                  ),
                 ),
-                trailing: Icon(
-                  user.emailVerified
-                      ? Icons.verified_outlined
-                      : Icons.warning_amber_outlined,
-                  color: user.emailVerified
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.error,
-                ),
-              ),
-              const Divider(),
-              if (_editing)
-                Form(
-                  key: _formKey,
-                  child: Column(
+                const Divider(),
+                if (_editing)
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: <Widget>[
+                        TextFormField(
+                          controller: _fullName,
+                          decoration: InputDecoration(
+                            labelText: l10n.addressFullName,
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator: (String? v) =>
+                              AuthValidators.fullName(v, l10n),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _phone,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            labelText: l10n.addressPhone,
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator: (String? v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return null;
+                            }
+                            return AuthValidators.phone(v, l10n);
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton(
+                            onPressed: state.isSaving ? null : _save,
+                            child: Text(l10n.profileSave),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Column(
                     children: <Widget>[
-                      TextFormField(
-                        controller: _fullName,
-                        decoration: InputDecoration(
-                          labelText: l10n.addressFullName,
-                          border: const OutlineInputBorder(),
-                        ),
-                        validator: (String? v) =>
-                            AuthValidators.fullName(v, l10n),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.addressFullName),
+                        subtitle: Text(user.fullName),
                       ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _phone,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: l10n.addressPhone,
-                          border: const OutlineInputBorder(),
-                        ),
-                        validator: (String? v) {
-                          if (v == null || v.trim().isEmpty) {
-                            return null;
-                          }
-                          return AuthValidators.phone(v, l10n);
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: state.isSaving ? null : _save,
-                          child: Text(l10n.profileSave),
-                        ),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.addressPhone),
+                        subtitle: Text(user.phone ?? '—'),
                       ),
                     ],
                   ),
-                )
-              else
-                Column(
-                  children: <Widget>[
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(l10n.addressFullName),
-                      subtitle: Text(user.fullName),
-                    ),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(l10n.addressPhone),
-                      subtitle: Text(user.phone ?? '—'),
-                    ),
-                  ],
-                ),
-            ],
+              ],
+            ),
           );
         },
       ),

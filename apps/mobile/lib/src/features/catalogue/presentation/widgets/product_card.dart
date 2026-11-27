@@ -49,17 +49,19 @@ class ProductCard extends StatelessWidget {
                   children: <Widget>[
                     _ProductImage(image: product.primaryImage),
                     if (product.availability != Availability.inStock)
-                      Positioned(
+                      Positioned.directional(
+                        textDirection: Directionality.of(context),
                         top: 8,
-                        left: 8,
+                        start: 8,
                         child: AvailabilityChip(
                           availability: product.availability,
                         ),
                       ),
                     if (onSale)
-                      Positioned(
+                      Positioned.directional(
+                        textDirection: Directionality.of(context),
                         top: 8,
-                        right: 8,
+                        end: 8,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,

@@ -49,91 +49,114 @@ class HomeScreen extends ConsumerWidget {
           const CartButton(),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            const _HeroBanner(),
-            const _TrustBar(),
-            categories.when(
-              data: (List<CategoryDto> all) {
-                final List<CategoryDto> roots = all
-                    .where((CategoryDto c) => c.parentId == null)
-                    .toList();
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    SectionHeader(
-                      title: l10n.homeCategories,
-                      onSeeAll: () => context.push('/categories'),
-                    ),
-                    _CategoryGrid(categories: roots),
-                  ],
-                );
-              },
-              loading: () => const SizedBox(
-                height: 180,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              error: (_, _) => Padding(
-                padding: const EdgeInsets.all(16),
-                child: TextButton(
-                  onPressed: () => ref.invalidate(categoriesProvider),
-                  child: Text(l10n.retry),
+      body: RefreshIndicator(
+        onRefresh: () => _refresh(ref),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const _HeroBanner(),
+              const _TrustBar(),
+              categories.when(
+                data: (List<CategoryDto> all) {
+                  final List<CategoryDto> roots = all
+                      .where((CategoryDto c) => c.parentId == null)
+                      .toList();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SectionHeader(
+                        title: l10n.homeCategories,
+                        onSeeAll: () => context.push('/categories'),
+                      ),
+                      _CategoryGrid(categories: roots),
+                    ],
+                  );
+                },
+                loading: () => const SizedBox(
+                  height: 180,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (_, _) => Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextButton(
+                    onPressed: () => ref.invalidate(categoriesProvider),
+                    child: Text(l10n.retry),
+                  ),
                 ),
               ),
-            ),
-            ProductRail(
-              title: l10n.homeFeatured,
-              products: featured.whenData((page) => page.items),
-              onProductTap: (product) =>
-                  context.push('/products/${product.slug}'),
-              onSeeAll: () => context.go('/products?featured=true'),
-              onRetry: () => ref.invalidate(featuredProductsProvider),
-            ),
-            ProductRail(
-              title: l10n.homeNewArrivals,
-              products: arrivals.whenData((page) => page.items),
-              onProductTap: (product) =>
-                  context.push('/products/${product.slug}'),
-              onSeeAll: () => context.go('/products?sort=newest'),
-              onRetry: () => ref.invalidate(newArrivalsProvider),
-            ),
-            SectionHeader(
-              title: l10n.homeBrands,
-              onSeeAll: () => context.push('/products'),
-            ),
-            brands.when(
-              data: (List<BrandDto> list) => SizedBox(
-                height: 96,
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: list.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 12),
-                  itemBuilder: (_, int index) {
-                    final BrandDto brand = list[index];
-                    return _BrandTile(brand: brand);
-                  },
+              ProductRail(
+                title: l10n.homeFeatured,
+                products: featured.whenData((page) => page.items),
+                onProductTap: (product) =>
+                    context.push('/products/${product.slug}'),
+                onSeeAll: () => context.go('/products?featured=true'),
+                onRetry: () => ref.invalidate(featuredProductsProvider),
+              ),
+              ProductRail(
+                title: l10n.homeNewArrivals,
+                products: arrivals.whenData((page) => page.items),
+                onProductTap: (product) =>
+                    context.push('/products/${product.slug}'),
+                onSeeAll: () => context.go('/products?sort=newest'),
+                onRetry: () => ref.invalidate(newArrivalsProvider),
+              ),
+              SectionHeader(
+                title: l10n.homeBrands,
+                onSeeAll: () => context.push('/products'),
+              ),
+              brands.when(
+                data: (List<BrandDto> list) => SizedBox(
+                  height: 96,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: list.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 12),
+                    itemBuilder: (_, int index) {
+                      final BrandDto brand = list[index];
+                      return _BrandTile(brand: brand);
+                    },
+                  ),
+                ),
+                loading: () => const SizedBox(
+                  height: 96,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (_, _) => Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextButton(
+                    onPressed: () => ref.invalidate(brandsProvider),
+                    child: Text(l10n.retry),
+                  ),
                 ),
               ),
-              loading: () => const SizedBox(
-                height: 96,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              error: (_, _) => Padding(
-                padding: const EdgeInsets.all(16),
-                child: TextButton(
-                  onPressed: () => ref.invalidate(brandsProvider),
-                  child: Text(l10n.retry),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// Re-fetches every home rail. A failed rail surfaces through the
+  /// screen's error state, so refresh errors are swallowed here.
+  Future<void> _refresh(WidgetRef ref) async {
+    await Future.wait(<Future<void>>[
+      _guard(ref.refresh(categoriesProvider.future)),
+      _guard(ref.refresh(featuredProductsProvider.future)),
+      _guard(ref.refresh(newArrivalsProvider.future)),
+      _guard(ref.refresh(brandsProvider.future)),
+    ]);
+  }
+
+  Future<void> _guard(Future<Object?> future) async {
+    try {
+      await future;
+    } catch (_) {
+      // The screen's error state shows the failure.
+    }
   }
 }
 
@@ -151,14 +174,12 @@ class _HeroBannerState extends State<_HeroBanner> {
   Timer? _timer;
   int _index = 0;
 
-  static const List<({String image, String target})> _slides = <({
-    String image,
-    String target,
-  })>[
-    (image: 'assets/images/banners/1.webp', target: '/products'),
-    (image: 'assets/images/banners/2.webp', target: '/products?q=esp32'),
-    (image: 'assets/images/banners/3.webp', target: '/products'),
-  ];
+  static const List<({String image, String target})> _slides =
+      <({String image, String target})>[
+        (image: 'assets/images/banners/1.webp', target: '/products'),
+        (image: 'assets/images/banners/2.webp', target: '/products?q=esp32'),
+        (image: 'assets/images/banners/3.webp', target: '/products'),
+      ];
 
   @override
   void initState() {
@@ -232,8 +253,8 @@ class _HeroBannerState extends State<_HeroBanner> {
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
+                        begin: AlignmentDirectional.centerStart,
+                        end: AlignmentDirectional.centerEnd,
                         colors: <Color>[
                           Colors.black.withValues(alpha: 0.72),
                           Colors.black.withValues(alpha: 0.25),
@@ -373,9 +394,7 @@ class _TrustBar extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurfaceVariant,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -452,16 +471,16 @@ class _CategoryGrid extends StatelessWidget {
                         category.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       Text(
                         '${category.productCount}',
-                        style: Theme.of(context).textTheme.labelSmall
-                            ?.copyWith(color: Colors.white70),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelSmall?.copyWith(color: Colors.white70),
                       ),
                     ],
                   ),

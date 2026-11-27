@@ -37,11 +37,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final CheckoutState state = ref.watch(checkoutControllerProvider);
 
-    ref.listen<CheckoutState>(checkoutControllerProvider, (_, CheckoutState next) {
+    ref.listen<CheckoutState>(checkoutControllerProvider, (
+      _,
+      CheckoutState next,
+    ) {
       if (next.error != null && next.placedOrder == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error!.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.error!.message)));
       }
     });
 
@@ -84,119 +87,123 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       );
     }
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _SectionTitle(title: l10n.checkoutAddress),
-          if (state.addresses.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(l10n.checkoutNoAddress),
-                  const SizedBox(height: 8),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.add_location_alt_outlined),
-                    label: Text(l10n.checkoutAddAddress),
-                    onPressed: () => _showAddAddress(context),
-                  ),
-                ],
+    return RefreshIndicator(
+      onRefresh: () => ref.read(checkoutControllerProvider.notifier).reload(),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _SectionTitle(title: l10n.checkoutAddress),
+            if (state.addresses.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(l10n.checkoutNoAddress),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.add_location_alt_outlined),
+                      label: Text(l10n.checkoutAddAddress),
+                      onPressed: () => _showAddAddress(context),
+                    ),
+                  ],
+                ),
+              )
+            else
+              RadioGroup<String>(
+                groupValue: state.selectedAddressId,
+                onChanged: (String? id) {
+                  if (id != null) {
+                    ref
+                        .read(checkoutControllerProvider.notifier)
+                        .selectAddress(id);
+                  }
+                },
+                child: Column(
+                  children: state.addresses
+                      .map(
+                        (AddressDto address) => RadioListTile<String>(
+                          title: Text(address.label),
+                          subtitle: Text(
+                            '${address.fullName} • ${address.street}, ${address.city}, ${address.governorate}',
+                          ),
+                          secondary: address.isDefault
+                              ? Chip(label: Text(l10n.addressDefaultBadge))
+                              : null,
+                          value: address.id,
+                        ),
+                      )
+                      .toList(),
+                ),
               ),
-            )
-          else
-            RadioGroup<String>(
-              groupValue: state.selectedAddressId,
-              onChanged: (String? id) {
-                if (id != null) {
+            if (state.addresses.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                child: TextButton.icon(
+                  icon: const Icon(Icons.add_location_alt_outlined),
+                  label: Text(l10n.checkoutAddAddress),
+                  onPressed: () => _showAddAddress(context),
+                ),
+              ),
+            _SectionTitle(title: l10n.checkoutQuote),
+            _QuoteSection(state: state),
+            _SectionTitle(title: l10n.checkoutPaymentMethod),
+            if (state.paymentMethodsFailed)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  l10n.checkoutPaymentMethodsUnavailable,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            RadioGroup<PaymentMethod>(
+              groupValue: state.selectedPaymentMethod,
+              onChanged: (PaymentMethod? m) {
+                if (m != null) {
                   ref
                       .read(checkoutControllerProvider.notifier)
-                      .selectAddress(id);
+                      .selectPaymentMethod(m);
                 }
               },
               child: Column(
-                children: state.addresses
+                children: state.availableMethods
                     .map(
-                      (AddressDto address) => RadioListTile<String>(
-                        title: Text(address.label),
-                        subtitle: Text(
-                          '${address.fullName} • ${address.street}, ${address.city}, ${address.governorate}',
-                        ),
-                        secondary: address.isDefault
-                            ? Chip(label: Text(l10n.addressDefaultBadge))
-                            : null,
-                        value: address.id,
+                      (PaymentMethod method) => RadioListTile<PaymentMethod>(
+                        title: Text(_paymentMethodLabel(l10n, method)),
+                        value: method,
                       ),
                     )
                     .toList(),
               ),
             ),
-          if (state.addresses.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: TextButton.icon(
-                icon: const Icon(Icons.add_location_alt_outlined),
-                label: Text(l10n.checkoutAddAddress),
-                onPressed: () => _showAddAddress(context),
-              ),
-            ),
-          _SectionTitle(title: l10n.checkoutQuote),
-          _QuoteSection(state: state),
-          _SectionTitle(title: l10n.checkoutPaymentMethod),
-          if (state.paymentMethodsFailed)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Text(
-                l10n.checkoutPaymentMethodsUnavailable,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          RadioGroup<PaymentMethod>(
-            groupValue: state.selectedPaymentMethod,
-            onChanged: (PaymentMethod? m) {
-              if (m != null) {
-                ref
+            if (state.selectedPaymentMethod != null)
+              _PaymentInstructions(
+                state: state,
+                senderController: _senderController,
+                onSenderChanged: (String v) => ref
                     .read(checkoutControllerProvider.notifier)
-                    .selectPaymentMethod(m);
-              }
-            },
-            child: Column(
-              children: state.availableMethods
-                  .map(
-                    (PaymentMethod method) => RadioListTile<PaymentMethod>(
-                      title: Text(_paymentMethodLabel(l10n, method)),
-                      value: method,
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-          if (state.selectedPaymentMethod != null)
-            _PaymentInstructions(
-              state: state,
-              senderController: _senderController,
-              onSenderChanged: (String v) => ref
-                  .read(checkoutControllerProvider.notifier)
-                  .setTransferSender(v),
-            ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: TextField(
-              controller: _noteController,
-              decoration: InputDecoration(
-                labelText: l10n.checkoutCustomerNote,
-                border: const OutlineInputBorder(),
+                    .setTransferSender(v),
               ),
-              maxLines: 2,
-              onChanged: (String v) => ref
-                  .read(checkoutControllerProvider.notifier)
-                  .setCustomerNote(v),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: TextField(
+                controller: _noteController,
+                decoration: InputDecoration(
+                  labelText: l10n.checkoutCustomerNote,
+                  border: const OutlineInputBorder(),
+                ),
+                maxLines: 2,
+                onChanged: (String v) => ref
+                    .read(checkoutControllerProvider.notifier)
+                    .setCustomerNote(v),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -222,9 +229,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
                 Text(
                   quote?.pricing.grandTotal.formatted ?? '—',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -266,9 +273,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               .read(checkoutControllerProvider.notifier)
               .addAddress(dto);
           if (created != null && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.addressAdded)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(l10n.addressAdded)));
           }
           return created != null;
         },
@@ -437,9 +444,9 @@ class _BreakdownRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle? style = bold
-        ? Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          )
+        ? Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)
         : Theme.of(context).textTheme.bodyMedium;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
@@ -491,7 +498,10 @@ class _PaymentInstructions extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (target != null && target.isNotEmpty)
-            _CopyableField(label: isWallet ? 'Wallet' : 'InstaPay', value: target),
+            _CopyableField(
+              label: isWallet ? 'Wallet' : 'InstaPay',
+              value: target,
+            ),
           const SizedBox(height: 8),
           Text(
             isWallet
@@ -532,9 +542,9 @@ class _CopyableField extends StatelessWidget {
       children: <Widget>[
         Text(
           '$label: ',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         Expanded(
           child: SelectableText(
@@ -547,9 +557,9 @@ class _CopyableField extends StatelessWidget {
           tooltip: label,
           onPressed: () {
             Clipboard.setData(ClipboardData(text: value));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$label: $value')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('$label: $value')));
           },
         ),
       ],

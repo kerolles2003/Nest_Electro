@@ -232,3 +232,51 @@ envelope), `GET /users/me/addresses` (empty `{data: []}`) and
 `PATCH /users/me` (name updated) all match the app's models. Cancel /
 resubmit were verified against the OpenAPI spec + repo tests only —
 the test accounts have no orders.
+
+## D-26 — Dark theme `onError` is near-black, not white (2026-11-27)
+
+The WCAG contrast test written in phase 7 caught a real defect: white
+text on the dark error red (#EF4444, the storefront's dark danger token)
+is only 3.76:1 — below WCAG AA 4.5:1. The error token itself is
+unchanged (it is also used as foreground text on the dark surface, where
+#EF4444 on #0C1322 is 4.84:1 and passes; darkening the token would break
+that use). Instead the dark scheme's `onError` is the dark background
+#0C1322, which on #EF4444 is 4.97:1. Light `onError` stays white on
+#DC2626 (4.84:1).
+
+## D-27 — `onSurfaceVariant` is the Material default, not the storefront muted token (2026-11-27)
+
+The theme does not wire `AppColors.lightMutedForeground` (#5F6873) /
+`darkMutedForeground` (#64748B) into the scheme; screens that read
+`colorScheme.onSurfaceVariant` get the Material 3 defaults. The phase 7
+contrast test pins the actual scheme values and they pass AA in both
+themes, so this is recorded as a known deviation, not fixed: wiring the
+storefront tokens would need a re-check of every secondary-text surface.
+If the owner wants exact token fidelity, set `onSurfaceVariant` in
+`AppTheme` and re-run the contrast test.
+
+## D-28 — App icon is a placeholder; icon PNGs are binary (2026-11-27)
+
+The app icon is a generated placeholder: navy #1a1a2e background with a
+crimson #cf3549 rounded square and a white "N" (`assets/icon/icon.png`,
+drawn with PIL from the storefront palette), applied to Android, iOS and
+web with `flutter_launcher_icons` (devDependency). The owner should
+replace `assets/icon/icon.png` with the real brand mark and re-run
+`dart run flutter_launcher_icons`. The generated icon PNGs are binary
+files committed in git; they MUST be excluded from any connector
+`push_files` manifest at the final sync (snapshot push is text-only) —
+the final bundle will carry them.
+
+## D-29 — `AppTheme` cannot be constructed in widget tests (2026-11-27)
+
+`AppTheme` is built with `google_fonts`, which schedules a runtime font
+fetch on construction; in the test zone that fetch fails (and with
+`allowRuntimeFetching = false` it still throws because the fonts are not
+bundled). So the phase 7 contrast test builds the light/dark
+`ColorScheme`s from the same `AppColors` tokens instead of reading
+`AppTheme.light/dark.colorScheme`, and the RTL widget tests pump screens
+with the default Material theme. If `AppTheme`'s scheme arguments ever
+change, the test file's copies must be updated too (noted in the test).
+Bundling the fonts (Albert Sans + Urbanist TTFs in `assets/fonts`) would
+remove this limitation and let the app work fully offline — left for the
+owner to decide; see REPORT.md in phase 9.

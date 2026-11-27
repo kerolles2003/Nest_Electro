@@ -58,9 +58,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
   }
 
   void _onScroll() {
-    final ProductListState state = ref.read(
-      productListProvider(widget.query),
-    );
+    final ProductListState state = ref.read(productListProvider(widget.query));
     if (_scrollController.position.pixels >
             _scrollController.position.maxScrollExtent - 400 &&
         state.hasNext &&
@@ -77,8 +75,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       if (query.q != null && query.q!.isNotEmpty) 'q': query.q!,
       if (query.category != null && query.category!.isNotEmpty)
         'category': query.category!,
-      if (query.brand != null && query.brand!.isNotEmpty)
-        'brand': query.brand!,
+      if (query.brand != null && query.brand!.isNotEmpty) 'brand': query.brand!,
       if (query.minPrice != null)
         'min_price': (query.minPrice! ~/ 100).toString(),
       if (query.maxPrice != null)
@@ -111,14 +108,13 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             icon: const Icon(Icons.tune),
             tooltip: l10n.filterTitle,
             onPressed: () async {
-              final ProductQuery? next = await showModalBottomSheet<ProductQuery>(
-                context: context,
-                isScrollControlled: true,
-                builder: (_) => _FilterSheet(
-                  query: query,
-                  facets: state.facets,
-                ),
-              );
+              final ProductQuery? next =
+                  await showModalBottomSheet<ProductQuery>(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) =>
+                        _FilterSheet(query: query, facets: state.facets),
+                  );
               if (next != null && mounted) {
                 _applyQuery(next);
               }
@@ -243,39 +239,44 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           ),
         ),
         Expanded(
-          child: GridView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(12),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              // Card height: square image + ~120px of text.
-              mainAxisExtent: 292,
-            ),
-            itemCount:
-                state.items.length + (state.hasNext || state.isLoadingMore ? 1 : 0),
-            itemBuilder: (_, int index) {
-              if (index >= state.items.length) {
-                return Center(
-                  child: state.isLoadingMore
-                      ? const CircularProgressIndicator()
-                      : TextButton(
-                          onPressed: () => ref
-                              .read(
-                                productListProvider(widget.query).notifier,
-                              )
-                              .loadMore(),
-                          child: Text(l10n.loadMore),
-                        ),
+          child: RefreshIndicator(
+            onRefresh: () =>
+                ref.read(productListProvider(widget.query).notifier).refresh(),
+            child: GridView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(12),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                // Card height: square image + ~120px of text.
+                mainAxisExtent: 292,
+              ),
+              itemCount:
+                  state.items.length +
+                  (state.hasNext || state.isLoadingMore ? 1 : 0),
+              itemBuilder: (_, int index) {
+                if (index >= state.items.length) {
+                  return Center(
+                    child: state.isLoadingMore
+                        ? const CircularProgressIndicator()
+                        : TextButton(
+                            onPressed: () => ref
+                                .read(
+                                  productListProvider(widget.query).notifier,
+                                )
+                                .loadMore(),
+                            child: Text(l10n.loadMore),
+                          ),
+                  );
+                }
+                final ProductListItemDto product = state.items[index];
+                return ProductCard(
+                  product: product,
+                  onTap: () => context.push('/products/${product.slug}'),
                 );
-              }
-              final ProductListItemDto product = state.items[index];
-              return ProductCard(
-                product: product,
-                onTap: () => context.push('/products/${product.slug}'),
-              );
-            },
+              },
+            ),
           ),
         ),
       ],

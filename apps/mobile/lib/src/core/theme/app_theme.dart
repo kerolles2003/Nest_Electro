@@ -65,7 +65,10 @@ abstract final class AppTheme {
           onSurface: AppColors.darkForeground,
           surfaceContainerLow: AppColors.darkSecondary,
           error: AppColors.darkDanger,
-          onError: Colors.white,
+          // White on the dark error red (#EF4444) is only 3.76:1 — below
+          // WCAG AA. Near-black text on it is 4.97:1 (D-26); the error
+          // token itself is unchanged from the storefront.
+          onError: AppColors.darkBackground,
           outline: AppColors.darkBorder,
           tertiary: AppColors.darkSuccess,
         ),
