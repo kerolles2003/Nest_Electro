@@ -63,21 +63,34 @@ class CartController extends Notifier<CartState> {
   CartState build() {
     // Rebuilds (and reloads) when the session changes — login/logout
     // switches the cart between the server cart and the guest basket.
-    ref.watch(authControllerProvider);
-    Future.microtask(_load);
+    // Everything _load needs is captured here and passed in: reading any
+    // provider inside the microtasked load throws once a watched
+    // dependency changed but the provider has not rebuilt yet (Riverpod
+    // stale-dependency guard — caught by the phase 8 integration test).
+    final bool authed = ref.watch(authControllerProvider).isAuthenticated;
+    final CartRepository repo = ref.read(cartRepositoryProvider);
+    final GuestCartStorage storage = ref.read(guestCartStorageProvider);
+    Future.microtask(
+      () => _load(authed: authed, repo: repo, storage: storage),
+    );
     return const CartState();
   }
 
   CartRepository get _repo => ref.read(cartRepositoryProvider);
   GuestCartStorage get _storage => ref.read(guestCartStorageProvider);
-  bool get _authed =>
-      ref.read(authControllerProvider).isAuthenticated;
+  bool get _authed => ref.read(authControllerProvider).isAuthenticated;
 
-  Future<void> _load() async {
+  Future<void> _load({
+    bool? authed,
+    CartRepository? repo,
+    GuestCartStorage? storage,
+  }) async {
+    final CartRepository repository = repo ?? _repo;
+    final GuestCartStorage store = storage ?? _storage;
     try {
-      if (_authed) {
-        final CartDto cart = await _repo.getCart();
-        final List<GuestCartLineDto> lines = await _storage.load();
+      if (authed ?? _authed) {
+        final CartDto cart = await repository.getCart();
+        final List<GuestCartLineDto> lines = await store.load();
         state = state.copyWith(
           cart: cart,
           guestLines: lines,
@@ -85,7 +98,7 @@ class CartController extends Notifier<CartState> {
           clearError: true,
         );
       } else {
-        final List<GuestCartLineDto> lines = await _storage.load();
+        final List<GuestCartLineDto> lines = await store.load();
         if (lines.isEmpty) {
           state = state.copyWith(
             clearCart: true,
@@ -94,7 +107,7 @@ class CartController extends Notifier<CartState> {
             clearError: true,
           );
         } else {
-          final CartDto preview = await _repo.preview(lines);
+          final CartDto preview = await repository.preview(lines);
           state = state.copyWith(
             cart: preview,
             guestLines: lines,
@@ -105,6 +118,16 @@ class CartController extends Notifier<CartState> {
       }
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, error: e);
+    } catch (_) {
+      // A local failure (e.g. guest storage) must not leave the cart
+      // stuck on its loading spinner — surface it as a retryable error.
+      state = state.copyWith(
+        isLoading: false,
+        error: const ApiException(
+          code: 'LOAD_FAILED',
+          message: 'Could not load the cart. Please try again.',
+        ),
+      );
     }
   }
 
