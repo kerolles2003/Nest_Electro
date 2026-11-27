@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { ClientSession, FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { Types } from 'mongoose';
-import { OrderStatus } from '../../domain/order-status';
+import { OrderStatus, PaymentStatus } from '../../domain/order-status';
 import type { OrderSearchTerm } from '../../domain/order-search';
 import {
   Order,
@@ -48,6 +48,8 @@ export type OrderQueueSort = 'newest' | 'oldest' | 'total_high' | 'total_low';
 export interface OrderQueueCriteria {
   /** OR within the list. Absent means every status. */
   readonly statuses?: readonly OrderStatus[];
+  /** OR within the list. Absent means every payment status. */
+  readonly paymentStatuses?: readonly PaymentStatus[];
   /**
    * Free text, already escaped and compiled by `parseOrderSearch`.
    *
@@ -320,6 +322,12 @@ export class OrderRepository {
     if (criteria.statuses !== undefined && criteria.statuses.length > 0) {
       // `$in` over values already narrowed to the OrderStatus enum by the DTO.
       filter.status = { $in: [...criteria.statuses] };
+    }
+
+    if (criteria.paymentStatuses !== undefined && criteria.paymentStatuses.length > 0) {
+      // Same narrowing, on the payment axis: values arrive as PaymentStatus
+      // enum members only, so no client string reaches a query operator.
+      filter['payment.status'] = { $in: [...criteria.paymentStatuses] };
     }
 
     /*

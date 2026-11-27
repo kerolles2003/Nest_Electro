@@ -141,6 +141,22 @@ const ALLOWED: readonly Allowance[] = [
   },
   {
     file: 'apps/storefront/src/components/FilterSidebar.tsx',
+    snippet: 'aria-valuetext={`EGP ${localMin.toLocaleString()}`}',
+    why:
+      'The aria-valuetext for the minimum-price range input (adversarial a11y fix, 2026-11-21): ' +
+      'it announces the same filter bound as the visible chip above it, in pounds, to assistive ' +
+      'technology. Not a server amount, and not rendered.',
+  },
+  {
+    file: 'apps/storefront/src/components/FilterSidebar.tsx',
+    snippet: 'aria-valuetext={`EGP ${localMax.toLocaleString()}`}',
+    why:
+      'The aria-valuetext for the maximum-price range input (adversarial a11y fix, 2026-11-21): ' +
+      'it announces the same filter bound as the visible chip above it, in pounds, to assistive ' +
+      'technology. Not a server amount, and not rendered.',
+  },
+  {
+    file: 'apps/storefront/src/components/FilterSidebar.tsx',
     snippet: "`EGP ${params.min_price}`",
     why: 'The active-filter chip for the bound above. Major units, from the URL.',
   },
@@ -183,6 +199,16 @@ const ALLOWED: readonly Allowance[] = [
     file: 'apps/storefront/src/app/products/[slug]/page.tsx',
     snippet: '{formatPrice(product.basePrice)} <span className="text-xl font-bold">EGP</span>',
     why: 'Same file, same rounding defect, same reason for being reported rather than fixed.',
+  },
+  {
+    file: 'apps/admin/src/components/settings/ShippingRatesTable.tsx',
+    snippet: 'aria-label={`Shipping fee for ${rate.governorate} in EGP`}',
+    why:
+      'An input unit adornment, in this spec\'s own terms: the aria-label of the numeric ' +
+      'shipping-fee input names the unit the operator types in. No amount is rendered on ' +
+      'the line — the only interpolated value is the governorate name. Registered ' +
+      '2026-11-21; before that this line failed the guard unregistered, on a branch no ' +
+      'CI ran against.',
   },
 ];
 

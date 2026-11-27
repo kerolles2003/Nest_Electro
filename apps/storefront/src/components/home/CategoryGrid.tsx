@@ -57,7 +57,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
               <div className="cat-circle bg-white overflow-hidden border border-[var(--color-border)] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:border-primary/40 group-hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] group-hover:-translate-y-1">
                 <CategoryImage
                   src={cat.image_url || localImage}
-                  alt={cat.name_en}
+                  alt=""
                   fallbackIcon={icon}
                   priority={index < 8}
                 />

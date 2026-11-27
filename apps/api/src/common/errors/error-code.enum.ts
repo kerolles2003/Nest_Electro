@@ -309,6 +309,22 @@ export enum ErrorCode {
    */
   ADDRESS_LIMIT_REACHED = 'ADDRESS_LIMIT_REACHED',
 
+  /**
+   * 422. A Wallet/InstaPay order was asked to enter fulfilment before
+   * its payment reached `PAID` through manual verification.
+   *
+   * Owner decision (PAY-3 remediation, 2026-11-21): manual-transfer
+   * orders must not be confirmed for fulfilment or shipped until an
+   * authorized admin has verified the transfer and the payment is
+   * PAID. COD orders are NOT covered — they fulfil unpaid by design
+   * and settle on delivery. 422 rather than 409 for the same reason
+   * as `ADDRESS_LIMIT_REACHED`: the request is well formed and the
+   * edge exists in the state machine; it is the order's payment
+   * STATE that refuses it, and retrying only succeeds after the
+   * payment state changes.
+   */
+  PAYMENT_REQUIRED_BEFORE_FULFILMENT = 'PAYMENT_REQUIRED_BEFORE_FULFILMENT',
+
   // ---- Media — 400 / 404 / 409 ----
   /**
    * 400. The uploaded file failed a rule: too large, empty, an unaccepted MIME

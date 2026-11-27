@@ -75,12 +75,34 @@ export class OrderCustomerDto {
   phone!: string | null;
 }
 
-/** Cash on Delivery, and whether the cash has been collected. */
+/** Manual-transfer verification evidence and decision, when applicable. */
+export class OrderPaymentVerificationDto {
+  @ApiProperty({ example: '01012345678', nullable: true, type: String })
+  transferSender!: string | null;
+
+  @ApiProperty({ example: null, nullable: true, type: String, format: 'date-time' })
+  submittedAt!: string | null;
+
+  @ApiProperty({ example: null, nullable: true, type: String, format: 'date-time' })
+  decidedAt!: string | null;
+
+  @ApiProperty({
+    example: null,
+    nullable: true,
+    type: String,
+    description: 'Why verification was rejected, when it was. Shown to the customer.',
+  })
+  decisionNote!: string | null;
+}
+
+/** How the order is paid, and where that payment stands. */
 export class OrderPaymentDto {
   @ApiProperty({
     enum: PaymentMethod,
     example: PaymentMethod.COD,
-    description: 'Cash on Delivery is the only method. No payment provider is integrated.',
+    description:
+      'COD, or a manual WALLET/INSTAPAY transfer verified by an authorized admin (D01). ' +
+      'No payment provider is integrated.',
   })
   method!: PaymentMethod;
 
@@ -88,8 +110,9 @@ export class OrderPaymentDto {
     enum: PaymentStatus,
     example: PaymentStatus.PENDING,
     description:
-      'PENDING until the courier collects the cash, which happens when the order becomes ' +
-      'DELIVERED. A newly placed order is ALWAYS PENDING.',
+      'COD: PENDING until the courier collects the cash at DELIVERED. Manual transfers: ' +
+      'PENDING_VERIFICATION until an authorized admin approves (PAID) or rejects ' +
+      '(VERIFICATION_REJECTED). A manual order is NEVER paid at placement.',
   })
   status!: PaymentStatus;
 
@@ -98,9 +121,12 @@ export class OrderPaymentDto {
     nullable: true,
     type: String,
     format: 'date-time',
-    description: 'When cash was collected. Null until delivery.',
+    description: 'When payment was confirmed received. Null until then.',
   })
   collectedAt!: string | null;
+
+  @ApiProperty({ type: OrderPaymentVerificationDto, nullable: true })
+  verification!: OrderPaymentVerificationDto | null;
 }
 
 /**
@@ -215,8 +241,16 @@ export class OrderDto {
   })
   pricing!: PricingBreakdownDto;
 
-  @ApiProperty({ type: OrderPaymentDto })
-  payment!: OrderPaymentDto;
+  /*
+   * Nullable since the fail-closed remediation (2026-11-22): the schema
+   * requires a payment subdocument, but a pre-schema or otherwise corrupt
+   * record can lack one, and serialising such an order must not throw —
+   * the operator needs this very response to see and repair the record.
+   * `null` means "payment data missing", never a payment state; the
+   * lifecycle gate refuses to fulfil such an order (PAY-3 fail-closed).
+   */
+  @ApiProperty({ type: OrderPaymentDto, nullable: true })
+  payment!: OrderPaymentDto | null;
 
   @ApiProperty({ type: OrderShippingAddressDto })
   shippingAddress!: OrderShippingAddressDto;
@@ -281,11 +315,23 @@ export class OrderDto {
         order.pricing.vatInclusive,
         order.pricing.vatRateBps,
       ),
-      payment: {
-        method: order.payment.method,
-        status: order.payment.status,
-        collectedAt: order.payment.collectedAt?.toISOString() ?? null,
-      },
+      payment:
+        order.payment == null
+          ? null
+          : {
+              method: order.payment.method,
+              status: order.payment.status,
+              collectedAt: order.payment.collectedAt?.toISOString() ?? null,
+              verification:
+                order.payment.verification == null
+                  ? null
+                  : {
+                      transferSender: order.payment.verification.transferSender,
+                      submittedAt: order.payment.verification.submittedAt?.toISOString() ?? null,
+                      decidedAt: order.payment.verification.decidedAt?.toISOString() ?? null,
+                      decisionNote: order.payment.verification.decisionNote,
+                    },
+            },
       shippingAddress: {
         fullName: order.shippingAddress.fullName,
         phone: order.shippingAddress.phone,

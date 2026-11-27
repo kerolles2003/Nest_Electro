@@ -109,6 +109,21 @@ function parseStatus(raw: string | string[] | undefined): OrderStatus | null {
   return ORDER_STATUSES.includes(value as OrderStatus) ? (value as OrderStatus) : null;
 }
 
+const PAYMENT_STATUSES: readonly string[] = [
+  'PENDING',
+  'PENDING_VERIFICATION',
+  'VERIFICATION_REJECTED',
+  'PAID',
+  'REFUNDED',
+];
+
+/** Payment-axis filter values, narrowed to what the API accepts. */
+function parsePaymentStatuses(raw: string | string[] | undefined): string[] {
+  const values = Array.isArray(raw) ? raw : raw === undefined ? [] : [raw];
+
+  return values.filter((value) => PAYMENT_STATUSES.includes(value));
+}
+
 export default async function OrdersPage(props: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
@@ -117,6 +132,7 @@ export default async function OrdersPage(props: {
   const sp = await props.searchParams;
   const page = Math.max(1, Number(Array.isArray(sp.page) ? sp.page[0] : sp.page) || 1);
   const status = parseStatus(sp.status);
+  const paymentStatuses = parsePaymentStatuses(sp.paymentStatus);
   const q = text(sp.q);
   const placedFrom = text(sp.placedFrom);
   const placedTo = text(sp.placedTo);
@@ -129,6 +145,7 @@ export default async function OrdersPage(props: {
         limit: PAGE_SIZE,
         sort,
         ...(status === null ? {} : { status: [status] }),
+        ...(paymentStatuses.length === 0 ? {} : { paymentStatus: paymentStatuses }),
         ...(q === '' ? {} : { q }),
         ...(placedFrom === '' ? {} : { placedFrom }),
         ...(placedTo === '' ? {} : { placedTo }),
@@ -141,7 +158,13 @@ export default async function OrdersPage(props: {
     <div className="space-y-5">
       <PageHeader title={<>Orders</>} description={<>Manage and fulfil customer orders.</>} />
 
-      <QueueFilters q={q} placedFrom={placedFrom} placedTo={placedTo} sort={sort} />
+      <QueueFilters
+        q={q}
+        placedFrom={placedFrom}
+        placedTo={placedTo}
+        sort={sort}
+        paymentReview={paymentStatuses.includes('PENDING_VERIFICATION')}
+      />
 
       {!queue.ok ? (
         /*

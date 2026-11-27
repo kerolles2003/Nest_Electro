@@ -2,6 +2,27 @@ import { AdminSidebar } from "@/components/layout/Sidebar";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { readAdminIdentity } from "@/lib/api/identity";
 
+/*
+ * ADV-1 (CSP remediation): this import is load-bearing, do not remove it
+ * as "unused".
+ *
+ * `RefreshButton` is the console's only client leaf hanging off a server
+ * module (`components/ui/admin.tsx`, imported by every dashboard page
+ * for `PageHeader`). Turbopack gives it a dedicated chunk, and the
+ * server renderer hoists that chunk's <script> tag through React's
+ * preinit path — which, in Next 16.2.4, emits it WITHOUT the request
+ * nonce. Under the console's `script-src 'self' 'nonce-…' 
+ * 'strict-dynamic'` policy the browser refuses to execute it, so the
+ * button (and anything sharing its chunk) is dead on a cold page load.
+ *
+ * Registering the module in this layout's client graph makes the chunk
+ * part of the shell's standard script set, which the renderer emits
+ * WITH the nonce on every dashboard page; the per-page hoisted tag
+ * then dedupes against the already-present script and is never emitted.
+ * The component itself is rendered by `PageHeader`, not here.
+ */
+import "@/components/ui/refresh-button";
+
 /**
  * The console shell.
  *

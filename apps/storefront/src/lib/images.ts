@@ -46,6 +46,16 @@ import type { ProductImage } from './api/types';
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? '';
 
 /**
+ * The local media provider's delivery base (the API's `/media-delivery`
+ * route), for machines with no Cloudinary account. Consulted ONLY when no
+ * cloud name is configured — the moment a real account exists, its URLs
+ * win and this value is ignored, so setting it can never shadow the CDN.
+ * Same public-by-design reasoning as the cloud name: it appears in every
+ * delivery URL a browser fetches.
+ */
+const MEDIA_BASE = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? '').replace(/\/$/, '');
+
+/**
  * Named delivery presets (MEDIA-MODEL.md §8) rather than transformation
  * strings scattered through components.
  *
@@ -81,12 +91,23 @@ export function imageUrl(
   image: Pick<ProductImage, 'publicId' | 'version'> | null | undefined,
   preset: ImagePreset = 'thumbnail',
 ): string | null {
-  if (image === null || image === undefined || CLOUD_NAME === '') return null;
+  if (image === null || image === undefined) return null;
 
-  return (
-    `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/` +
-    `${PRESETS[preset]}/v${String(image.version)}/${image.publicId}`
-  );
+  if (CLOUD_NAME !== '') {
+    return (
+      `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/` +
+      `${PRESETS[preset]}/v${String(image.version)}/${image.publicId}`
+    );
+  }
+
+  // Local provider: same versioned shape, no transformation presets — the
+  // stored bytes are served as they are, and the layout still reserves the
+  // right space from the API's real dimensions (see imageDimensions).
+  if (MEDIA_BASE !== '') {
+    return `${MEDIA_BASE}/v${String(image.version)}/${image.publicId}`;
+  }
+
+  return null;
 }
 
 /**
@@ -104,9 +125,17 @@ export function imageUrl(
  * catalogue pages that sell the product all use the versioned `imageUrl`.
  */
 export function cartLineImageUrl(publicId: string | null): string | null {
-  if (publicId === null || publicId === '' || CLOUD_NAME === '') return null;
+  if (publicId === null || publicId === '') return null;
 
-  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${PRESETS.thumbnail}/${publicId}`;
+  if (CLOUD_NAME !== '') {
+    return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${PRESETS.thumbnail}/${publicId}`;
+  }
+
+  if (MEDIA_BASE !== '') {
+    return `${MEDIA_BASE}/${publicId}`;
+  }
+
+  return null;
 }
 
 /**

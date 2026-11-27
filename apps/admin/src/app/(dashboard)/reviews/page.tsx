@@ -22,7 +22,27 @@ export default async function ReviewsPage(props: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireAdmin();
-  const { supabase } = await getAdminServices();
+  /*
+   * Reviews are a Phase 8 domain (see DomainNotLiveNotice): this screen
+   * still reads the legacy Supabase service because the API has no review
+   * model yet. When that service is not configured in this deployment at
+   * all, client construction throws — and an unhandled throw here used to
+   * take the whole route down as an RSC render error, hiding the notice
+   * that explains the domain's state. Render the notice and the error
+   * state the page already uses for query failures instead.
+   */
+  let supabase: Awaited<ReturnType<typeof getAdminServices>>['supabase'];
+  try {
+    ({ supabase } = await getAdminServices());
+  } catch {
+    return (
+      <div className="space-y-5">
+        <DomainNotLiveNotice domain="reviews" />
+        <PageHeader title={<>Reviews</>} description={<>Moderate product reviews and manage the approval queue.</>} />
+        <ErrorState title="Reviews could not be loaded" description="The legacy service is not configured in this deployment. Reviews become available when the domain ships in Phase 8." />
+      </div>
+    );
+  }
   const sp = await props.searchParams;
 
   const page = Number(sp.page) || 1;

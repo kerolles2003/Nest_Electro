@@ -355,7 +355,7 @@ export default async function ProductDetailPage(props: { params: Promise<{ slug:
               <span className="text-sm font-bold text-foreground">{product.rating.toFixed(1)}</span>
             </div>
             <span className="text-sm text-foreground-muted hover:text-primary transition-colors cursor-pointer border-b border-border hover:border-primary">
-              {product.reviewCount} verified reviews
+              {product.reviewCount} reviews
             </span>
             <div className="w-px h-4 bg-border"></div>
             <p className="text-sm text-foreground-muted">SKU: <span className="font-mono text-foreground font-medium">{product.sku}</span></p>

@@ -4,10 +4,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { mediaConfig } from '../../config/media.config';
+import { DatabaseModule } from '../../database/database.module';
 import { MediaService } from './application/media.service';
 import { MediaAssetRepository } from './infrastructure/repositories/media-asset.repository';
 import { MediaAsset, MediaAssetSchema } from './infrastructure/schemas/media-asset.schema';
 import { MediaController } from './presentation/media.controller';
+import { MediaDeliveryController } from './presentation/media-delivery.controller';
 
 /**
  * Managed media: upload, destroy, reconcile.
@@ -36,11 +38,13 @@ import { MediaController } from './presentation/media.controller';
  */
 @Module({
   imports: [
+    // DatabaseModule for TransactionService (MediaService). See A01.
+    DatabaseModule,
     AuditModule, UsersModule,
     ConfigModule.forFeature(mediaConfig),
     MongooseModule.forFeature([{ name: MediaAsset.name, schema: MediaAssetSchema }]),
   ],
-  controllers: [MediaController],
+  controllers: [MediaController, MediaDeliveryController],
   providers: [MediaService, MediaAssetRepository],
   exports: [MediaService, MediaAssetRepository],
 })

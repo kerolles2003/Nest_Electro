@@ -200,6 +200,8 @@ function PriceRangeSlider({
         />
         <input
           type="range"
+          aria-label="Minimum price"
+          aria-valuetext={`EGP ${localMin.toLocaleString()}`}
           min={min}
           max={max}
           value={localMin}
@@ -208,6 +210,8 @@ function PriceRangeSlider({
         />
         <input
           type="range"
+          aria-label="Maximum price"
+          aria-valuetext={`EGP ${localMax.toLocaleString()}`}
           min={min}
           max={max}
           value={localMax}

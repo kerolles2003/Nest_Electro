@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Image from "next/image";
 import { ProductCard } from "@/components/ProductCard";
+import { ListingPagination, parsePageParam } from "@/components/products/ListingPagination";
 import { SITE_NAME, SITE_URL } from "@nest/config/constants";
 import Link from "next/link";
 
@@ -71,16 +72,20 @@ async function findBrand(slug: string) {
 }
 
 export default async function BrandPage(
-  props: { params: Promise<{ slug: string }> }
+  props: {
+    params: Promise<{ slug: string }>;
+    searchParams: Promise<{ page?: string | string[] }>;
+  }
 ) {
   const params = await props.params;
+  const page = parsePageParam((await props.searchParams).page);
 
   const [apiBrand, result] = await Promise.all([
     findBrand(params.slug),
     // `brand` is REPEATABLE on the API and ORs within itself, so it takes an
     // array even for one value. Sending a bare string would work today and
     // break silently the first time a page passed two.
-    api.listProducts({ brand: [params.slug], page: 1, limit: 24 }),
+    api.listProducts({ brand: [params.slug], page, limit: 24 }),
   ]);
 
   if (apiBrand === null) notFound();
@@ -117,11 +122,18 @@ export default async function BrandPage(
           <p className="text-foreground-muted mt-1 text-sm">Check back later for new arrivals.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          <ListingPagination
+            basePath={`/brands/${params.slug}`}
+            page={result.meta.page}
+            totalPages={result.meta.totalPages}
+          />
+        </>
       )}
     </div>
   );

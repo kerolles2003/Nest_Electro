@@ -728,7 +728,12 @@ describe('detail', () => {
     expect(order.cancellation).toBeNull();
     // Same rule: present as a key on every order, null until it ships.
     expect(order.shipment).toBeNull();
-    expect(order.payment).toEqual({ method: 'COD', status: 'PENDING', collectedAt: null });
+    expect(order.payment).toEqual({
+      method: 'COD',
+      status: 'PENDING',
+      collectedAt: null,
+      verification: null,
+    });
     expect(order.shippingAddress).toEqual({ ...ADDRESS, postalCode: null });
 
     const items = order.items as Record<string, unknown>[];

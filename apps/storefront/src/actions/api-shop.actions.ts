@@ -226,13 +226,24 @@ export async function placeOrderAction(
   const addressId = String(formData.get('addressId') ?? '').trim();
   const customerNote = String(formData.get('customerNote') ?? '').trim();
   const idempotencyKey = String(formData.get('idempotencyKey') ?? '').trim() || randomUUID();
+  const paymentMethodRaw = String(formData.get('paymentMethod') ?? 'COD').trim();
+  const paymentMethod =
+    paymentMethodRaw === 'WALLET' || paymentMethodRaw === 'INSTAPAY' ? paymentMethodRaw : 'COD';
+  const transferSender = String(formData.get('transferSender') ?? '').trim();
 
   if (addressId === '') {
     return { error: 'Choose a delivery address first.', fieldErrors: { addressId: 'Required' } };
   }
 
+  if (paymentMethod !== 'COD' && transferSender === '') {
+    return {
+      error: 'Tell us the number or account you transferred from.',
+      fieldErrors: { transferSender: 'Required' },
+    };
+  }
+
   const result = await tryApi(() =>
-    api.placeOrder({ addressId, customerNote, idempotencyKey }),
+    api.placeOrder({ addressId, customerNote, paymentMethod, transferSender, idempotencyKey }),
   );
 
   if (!result.ok) return failure(result.error);

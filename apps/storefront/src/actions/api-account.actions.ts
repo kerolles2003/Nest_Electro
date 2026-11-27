@@ -117,3 +117,37 @@ export async function cancelOrderAction(
 
   return { ...emptyActionState, message: 'Your order has been cancelled.' };
 }
+
+/**
+ * Resubmits manual-transfer evidence after a rejection (D03).
+ *
+ * Only moves the order back to PENDING_VERIFICATION on the API — it can
+ * never mark anything paid, which stays an authorized admin decision.
+ */
+export async function resubmitPaymentAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const orderId = String(formData.get('orderId') ?? '').trim();
+  const transferSender = String(formData.get('transferSender') ?? '').trim();
+
+  if (orderId === '') {
+    return { error: 'That order could not be identified.', fieldErrors: {} };
+  }
+
+  if (transferSender === '') {
+    return {
+      error: 'Tell us the number or account you transferred from.',
+      fieldErrors: { transferSender: 'Required' },
+    };
+  }
+
+  const result = await tryApi(() => api.resubmitPayment(orderId, transferSender));
+
+  if (!result.ok) return failure(result.error);
+
+  revalidatePath('/account/orders');
+  revalidatePath(`/account/orders/${orderId}`);
+
+  return { ...emptyActionState, message: 'Sent for verification again.' };
+}

@@ -111,7 +111,7 @@ export class InMemoryMediaStorage extends MediaStoragePort {
  * Three formats, three fixed header layouts — the same allow-list
  * `image-format.ts` sniffs, and the same reason no library is involved.
  */
-function readDimensions(buffer: Buffer, format: string): { width: number; height: number } {
+export function readDimensions(buffer: Buffer, format: string): { width: number; height: number } {
   switch (format) {
     case 'png':
       // IHDR is always the first chunk: 8-byte signature, 4-byte length,

@@ -5,6 +5,7 @@ import { authConfig } from './auth.config';
 import { databaseConfig } from './database.config';
 import { emailConfig } from './email.config';
 import { fulfilmentConfig } from './fulfilment.config';
+import { paymentsConfig } from './payments.config';
 import { throttleConfig } from './throttle.config';
 import { validateEnv } from './env.schema';
 
@@ -29,7 +30,7 @@ import { validateEnv } from './env.schema';
       isGlobal: true,
       cache: true,
       validate: validateEnv,
-      load: [appConfig, authConfig, databaseConfig, emailConfig, fulfilmentConfig, throttleConfig],
+      load: [appConfig, authConfig, databaseConfig, emailConfig, fulfilmentConfig, paymentsConfig, throttleConfig],
       // Local development only. Production supplies variables through the
       // platform secret store; no .env file exists on a production host.
       // Real process env always wins over file values.

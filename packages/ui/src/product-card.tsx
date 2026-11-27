@@ -42,7 +42,7 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
         ))}
       </div>
       {count > 0 && (
-        <span className="text-[10px] text-foreground-muted font-semibold leading-none opacity-80">
+        <span className="text-[10px] text-foreground-muted font-semibold leading-none">
           {count}
         </span>
       )}
@@ -228,7 +228,7 @@ export function ProductCard({
 
         <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
           {onSale && discount > 0 && (
-            <div className="bg-[#E14A5C] text-white text-[12px] font-normal px-2 py-1 rounded-[4px] flex items-center gap-1 tracking-wide uppercase">
+            <div className="bg-primary text-white text-[12px] font-normal px-2 py-1 rounded-[4px] flex items-center gap-1 tracking-wide uppercase">
               -{discount}%
             </div>
           )}

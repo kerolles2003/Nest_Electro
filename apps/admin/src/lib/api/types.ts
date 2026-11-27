@@ -74,12 +74,23 @@ export type OrderStatus =
   | 'CANCELLED'
   | 'RETURNED';
 
-export type PaymentStatus = 'PENDING' | 'PAID' | 'REFUNDED';
+export type PaymentStatus =
+  | 'PENDING'
+  | 'PENDING_VERIFICATION'
+  | 'VERIFICATION_REJECTED'
+  | 'PAID'
+  | 'REFUNDED';
 
 export interface OrderPayment {
-  method: 'COD';
+  method: 'COD' | 'WALLET' | 'INSTAPAY';
   status: PaymentStatus;
   collectedAt: string | null;
+  verification: {
+    transferSender: string | null;
+    submittedAt: string | null;
+    decidedAt: string | null;
+    decisionNote: string | null;
+  } | null;
 }
 
 export interface PricingBreakdown {
@@ -98,7 +109,9 @@ export interface OrderSummary {
   id: string;
   orderNumber: string;
   status: OrderStatus;
-  payment: OrderPayment;
+  /** Null when the stored record has no payment data (corrupt/legacy) —
+   *  the API says so explicitly rather than failing the whole queue. */
+  payment: OrderPayment | null;
   pricing: PricingBreakdown;
   itemCount: number;
   totalQuantity: number;
@@ -190,7 +203,8 @@ export interface AdminOrder {
   items: OrderItem[];
   currency: string;
   pricing: PricingBreakdown;
-  payment: OrderPayment;
+  /** Null when the stored record has no payment data (corrupt/legacy). */
+  payment: OrderPayment | null;
   shippingAddress: OrderShippingAddress;
   customerNote: string | null;
   cancellation: OrderCancellation | null;
@@ -539,7 +553,10 @@ export interface AdminProductSpecInput {
  * it is the warehouse identifier, printed on labels and quoted to suppliers.
  * `isActive` is absent because publishing is its own separately audited action.
  */
-export type UpdateProductBody = Omit<CreateProductBody, 'sku' | 'isActive'>;
+export type UpdateProductBody = Omit<CreateProductBody, 'sku' | 'isActive'> & {
+  /** Optimistic-locking token: the product `updatedAt` the editor loaded (A06). */
+  expectedUpdatedAt?: string;
+};
 
 export interface HardDeleteResult {
   sku: string;

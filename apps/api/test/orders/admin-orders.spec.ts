@@ -1110,6 +1110,46 @@ describe('admin work queue', () => {
     }
   });
 
+  it('filters the queue by payment status (the Payment review queue)', async () => {
+    // A COD order sits at payment PENDING; a manual order awaiting a
+    // decision sits at PENDING_VERIFICATION. The state is written
+    // directly because this test measures the FILTER, not placement —
+    // placement of a real wallet order is covered by the checkout suites.
+    const codOrderId = await placeSimpleOrder(1);
+    const manualOrderId = await placeSimpleOrder(1);
+    await orders
+      .updateOne(
+        { _id: manualOrderId },
+        {
+          $set: {
+            'payment.method': 'WALLET',
+            'payment.status': 'PENDING_VERIFICATION',
+            'payment.verification': { transferSender: '01055554444', submittedAt: new Date() },
+          },
+        },
+      )
+      .exec();
+
+    const reviewQueue = await http()
+      .get('/api/v1/admin/orders?paymentStatus=PENDING_VERIFICATION&limit=100')
+      .set(...bearer(admin))
+      .expect(200);
+
+    const ids = reviewQueue.body.data.map((row: { id: string }) => row.id);
+    expect(ids).toContain(manualOrderId);
+    expect(ids).not.toContain(codOrderId);
+    for (const row of reviewQueue.body.data) {
+      expect(row.payment.status).toBe('PENDING_VERIFICATION');
+    }
+    expect(reviewQueue.body.meta.total).toBe(reviewQueue.body.data.length);
+
+    const bad = await http()
+      .get('/api/v1/admin/orders?paymentStatus=NOT_A_PAYMENT_STATUS')
+      .set(...bearer(admin));
+    expect(bad.status).toBe(400);
+    expect(bad.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
   it('rejects an unknown query parameter and a bad status', async () => {
     const unknown = await http()
       .get('/api/v1/admin/orders?userId=abc')

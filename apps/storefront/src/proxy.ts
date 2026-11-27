@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { logAuthFailure } from '@/lib/logger';
+import { PATH_HEADER } from '@/lib/api/renewal';
 import { cspRequest } from '../../../packages/config/src/content-security-policy';
 
 /**
@@ -67,6 +68,10 @@ const NEXT_ACTION_HEADER = 'next-action';
 
 export function proxy(request: NextRequest): NextResponse {
   const { forwarded, policy } = cspRequest(request.headers, request.url, process.env.NODE_ENV === 'development');
+  // Record where the browser actually asked to go, so a Server Component
+  // that must renew the session knows where to send it back to (F01).
+  // A Server Component has no supported way to read its own URL.
+  forwarded.set(PATH_HEADER, request.nextUrl.pathname + request.nextUrl.search);
   const response = navigationProxy(request, forwarded);
   response.headers.set('Content-Security-Policy', policy);
   return response;

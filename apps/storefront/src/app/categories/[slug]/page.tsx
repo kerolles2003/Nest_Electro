@@ -4,6 +4,7 @@ import { toProductCard } from "@/lib/api/view-model";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { ProductCard } from "@/components/ProductCard";
+import { ListingPagination, parsePageParam } from "@/components/products/ListingPagination";
 import { SITE_NAME, SITE_URL } from "@nest/config/constants";
 import Link from "next/link";
 
@@ -77,9 +78,13 @@ async function findCategory(slug: string) {
 }
 
 export default async function CategoryPage(
-  props: { params: Promise<{ slug: string }> }
+  props: {
+    params: Promise<{ slug: string }>;
+    searchParams: Promise<{ page?: string | string[] }>;
+  }
 ) {
   const params = await props.params;
+  const page = parsePageParam((await props.searchParams).page);
 
   const category = await findCategory(params.slug);
   if (category === null) notFound();
@@ -90,7 +95,7 @@ export default async function CategoryPage(
     // descendants' products — which is what the old `categorySlug` filter did
     // through a recursive path lookup, and what a customer expects when they
     // click a top-level category.
-    api.listProducts({ category: params.slug, page: 1, limit: 24 }),
+    api.listProducts({ category: params.slug, page, limit: 24 }),
   ]);
 
   const subcategories = findNode(tree.data, params.slug)?.children ?? [];
@@ -133,11 +138,18 @@ export default async function CategoryPage(
           <p className="text-foreground-muted mt-1 text-sm">Check back later for new arrivals.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          <ListingPagination
+            basePath={`/categories/${params.slug}`}
+            page={result.meta.page}
+            totalPages={result.meta.totalPages}
+          />
+        </>
       )}
     </div>
   );

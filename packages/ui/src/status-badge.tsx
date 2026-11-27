@@ -12,12 +12,14 @@ const statusStyles: Record<string, string> = {
   processing: "bg-warning/10 text-warning border-warning/20",
   unfulfilled: "bg-warning/10 text-warning border-warning/20",
   pending_payment: "bg-warning/10 text-warning border-warning/20",
+  pending_verification: "bg-warning/10 text-warning border-warning/20",
   low_stock: "bg-warning/10 text-warning border-warning/20",
   authorized: "bg-warning/10 text-warning border-warning/20",
   // Destructive / failure states
   cancelled: "bg-destructive/10 text-destructive border-destructive/20",
   failed: "bg-destructive/10 text-destructive border-destructive/20",
   rejected: "bg-destructive/10 text-destructive border-destructive/20",
+  verification_rejected: "bg-destructive/10 text-destructive border-destructive/20",
   out_of_stock: "bg-destructive/10 text-destructive border-destructive/20",
   returned: "bg-destructive/10 text-destructive border-destructive/20",
   // Primary / in-progress states

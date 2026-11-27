@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DatabaseModule } from '../../database/database.module';
 import { AuditModule } from '../audit/audit.module';
 import { Order, OrderSchema } from '../orders/infrastructure/schemas/order.schema';
 import { AddressesService } from './application/addresses.service';
@@ -59,6 +60,10 @@ import { UsersController } from './presentation/users.controller';
       { name: Order.name, schema: OrderSchema },
     ]),
     AuditModule,
+    // For TransactionService (CustomersAdminService): a transaction is
+    // connection lifecycle, provided and exported by DatabaseModule.
+    // Missing this import was A01 — the API could not bootstrap.
+    DatabaseModule,
   ],
   controllers: [AddressesController, UsersController, AdminCustomersController],
   providers: [UsersService, AddressesService, CustomersAdminService, UserRepository],

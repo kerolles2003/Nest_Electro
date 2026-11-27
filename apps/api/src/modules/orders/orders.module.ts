@@ -11,6 +11,7 @@ import { User, UserSchema } from '../users/infrastructure/schemas/user.schema';
 import { CheckoutService } from './application/checkout.service';
 import { DashboardAdminService } from './application/dashboard-admin.service';
 import { OrderLifecycleService } from './application/order-lifecycle.service';
+import { PaymentVerificationService } from './application/payment-verification.service';
 import { OrdersService } from './application/orders.service';
 import { IdempotencyRepository } from './infrastructure/repositories/idempotency.repository';
 import { OrderCounterRepository } from './infrastructure/repositories/order-counter.repository';
@@ -108,6 +109,7 @@ import { OrdersController } from './presentation/orders.controller';
     CheckoutService,
     OrdersService,
     OrderLifecycleService,
+    PaymentVerificationService,
     OrderRepository,
     OrderCounterRepository,
     IdempotencyRepository,

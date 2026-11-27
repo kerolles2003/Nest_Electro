@@ -1,13 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { Mail, MapPin, Clock, Send } from 'lucide-react';
+
+/**
+ * The support inbox this page writes to. It is the address displayed in the
+ * contact information beside the form, so the two can never disagree.
+ */
+const SUPPORT_EMAIL = 'support@nest-electronics.com';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [opened, setOpened] = useState(false);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -19,19 +24,28 @@ export default function ContactPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /*
+   * F17 — this form used to fake delivery: it waited a second, showed
+   * "sent successfully", and discarded the message. There is still no
+   * contact-messages backend (and the owner's chosen channel is WhatsApp,
+   * D16, whose number is not yet supplied), so the honest behaviour is to
+   * hand the message to the visitor's OWN email client, addressed to the
+   * support inbox, with everything they typed prefilled — and to say
+   * exactly that. Nothing is claimed sent until they send it there.
+   */
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setSubmitting(false);
-    setSubmitted(true);
-    setFormData({ name: '', email: '', subject: '', message: '' });
+
+    const body = `${formData.message}\n\n— ${formData.name} (${formData.email})`;
+    const href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = href;
+    setOpened(true);
   };
 
   const contactInfo = [
-    { icon: Mail, label: 'Email', value: 'support@nest-electronics.com' },
-    { icon: Phone, label: 'Phone', value: '+20 100 000 0000' },
+    { icon: Mail, label: 'Email', value: SUPPORT_EMAIL },
     { icon: MapPin, label: 'Location', value: 'Cairo, Egypt' },
     { icon: Clock, label: 'Hours', value: 'Sat–Thu, 9am – 6pm' },
   ];
@@ -60,11 +74,16 @@ export default function ContactPage() {
       {/* Right Form */}
       <div className="bg-white border border-border rounded-lg p-6 shadow-card">
         <h2 className="text-lg font-heading font-semibold text-foreground mb-4">Send us a Message</h2>
-        {submitted ? (
-          <div className="p-4 bg-success-light border border-success/20 rounded-md text-success text-sm">
-            Thank you! Your message has been sent successfully. We will get back to you soon.
+        <p className="text-sm text-foreground-muted mb-4">
+          This opens your own email app with the message addressed to us — nothing is sent until
+          you press send there. You can also write to us directly at {SUPPORT_EMAIL}.
+        </p>
+        {opened && (
+          <div className="p-4 mb-4 bg-success-light border border-success/20 rounded-md text-success text-sm">
+            Your email app should have opened with your message ready to send. If it did not, email
+            us at {SUPPORT_EMAIL} instead.
           </div>
-        ) : (
+        )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-foreground-muted mb-1">Name</label>
@@ -112,14 +131,12 @@ export default function ContactPage() {
             </div>
             <button
               type="submit"
-              disabled={submitting}
               className="btn-primary w-full py-2.5 text-sm flex items-center justify-center gap-2 disabled:opacity-60"
             >
               <Send className="w-4 h-4" />
-              {submitting ? 'Sending...' : 'Send Message'}
+              Open in your email app
             </button>
           </form>
-        )}
       </div>
     </div>
   );

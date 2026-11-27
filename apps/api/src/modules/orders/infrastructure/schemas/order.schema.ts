@@ -141,6 +141,37 @@ const OrderPricingSnapshotSchema = SchemaFactory.createForClass(OrderPricingSnap
  * refund is a bank transfer somebody makes by hand, and modelling a five-state
  * refund lifecycle would describe nothing real (BEHAVIOR-DECISIONS O13).
  */
+/**
+ * Manual-transfer verification evidence and decision (D01/D03).
+ *
+ * Present only on Wallet/InstaPay orders. The customer's declared sender
+ * identifier is EVIDENCE, never authority: it changes no state by itself.
+ * The decision fields are written only by the authorized admin approval /
+ * rejection operations, together with an audit row.
+ */
+@Schema({ _id: false, strict: 'throw' })
+export class OrderPaymentVerification {
+  /** The sender wallet number / InstaPay account the customer declares. */
+  @Prop({ type: String, default: null })
+  transferSender!: string | null;
+
+  /** When the customer last submitted (or resubmitted) transfer evidence. */
+  @Prop({ type: Date, default: null })
+  submittedAt!: Date | null;
+
+  /** The staff account that approved or rejected, once decided. */
+  @Prop({ type: String, default: null })
+  decidedBy!: string | null;
+
+  @Prop({ type: Date, default: null })
+  decidedAt!: Date | null;
+
+  /** Rejection reason shown to the customer; null unless rejected. */
+  @Prop({ type: String, default: null })
+  decisionNote!: string | null;
+}
+const OrderPaymentVerificationSchema = SchemaFactory.createForClass(OrderPaymentVerification);
+
 @Schema({ _id: false, strict: 'throw' })
 export class OrderPayment {
   @Prop({ type: String, required: true, enum: Object.values(PaymentMethod) })
@@ -148,6 +179,9 @@ export class OrderPayment {
 
   @Prop({ type: String, required: true, enum: Object.values(PaymentStatus) })
   status!: PaymentStatus;
+
+  @Prop({ type: OrderPaymentVerificationSchema, default: null })
+  verification!: OrderPaymentVerification | null;
 
   @Prop({ type: Date, default: null })
   collectedAt!: Date | null;

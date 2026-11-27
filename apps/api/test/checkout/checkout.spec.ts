@@ -722,7 +722,12 @@ describe('placement — the happy path', () => {
 
     expect(order.orderNumber).toMatch(/^NE-\d{8}-\d{4,}$/);
     expect(order.status).toBe('PLACED');
-    expect(order.payment).toEqual({ method: 'COD', status: 'PENDING', collectedAt: null });
+    expect(order.payment).toEqual({
+      method: 'COD',
+      status: 'PENDING',
+      collectedAt: null,
+      verification: null,
+    });
     expect(order.currency).toBe('EGP');
     expect(order.customerNote).toBe('Please call before delivery.');
     expect(order.shippingAddress).toEqual({ ...ADDRESS, postalCode: null });

@@ -1,4 +1,4 @@
-import { Body, Controller, Header, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, Header, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -18,7 +18,9 @@ import type { Locale } from '../../../common/localization/locale';
 import type { AuthenticatedUser } from '../../auth/domain/authenticated-user';
 import { Role } from '../../users/infrastructure/schemas/user.schema';
 import { CheckoutService } from '../application/checkout.service';
+import { PaymentMethod } from '../domain/order-status';
 import { CheckoutQuoteDto } from './dto/checkout-request.dto';
+import { ManualPaymentInstructionsResponseDto } from './dto/manual-payment.dto';
 import { CheckoutQuoteResponseDto, CheckoutQuoteViewDto } from './dto/quote-response.dto';
 
 /** Per-customer and recomputed every request. Nothing may cache a quote. */
@@ -39,6 +41,30 @@ const NO_STORE = 'no-store';
 @Roles(Role.CUSTOMER)
 export class CheckoutController {
   constructor(private readonly checkout: CheckoutService) {}
+
+  @Get('payment-methods')
+  @Header('Cache-Control', NO_STORE)
+  @ApiOperation({
+    summary: 'Payment methods currently offered, with manual transfer instructions',
+    description: [
+      'COD is always offered. WALLET and INSTAPAY appear only when the owner has configured',
+      'their receiving details (D01). For a manual order, the customer transfers the order',
+      'total to the shown destination, then sends the order reference and transfer screenshot',
+      'via WhatsApp (D16). The order stays PENDING_VERIFICATION until an authorized admin',
+      'approves it — nothing on this endpoint or in WhatsApp can mark it paid.',
+    ].join('\n'),
+  })
+  @ApiOkResponse({ type: ManualPaymentInstructionsResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiForbiddenResponse({ type: ErrorResponseDto })
+  async paymentMethods(): Promise<ManualPaymentInstructionsResponseDto> {
+    const instructions = this.checkout.manualPaymentInstructions();
+    const availableMethods = [PaymentMethod.COD];
+    if (instructions.walletNumber !== null) availableMethods.push(PaymentMethod.WALLET);
+    if (instructions.instapayAddress !== null) availableMethods.push(PaymentMethod.INSTAPAY);
+
+    return { data: { availableMethods, ...instructions } };
+  }
 
   @Post('quote')
   @HttpCode(HttpStatus.OK)

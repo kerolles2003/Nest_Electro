@@ -1,0 +1,27 @@
+# CI-only override for docker-compose.dev.yml.
+#
+# The Jest harness (apps/api/src/database/testing/scratch-run.ts) accepts a
+# scratch replica set only when its name matches `nest-test-*` — a deliberate
+# guard that keeps test databases from ever being pointed at a developer's
+# real set. The dev compose file names its set `rs0`, which is right for
+# local development and wrong for that guard, so the transaction gate could
+# never have run the suite: globalSetup refused the URI before a single
+# test executed.
+#
+# This override renames ONLY the set, for CI's disposable instance. Local
+# development keeps `rs0` and its existing volume; nothing here is used by
+# `docker compose -f docker-compose.dev.yml` on a developer machine.
+#
+#   docker compose -f docker-compose.dev.yml -f docker-compose.ci.yml up -d --wait
+
+services:
+  mongo:
+    command: ["--replSet", "nest-test-rs0", "--bind_ip_all"]
+    healthcheck:
+      test: >
+        mongosh --quiet --eval "
+          try { rs.status().ok }
+          catch (e) {
+            rs.initiate({_id:'nest-test-rs0',members:[{_id:0,host:'localhost:27017'}]}).ok
+          }
+        "

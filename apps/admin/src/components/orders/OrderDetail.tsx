@@ -15,9 +15,11 @@ import {
   confirmOrderAction,
   deliverOrderAction,
   failDeliveryAction,
+  rejectPaymentAction,
   retryShipmentAction,
   returnOrderAction,
   shipOrderAction,
+  verifyPaymentAction,
   type OrderActionResult,
 } from '@/actions/admin-order.actions';
 import type { AdminOrder, AdminOrderTransition, OrderStatus } from '@/lib/api/types';
@@ -57,6 +59,13 @@ import type { AdminOrder, AdminOrderTransition, OrderStatus } from '@/lib/api/ty
 
 interface OrderDetailProps {
   order: AdminOrder;
+  /**
+   * The signed-in operator's email, for the segregation-of-duties hint:
+   * when it matches the order customer's email, this operator placed the
+   * order and cannot decide its payment. Advisory only — the API enforces
+   * the rule regardless of what this component renders.
+   */
+  viewerEmail?: string;
 }
 
 /** The three lifecycle actions that need something typed before they can run. */
@@ -78,7 +87,7 @@ function iconFor(status: OrderStatus) {
   }
 }
 
-export default function OrderDetail({ order }: OrderDetailProps) {
+export default function OrderDetail({ order, viewerEmail }: OrderDetailProps) {
   const { addToast } = useToast();
   const router = useRouter();
 
@@ -90,7 +99,21 @@ export default function OrderDetail({ order }: OrderDetailProps) {
   /** The last server refusal, shown in place rather than only as a toast. */
   const [refusal, setRefusal] = useState<string | null>(null);
 
-  const isCod = order.payment.method === 'COD';
+  const payment = order.payment;
+  const isCod = payment?.method === 'COD';
+  /*
+   * Segregation of duties (owner-approved 2026-11-22): the operator who
+   * placed an order must not decide its payment. The API compares account
+   * ids and refuses with 403; the console compares the account email —
+   * the order's customer snapshot carries no id, by design — purely to
+   * explain the restriction BEFORE the operator tries. If the emails do
+   * not match, the panel works normally; if they diverge from the API's
+   * view (e.g. the account email changed after ordering), the API's 403
+   * message still explains the refusal in place.
+   */
+  const ownOrder =
+    viewerEmail !== undefined &&
+    viewerEmail.toLowerCase() === order.customer.email.toLowerCase();
 
   /**
    * Dispatches one move.
@@ -183,7 +206,11 @@ export default function OrderDetail({ order }: OrderDetailProps) {
             <StatusBadge status={order.status} />
           </span>
           <span data-testid="payment-status">
-            <StatusBadge status={order.payment.status} />
+            {payment !== null ? (
+              <StatusBadge status={payment.status} />
+            ) : (
+              <span className="text-xs font-semibold text-destructive">Payment data missing</span>
+            )}
           </span>
           <div className="h-4 w-px bg-border hidden sm:block" />
           <span className="text-xs text-muted-foreground">
@@ -201,6 +228,21 @@ export default function OrderDetail({ order }: OrderDetailProps) {
         </button>
       </div>
 
+      {payment === null && (
+        <div
+          data-testid="payment-data-missing"
+          className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2.5 flex items-center gap-2 text-xs text-destructive"
+        >
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          <span>
+            <span className="font-semibold">Payment data is missing for this order.</span>{' '}
+            The record predates the payment schema or was damaged outside the API. It cannot be
+            confirmed, shipped or delivered until the payment record is corrected — the API
+            refuses those moves rather than guessing a payment method.
+          </span>
+        </div>
+      )}
+
       {isCod && (
         <div className="rounded-lg border border-warning/20 bg-warning/5 px-4 py-2.5 flex items-center gap-2 text-xs text-warning">
           <Route className="h-3.5 w-3.5 shrink-0" />
@@ -208,6 +250,25 @@ export default function OrderDetail({ order }: OrderDetailProps) {
           <span className="text-warning/80">
             marking this order delivered records the cash as collected, in the same write.
           </span>
+        </div>
+      )}
+
+      {!isCod && payment?.status === 'PENDING_VERIFICATION' && (
+        <PaymentVerificationPanel order={order} ownOrder={ownOrder} onDone={(result) => {
+          if (result.ok) {
+            addToast('Payment decision recorded', 'success');
+            router.refresh();
+          } else {
+            setRefusal(result.error ?? 'The decision was refused.');
+          }
+        }} />
+      )}
+
+      {!isCod && payment?.status === 'VERIFICATION_REJECTED' && (
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-2.5 text-xs text-destructive">
+          <span className="font-semibold">Transfer rejected:</span>{' '}
+          {payment.verification?.decisionNote ?? 'No reason recorded.'} The customer can
+          resubmit evidence for a new review.
         </div>
       )}
 
@@ -313,9 +374,13 @@ export default function OrderDetail({ order }: OrderDetailProps) {
 
               {unroutable.length > 0 && (
                 <p className="text-[11px] text-muted-foreground" data-testid="unroutable-moves">
-                  {unroutable.map((move) => label(move.to).toLowerCase()).join(', ')}
-                  {unroutable.length === 1 ? ' is' : ' are'} possible for this order but not from
-                  this console — cancelling is the customer&apos;s own action.
+                  {/*
+                   * One template string, deliberately: as separate JSX
+                   * expressions the spaces around the verb were eaten by
+                   * JSX whitespace collapsing and the sentence rendered as
+                   * "cancelled ispossible for this order".
+                   */}
+                  {`${unroutable.map((move) => label(move.to).toLowerCase()).join(', ')} ${unroutable.length === 1 ? 'is' : 'are'} possible for this order but not from this console — cancelling is the customer's own action.`}
                 </p>
               )}
 
@@ -472,7 +537,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
                 <div className="flex justify-between items-end">
                   <div>
                     <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                      Total {order.payment.status === 'PENDING' ? 'due on delivery' : 'collected'}
+                      Total {payment?.status === 'PENDING' ? 'due on delivery' : 'collected'}
                     </p>
                     <p className="text-2xl font-bold text-foreground" data-testid="grand-total">
                       {order.pricing.grandTotal.formatted}
@@ -480,7 +545,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
                   </div>
                   <div className="text-right">
                     <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Payment</p>
-                    <p className="text-sm font-semibold text-foreground">{order.payment.method}</p>
+                    <p className="text-sm font-semibold text-foreground">{payment?.method ?? 'Missing'}</p>
                   </div>
                 </div>
               </div>
@@ -563,6 +628,124 @@ export default function OrderDetail({ order }: OrderDetailProps) {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Manual transfer verification (D03): the operator compares the received
+ * transfer against the order total and decides. Approval requires typing
+ * the received amount; the API refuses any amount that is not the total,
+ * and refuses a second decision — this panel is a form, not the authority.
+ */
+function PaymentVerificationPanel({
+  order,
+  onDone,
+  ownOrder,
+}: {
+  order: AdminOrder;
+  onDone: (result: OrderActionResult) => void;
+  /** True when the signed-in operator placed this order (SoD hint). */
+  ownOrder?: boolean;
+}) {
+  const [amount, setAmount] = useState((order.pricing.grandTotal.amount / 100).toFixed(2));
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState<'verify' | 'reject' | null>(null);
+  const payment = order.payment;
+
+  // The panel is only rendered for PENDING_VERIFICATION orders, which by
+  // construction have payment data; this guard is for the type checker
+  // and for defence in depth, not an expected path.
+  if (payment === null) return null;
+
+  async function decide(kind: 'verify' | 'reject'): Promise<void> {
+    setBusy(kind);
+    const result =
+      kind === 'verify'
+        ? await verifyPaymentAction(order.id, Number(amount))
+        : await rejectPaymentAction(order.id, reason);
+    setBusy(null);
+    onDone(result);
+  }
+
+  return (
+    <div className="rounded-xl border border-warning/30 bg-warning/5 p-4 space-y-3">
+      <p className="text-xs font-bold uppercase tracking-wider text-warning">
+        Manual transfer awaiting verification
+      </p>
+      <p className="text-sm text-muted-foreground">
+        {payment.method} transfer of{' '}
+        <strong className="text-foreground">{order.pricing.grandTotal.formatted}</strong>
+        {payment.verification?.transferSender != null && (
+          <>
+            {' '}declared from{' '}
+            <strong className="text-foreground">{payment.verification.transferSender}</strong>
+          </>
+        )}
+        {payment.verification?.submittedAt != null && (
+          <> · submitted {new Date(payment.verification.submittedAt).toLocaleString('en-GB')}</>
+        )}
+        . Check the screenshot the customer sent on WhatsApp against the actual transfer before deciding.
+      </p>
+
+      {ownOrder === true && (
+        <div
+          data-testid="sod-notice"
+          className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning flex items-start gap-2"
+        >
+          <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span>
+            <span className="font-semibold">You placed this order.</span> Segregation of duties:
+            the administrator who placed an order cannot approve or reject its payment — another
+            administrator must review it. The API enforces this and audits any attempt.
+          </span>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block">
+          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            Amount actually received
+          </span>
+          <input
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            inputMode="decimal"
+            className="w-40 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={busy !== null || ownOrder === true}
+          onClick={() => void decide('verify')}
+          className="rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white disabled:opacity-50"
+        >
+          {busy === 'verify' ? 'Verifying…' : 'Approve — mark paid'}
+        </button>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block grow">
+          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            Rejection reason (customer sees this)
+          </span>
+          <input
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            maxLength={500}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            placeholder="e.g. Screenshot total does not match the order total"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={busy !== null || ownOrder === true || reason.trim().length < 3}
+          onClick={() => void decide('reject')}
+          className="rounded-lg border border-destructive px-4 py-2 text-xs font-bold uppercase tracking-wider text-destructive disabled:opacity-50"
+        >
+          {busy === 'reject' ? 'Rejecting…' : 'Reject transfer'}
+        </button>
       </div>
     </div>
   );

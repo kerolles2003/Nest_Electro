@@ -108,6 +108,14 @@ export default async function CheckoutPage({
 
   const quoteResult = await tryApi(() => api.quote(selected.id));
 
+  // Manual payment availability is configuration, not catalogue data: when
+  // the owner has not configured a method, it is simply not offered (D01).
+  // A failure here must not block COD checkout, so it degrades to COD-only.
+  const paymentMethodsResult = await tryApi(() => api.getPaymentMethods());
+  const paymentMethods = paymentMethodsResult.ok
+    ? paymentMethodsResult.data.data
+    : { availableMethods: ['COD' as const], walletNumber: null, instapayAddress: null, whatsappNumber: null };
+
   if (!quoteResult.ok) {
     return (
       <Shell>
@@ -126,6 +134,7 @@ export default async function CheckoutPage({
         quote={quoteResult.data.data}
         idempotencyKey={randomUUID()}
         basePath={ROUTES.checkout}
+        paymentMethods={paymentMethods}
       />
     </Shell>
   );

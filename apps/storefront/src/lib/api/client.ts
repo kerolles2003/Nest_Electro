@@ -147,7 +147,7 @@ function safeJson(text: string): unknown {
  * returns `REFRESH_TOKEN_REUSED`, which the API treats as suspected theft and
  * which is terminal — the session is cleared rather than retried.
  */
-async function refreshSession(refreshToken: string): Promise<SessionTokens | null> {
+export async function renewSession(refreshToken: string): Promise<SessionTokens | null> {
   const { status, body } = await send(
     '/auth/refresh',
     { method: 'POST', body: { refreshToken }, auth: false },
@@ -183,7 +183,35 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     isRenewable(result.body);
 
   if (expired) {
-    const renewed = await refreshSession(session.refreshToken);
+    /*
+     * F01 — never burn a rotating token you cannot persist.
+     *
+     * Refreshing ROTATES the refresh token: the old one is burned the
+     * moment the API answers. Persisting the new pair needs a cookie
+     * write, which a Server Component render forbids — it throws. The old
+     * code refreshed first and wrote second, so a render-context expiry
+     * destroyed the session (and the burned token's reuse could trigger
+     * the API's theft revocation).
+     *
+     * So writability is probed FIRST, by writing the CURRENT pair back —
+     * an idempotent write. If it throws, this is a render: do not refresh,
+     * do not clear; surface the 401 untouched and let the caller send the
+     * browser through the renewal route (`/session/renew`), which renews
+     * in a Route Handler where writes are legal. In a Server Action the
+     * probe succeeds and the in-place refresh below runs as before.
+     */
+    let canWriteCookies = true;
+    try {
+      await writeSession(session);
+    } catch {
+      canWriteCookies = false;
+    }
+
+    if (!canWriteCookies) {
+      throw toApiError(401, result.body);
+    }
+
+    const renewed = await renewSession(session.refreshToken);
 
     if (renewed === null) {
       // The refresh token is gone, revoked, or reused. Nothing here can

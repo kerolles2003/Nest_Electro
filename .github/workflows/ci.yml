@@ -16,7 +16,11 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # `muse/**` included deliberately: the A01 bootstrap failure lived on a
+    # long-lived feature branch that no gate ever ran against, because push
+    # triggers named only `main`. Long-lived engineering branches are where
+    # ungated defects accumulate; they are gated like `main` from now on.
+    branches: [main, 'muse/**']
   pull_request:
 
 # Least privilege. No job here writes anything back — they lint, type-check,
@@ -114,6 +118,13 @@ jobs:
       # with anything else. It is read through the same validated
       # configuration boundary as every other environment (env.schema.ts).
       MONGODB_URI: mongodb://127.0.0.1:27017/nest_electronics_ci
+      # The Jest harness's scratch-database URI. Its validator
+      # (apps/api/src/database/testing/scratch-run.ts) accepts only a
+      # credential-free loopback URI whose replica set is named `nest-test-*`
+      # — which is why the CI override compose file renames the set, and why
+      # this variable's absence used to fail the gate in globalSetup, before
+      # any test ran, for a reason that had nothing to do with the code.
+      NEST_TEST_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=nest-test-rs0
 
     steps:
       - uses: actions/checkout@v4
@@ -126,12 +137,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # The app's env schema requires a JWT secret before ANY suite boots —
+      # globalSetup included. A fresh random value per run: it signs tokens
+      # for a disposable database on a disposable runner, so generating it
+      # here keeps a credential-shaped string out of the repository entirely.
+      - name: Generate the run's throwaway JWT secret
+        run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
       # The SAME compose file local development uses, so CI and a developer's
-      # machine prove the same thing about the same topology. Its healthcheck
+      # machine prove the same thing about the same topology — plus the CI
+      # override, which renames the replica set to the `nest-test-*` name the
+      # Jest harness requires (see docker-compose.ci.yml). Its healthcheck
       # initiates the replica set idempotently; --wait blocks until a PRIMARY
       # is reported.
       - name: Start MongoDB replica set
-        run: docker compose -f docker-compose.dev.yml up -d --wait
+        run: docker compose -f docker-compose.dev.yml -f docker-compose.ci.yml up -d --wait
 
       # Readiness is asserted, not assumed. A compose filename is not evidence
       # of a topology, so the server is asked directly before the gate runs.
@@ -172,7 +192,7 @@ jobs:
       # does not affect the job outcome, and no step above can be skipped by it.
       - name: Stop MongoDB
         if: always()
-        run: docker compose -f docker-compose.dev.yml down -v
+        run: docker compose -f docker-compose.dev.yml -f docker-compose.ci.yml down -v
 
   # ---------------------------------------------------------------------------
   # The API CONTRACT gate (Phase 3).
@@ -209,6 +229,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Same requirement as the transaction gate: generating the document
+      # boots the real module graph, and the env schema refuses to boot
+      # without a JWT secret. Fresh and random per run, for the same reason.
+      - name: Generate the run's throwaway JWT secret
+        run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
 
       # docs/api/index.html embeds a COPY of the artifact so the contract can be
       # read by opening a file, with no server (a page that fetches its sibling

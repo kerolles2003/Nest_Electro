@@ -1,8 +1,11 @@
 import 'server-only';
 
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { tryApi } from '@/lib/api/client';
 import * as api from '@/lib/api/endpoints';
-import { readSession } from '@/lib/api/session';
+import { PATH_HEADER, renewalUrl, safeNextPath } from '@/lib/api/renewal';
+import { readSession, renewalWasJustAttempted } from '@/lib/api/session';
 import type { Viewer } from '@/components/providers/SiteProviders';
 
 /**
@@ -21,7 +24,29 @@ export async function readViewer(): Promise<Viewer | null> {
 
   const result = await tryApi(() => api.currentUser());
 
-  if (!result.ok) return null;
+  if (!result.ok) {
+    /*
+     * F01 — an expired access token during a page render is renewed by
+     * REDIRECT, never in place. `apiFetch` deliberately did not refresh:
+     * the render cannot write the rotated pair, and burning the token
+     * would destroy the session. The renewal route (a Route Handler, where
+     * cookie writes are legal) renews once and sends the browser back.
+     *
+     * The loop guard is the marker cookie: if renewal was attempted in the
+     * last 30 seconds and the API still refuses, the session is genuinely
+     * over, and degrading to signed-out is the honest answer.
+     *
+     * `readViewer` runs from the root layout, so this one redirect covers
+     * every page. The redirect is thrown AFTER `tryApi` has returned, so
+     * nothing swallows it.
+     */
+    if (result.error.code === 'TOKEN_EXPIRED' && !(await renewalWasJustAttempted())) {
+      const currentPath = safeNextPath((await headers()).get(PATH_HEADER));
+      redirect(renewalUrl(currentPath));
+    }
+
+    return null;
+  }
 
   const user = result.data.data;
 

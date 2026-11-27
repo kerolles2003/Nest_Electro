@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { paymentsConfig, type PaymentsConfig } from '../../../config/payments.config';
 import { Types } from 'mongoose';
 import type { ClientSession } from 'mongoose';
 import { AppException } from '../../../common/errors/app.exception';
@@ -12,7 +13,12 @@ import { InventoryService } from '../../inventory/application/inventory.service'
 import { AddressesService } from '../../users/application/addresses.service';
 import { UsersService, type UserProfile } from '../../users/application/users.service';
 import type { AddressLean } from '../../users/infrastructure/schemas/user.schema';
-import { INITIAL_ORDER_STATUS, INITIAL_PAYMENT_STATUS, PaymentMethod } from '../domain/order-status';
+import {
+  INITIAL_ORDER_STATUS,
+  initialPaymentStatusFor,
+  isManualTransfer,
+  PaymentMethod,
+} from '../domain/order-status';
 import { IdempotencyRepository, isDuplicateKeyError } from '../infrastructure/repositories/idempotency.repository';
 import { counterDayKey, OrderCounterRepository } from '../infrastructure/repositories/order-counter.repository';
 import { OrderRepository } from '../infrastructure/repositories/order.repository';
@@ -78,6 +84,13 @@ export interface PlaceOrderCommand {
    */
   readonly addressId: Types.ObjectId;
   readonly customerNote: string | null;
+  /**
+   * The chosen payment method (D01). COD when absent. For manual transfers,
+   * `transferSender` is the customer's declared sending account — evidence
+   * recorded on the order, never a state change by itself.
+   */
+  readonly paymentMethod: PaymentMethod;
+  readonly transferSender: string | null;
   /**
    * The request's resolved locale, used ONLY to choose the language of the
    * confirmation email — one request, one language.
@@ -176,7 +189,35 @@ export class CheckoutService {
     private readonly counters: OrderCounterRepository,
     private readonly idempotency: IdempotencyRepository,
     private readonly notifications: NotificationsService,
+    @Inject(paymentsConfig.KEY) private readonly payments: PaymentsConfig,
   ) {}
+
+  /**
+   * Whether a payment method may be chosen right now (D01/D03).
+   *
+   * COD is always available. A manual method is available only when the
+   * owner has configured its receiving detail — an unconfigured method is
+   * refused here, at placement, rather than producing an order whose
+   * transfer instructions point nowhere.
+   */
+  manualMethodConfigured(method: PaymentMethod): boolean {
+    if (method === PaymentMethod.WALLET) return this.payments.walletNumber !== null;
+    if (method === PaymentMethod.INSTAPAY) return this.payments.instapayAddress !== null;
+    return true;
+  }
+
+  /** The public manual-payment instructions view (no secrets involved). */
+  manualPaymentInstructions(): {
+    walletNumber: string | null;
+    instapayAddress: string | null;
+    whatsappNumber: string | null;
+  } {
+    return {
+      walletNumber: this.payments.walletNumber,
+      instapayAddress: this.payments.instapayAddress,
+      whatsappNumber: this.payments.whatsappNumber,
+    };
+  }
 
   /**
    * The authoritative breakdown for the customer's current cart.
@@ -224,6 +265,29 @@ export class CheckoutService {
    * prices, or a clean failure, never yesterday's total.
    */
   async placeOrder(command: PlaceOrderCommand): Promise<PlacementOutcome> {
+    // Manual-payment validation happens BEFORE the idempotency claim, so a
+    // refused method never consumes the customer's key (D01/D03).
+    if (isManualTransfer(command.paymentMethod)) {
+      if (!this.manualMethodConfigured(command.paymentMethod)) {
+        throw AppException.validation([
+          {
+            field: 'paymentMethod',
+            message: 'That payment method is not available.',
+            code: 'UNAVAILABLE',
+          },
+        ]);
+      }
+      if (command.transferSender === null || command.transferSender.trim() === '') {
+        throw AppException.validation([
+          {
+            field: 'transferSender',
+            message: 'The account or number you transferred from is required.',
+            code: 'REQUIRED',
+          },
+        ]);
+      }
+    }
+
     const requestHash = CheckoutService.fingerprint(command);
 
     // --- Pre-flight replay -------------------------------------------------
@@ -622,8 +686,20 @@ export class CheckoutService {
         vatRateBps: VAT_RATE_BPS,
       },
       payment: {
-        method: PaymentMethod.COD,
-        status: INITIAL_PAYMENT_STATUS,
+        method: context.command.paymentMethod,
+        status: initialPaymentStatusFor(context.command.paymentMethod),
+        // Manual transfers start UNVERIFIED by construction: the declared
+        // sender is recorded as evidence and the order waits for an
+        // authorized admin decision. Nothing here can produce PAID (D03).
+        verification: isManualTransfer(context.command.paymentMethod)
+          ? {
+              transferSender: context.command.transferSender,
+              submittedAt: placedAt,
+              decidedBy: null,
+              decidedAt: null,
+              decisionNote: null,
+            }
+          : null,
         collectedAt: null,
         refundedAmount: null,
         refundNote: null,
@@ -682,7 +758,14 @@ export class CheckoutService {
    */
   private static fingerprint(command: PlaceOrderCommand): string {
     return createHash('sha256')
-      .update(JSON.stringify([command.addressId.toHexString(), command.customerNote]))
+      .update(
+        JSON.stringify([
+          command.addressId.toHexString(),
+          command.customerNote,
+          command.paymentMethod,
+          command.transferSender,
+        ]),
+      )
       .digest('hex');
   }
 

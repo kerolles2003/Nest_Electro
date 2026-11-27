@@ -71,7 +71,21 @@ export class AuditReaderService {
     const filter: FilterQuery<AuditLog> = {};
 
     if (query.actorId !== undefined) filter['actor.id'] = new Types.ObjectId(query.actorId);
-    if (query.action !== undefined) filter.action = query.action;
+    if (query.action !== undefined) {
+      filter.action = query.action;
+    } else {
+      /*
+       * Intent rows (ADMIN_MUTATION_REQUESTED) are durability machinery, not
+       * events: `recordIntent` writes one before a multi-step mutation so a
+       * crash leaves evidence, and its own contract says "requested is never
+       * a claim of success". In the operator's trail they read as phantom
+       * duplicates of the action that follows them — every other consumer of
+       * this trail already excludes them by hand. So the default list does
+       * too; an explicit `action=ADMIN_MUTATION_REQUESTED` query still
+       * returns them, because forensic access is what they exist for.
+       */
+      filter.action = { $ne: AuditAction.ADMIN_MUTATION_REQUESTED };
+    }
     if (query.entityType !== undefined) filter['entity.type'] = query.entityType;
     if (query.entityId !== undefined) filter['entity.id'] = new Types.ObjectId(query.entityId);
 
@@ -115,6 +129,11 @@ export class AuditReaderService {
   async actionsPresent(): Promise<string[]> {
     const actions = await this.model.distinct('action').exec();
 
-    return (actions as string[]).sort((a, b) => a.localeCompare(b));
+    // Same rule as `list`: the intent marker is machinery, not an operator
+    // concept, so it is not offered as a filter. It remains queryable by
+    // naming it explicitly.
+    return (actions as string[])
+      .filter((action) => action !== AuditAction.ADMIN_MUTATION_REQUESTED)
+      .sort((a, b) => a.localeCompare(b));
   }
 }

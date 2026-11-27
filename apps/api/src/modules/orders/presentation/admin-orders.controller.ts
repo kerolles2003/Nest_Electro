@@ -22,15 +22,18 @@ import type { AuthenticatedUser } from '../../auth/domain/authenticated-user';
 import { Role } from '../../users/infrastructure/schemas/user.schema';
 import { OrderLifecycleService } from '../application/order-lifecycle.service';
 import { OrdersService } from '../application/orders.service';
+import { PaymentVerificationService } from '../application/payment-verification.service';
 import { parseOrderSearch } from '../domain/order-search';
 import { OrderStatus } from '../domain/order-status';
 import {
   ConfirmOrderDto,
   DeliverOrderDto,
   DeliveryFailedDto,
+  RejectPaymentDto,
   RetryShipmentDto,
   ReturnOrderDto,
   ShipOrderDto,
+  VerifyPaymentDto,
 } from './dto/admin-order-request.dto';
 import { AdminOrderDto, AdminOrderResponseDto } from './dto/admin-order-response.dto';
 import { AdminOrderQueueQueryDto, OrderIdParamDto } from './dto/order-query.dto';
@@ -100,6 +103,7 @@ export class AdminOrdersController {
   constructor(
     private readonly lifecycle: OrderLifecycleService,
     private readonly orders: OrdersService,
+    private readonly paymentVerification: PaymentVerificationService,
   ) {}
 
   @Get()
@@ -152,6 +156,7 @@ export class AdminOrdersController {
 
     const outcome = await this.orders.listForStaff({
       ...(query.status !== undefined ? { statuses: query.status } : {}),
+      ...(query.paymentStatus !== undefined ? { paymentStatuses: query.paymentStatus } : {}),
       ...(query.page !== undefined ? { page: query.page } : {}),
       ...(query.limit !== undefined ? { limit: query.limit } : {}),
       ...(search !== null ? { search } : {}),
@@ -347,6 +352,75 @@ export class AdminOrdersController {
     @RequestLocale() locale: Locale,
   ): Promise<AdminOrderResponseDto> {
     return this.run(params, principal, forensics, locale, OrderStatus.DELIVERED, { note: dto.note ?? null });
+  }
+
+  @Post(':id/payment/verify')
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', NO_STORE)
+  @ApiOperation({
+    summary: 'Approve a manual Wallet/InstaPay transfer (PENDING_VERIFICATION → PAID)',
+    description: [
+      'The ONLY operation that can mark a manual-transfer order PAID (D03). The body carries',
+      'the amount actually received; approval is refused unless it equals the order total',
+      'exactly. The decision is guarded on the current payment status, so two admins cannot',
+      'both approve, and repeating an approval is refused rather than applied twice.',
+    ].join('\n'),
+  })
+  @ApiOkResponse({ type: AdminOrderResponseDto, description: 'Verified. `payment.status` is `PAID`.' })
+  @ApiBadRequestResponse({ type: ErrorResponseDto, description: LIFECYCLE_ERRORS.badRequest })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: LIFECYCLE_ERRORS.forbidden })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: LIFECYCLE_ERRORS.notFound })
+  @ApiConflictResponse({ type: ErrorResponseDto, description: LIFECYCLE_ERRORS.conflict })
+  async verifyPayment(
+    @Param() params: OrderIdParamDto,
+    @Body() dto: VerifyPaymentDto,
+    @CurrentUser() principal: AuthenticatedUser,
+    @Forensics() forensics: ForensicContext,
+    @RequestLocale() locale: Locale,
+  ): Promise<AdminOrderResponseDto> {
+    const order = await this.paymentVerification.approve({
+      orderId: new Types.ObjectId(params.id),
+      actorId: new Types.ObjectId(principal.id),
+      confirmedAmount: dto.confirmedAmount,
+      context: forensics,
+    });
+
+    return { data: AdminOrderDto.from(order, locale) };
+  }
+
+  @Post(':id/payment/reject')
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', NO_STORE)
+  @ApiOperation({
+    summary: 'Reject a manual Wallet/InstaPay transfer (PENDING_VERIFICATION → VERIFICATION_REJECTED)',
+    description: [
+      'Records why the transfer was not accepted. The customer sees the reason and may',
+      'resubmit evidence, which starts a new verification round. Rejection never deletes',
+      'the order and never marks anything paid.',
+    ].join('\n'),
+  })
+  @ApiOkResponse({ type: AdminOrderResponseDto, description: 'Rejected. `payment.status` is `VERIFICATION_REJECTED`.' })
+  @ApiBadRequestResponse({ type: ErrorResponseDto, description: LIFECYCLE_ERRORS.badRequest })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiForbiddenResponse({ type: ErrorResponseDto, description: LIFECYCLE_ERRORS.forbidden })
+  @ApiNotFoundResponse({ type: ErrorResponseDto, description: LIFECYCLE_ERRORS.notFound })
+  @ApiConflictResponse({ type: ErrorResponseDto, description: LIFECYCLE_ERRORS.conflict })
+  async rejectPayment(
+    @Param() params: OrderIdParamDto,
+    @Body() dto: RejectPaymentDto,
+    @CurrentUser() principal: AuthenticatedUser,
+    @Forensics() forensics: ForensicContext,
+    @RequestLocale() locale: Locale,
+  ): Promise<AdminOrderResponseDto> {
+    const order = await this.paymentVerification.reject({
+      orderId: new Types.ObjectId(params.id),
+      actorId: new Types.ObjectId(principal.id),
+      reason: dto.reason,
+      context: forensics,
+    });
+
+    return { data: AdminOrderDto.from(order, locale) };
   }
 
   @Post(':id/delivery-failed')

@@ -387,15 +387,44 @@ export function quote(addressId?: string): Promise<Envelope<CheckoutQuote>> {
 export function placeOrder(input: {
   addressId: string;
   customerNote?: string;
+  paymentMethod?: 'COD' | 'WALLET' | 'INSTAPAY';
+  transferSender?: string;
   idempotencyKey: string;
 }): Promise<Envelope<Order>> {
+  const body: Record<string, unknown> = { addressId: input.addressId };
+
+  if (input.customerNote !== undefined && input.customerNote !== '') {
+    body.customerNote = input.customerNote;
+  }
+  if (input.paymentMethod !== undefined && input.paymentMethod !== 'COD') {
+    body.paymentMethod = input.paymentMethod;
+    body.transferSender = input.transferSender;
+  }
+
   return apiFetch('/orders', {
     method: 'POST',
-    body:
-      input.customerNote === undefined || input.customerNote === ''
-        ? { addressId: input.addressId }
-        : { addressId: input.addressId, customerNote: input.customerNote },
+    body,
     headers: { 'Idempotency-Key': input.idempotencyKey },
+  });
+}
+
+/** Manual payment availability + transfer instructions (D01/D03/D16). */
+export interface ManualPaymentInstructions {
+  availableMethods: ('COD' | 'WALLET' | 'INSTAPAY')[];
+  walletNumber: string | null;
+  instapayAddress: string | null;
+  whatsappNumber: string | null;
+}
+
+export function getPaymentMethods(): Promise<Envelope<ManualPaymentInstructions>> {
+  return apiFetch('/checkout/payment-methods');
+}
+
+/** Resubmits transfer evidence after a verification rejection (D03). */
+export function resubmitPayment(id: string, transferSender: string): Promise<Envelope<Order>> {
+  return apiFetch(`/orders/${encodeURIComponent(id)}/payment/resubmit`, {
+    method: 'POST',
+    body: { transferSender },
   });
 }
 

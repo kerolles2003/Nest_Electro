@@ -1,11 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useActionState } from 'react';
-import { Lock, MapPin, ShieldCheck } from 'lucide-react';
+import { useActionState, useState } from 'react';
+import { Banknote, Lock, MapPin, ShieldCheck, Wallet } from 'lucide-react';
 import { placeOrderAction } from '@/actions/api-shop.actions';
 import { emptyActionState } from '@/lib/api/action-state';
+import type { ManualPaymentInstructions } from '@/lib/api/endpoints';
 import type { Address, CheckoutQuote } from '@/lib/api/types';
+
+type PaymentChoice = 'COD' | 'WALLET' | 'INSTAPAY';
 
 /**
  * The checkout screen.
@@ -41,6 +44,7 @@ export function CheckoutForm({
   quote,
   idempotencyKey,
   basePath,
+  paymentMethods,
 }: {
   addresses: Address[];
   selectedId: string;
@@ -49,9 +53,22 @@ export function CheckoutForm({
   idempotencyKey: string;
   /** The route this form lives on, so the address radio can re-quote on it. */
   basePath: string;
+  /** Which payment methods the owner currently offers (D01). */
+  paymentMethods: ManualPaymentInstructions;
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(placeOrderAction, emptyActionState);
+  const [paymentChoice, setPaymentChoice] = useState<PaymentChoice>('COD');
+  const [transferSender, setTransferSender] = useState('');
+
+  const isManual = paymentChoice !== 'COD';
+  const destination =
+    paymentChoice === 'WALLET'
+      ? paymentMethods.walletNumber
+      : paymentChoice === 'INSTAPAY'
+        ? paymentMethods.instapayAddress
+        : null;
+  const senderMissing = isManual && transferSender.trim() === '';
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
@@ -156,6 +173,96 @@ export function CheckoutForm({
         <form action={formAction} className="mt-6 space-y-4">
           <input type="hidden" name="addressId" value={selectedId} />
           <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
+          <input type="hidden" name="paymentMethod" value={paymentChoice} />
+          <input type="hidden" name="transferSender" value={transferSender} />
+
+          <fieldset>
+            <legend className="mb-1.5 text-[12px] font-bold uppercase tracking-wider text-foreground-muted">
+              Payment
+            </legend>
+            <div className="space-y-2">
+              <label className="flex cursor-pointer items-start gap-3 rounded-sm border border-[var(--color-border)] p-3 text-sm">
+                <input
+                  type="radio"
+                  name="paymentChoice"
+                  className="mt-1"
+                  checked={paymentChoice === 'COD'}
+                  onChange={() => setPaymentChoice('COD')}
+                />
+                <span>
+                  <span className="flex items-center gap-1.5 font-bold text-foreground">
+                    <Banknote className="h-4 w-4" /> Cash on delivery
+                  </span>
+                  <span className="block text-foreground-muted">Pay the courier when your order arrives.</span>
+                </span>
+              </label>
+
+              {paymentMethods.availableMethods.includes('WALLET') && (
+                <label className="flex cursor-pointer items-start gap-3 rounded-sm border border-[var(--color-border)] p-3 text-sm">
+                  <input
+                    type="radio"
+                    name="paymentChoice"
+                    className="mt-1"
+                    checked={paymentChoice === 'WALLET'}
+                    onChange={() => setPaymentChoice('WALLET')}
+                  />
+                  <span>
+                    <span className="flex items-center gap-1.5 font-bold text-foreground">
+                      <Wallet className="h-4 w-4" /> Mobile wallet transfer
+                    </span>
+                    <span className="block text-foreground-muted">
+                      Transfer the total to {paymentMethods.walletNumber}, then send the screenshot on WhatsApp.
+                    </span>
+                  </span>
+                </label>
+              )}
+
+              {paymentMethods.availableMethods.includes('INSTAPAY') && (
+                <label className="flex cursor-pointer items-start gap-3 rounded-sm border border-[var(--color-border)] p-3 text-sm">
+                  <input
+                    type="radio"
+                    name="paymentChoice"
+                    className="mt-1"
+                    checked={paymentChoice === 'INSTAPAY'}
+                    onChange={() => setPaymentChoice('INSTAPAY')}
+                  />
+                  <span>
+                    <span className="flex items-center gap-1.5 font-bold text-foreground">
+                      <Wallet className="h-4 w-4" /> InstaPay transfer
+                    </span>
+                    <span className="block text-foreground-muted">
+                      Transfer the total to {paymentMethods.instapayAddress}, then send the screenshot on WhatsApp.
+                    </span>
+                  </span>
+                </label>
+              )}
+            </div>
+
+            {isManual && (
+              <div className="mt-3 space-y-3">
+                <label className="block text-sm">
+                  <span className="mb-1.5 block text-[12px] font-bold uppercase tracking-wider text-foreground-muted">
+                    The number / account you will transfer FROM
+                  </span>
+                  <input
+                    value={transferSender}
+                    onChange={(event) => setTransferSender(event.target.value)}
+                    maxLength={64}
+                    className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-[15px] focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
+                    placeholder="e.g. 01012345678"
+                  />
+                </label>
+                <p className="text-sm text-foreground-muted">
+                  Transfer <strong>{quote.pricing.grandTotal.formatted}</strong> to{' '}
+                  <strong>{destination}</strong>. After placing the order, send your order number and
+                  the transfer screenshot on WhatsApp
+                  {paymentMethods.whatsappNumber !== null && <> ({paymentMethods.whatsappNumber})</>}.
+                  Your order is confirmed as paid only after our team verifies the transfer — sending
+                  the screenshot alone does not pay the order.
+                </p>
+              </div>
+            )}
+          </fieldset>
 
           <label className="block text-sm">
             <span className="mb-1.5 block text-[12px] font-bold uppercase tracking-wider text-foreground-muted">
@@ -177,7 +284,7 @@ export function CheckoutForm({
 
           <button
             type="submit"
-            disabled={pending || !quote.canPlaceOrder}
+            disabled={pending || !quote.canPlaceOrder || senderMissing}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-[13px] font-bold uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-hover disabled:opacity-50"
           >
             <Lock className="h-4 w-4" />
@@ -192,7 +299,9 @@ export function CheckoutForm({
 
           <p className="flex items-center justify-center gap-1.5 text-xs text-foreground-muted">
             <ShieldCheck className="h-3.5 w-3.5" />
-            Cash on delivery — nothing is charged now.
+            {isManual
+              ? 'Manual transfer — verified by our team before it counts as paid.'
+              : 'Cash on delivery — nothing is charged now.'}
           </p>
         </form>
       </aside>
