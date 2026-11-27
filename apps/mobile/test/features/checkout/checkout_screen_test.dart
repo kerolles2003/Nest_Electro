@@ -249,4 +249,30 @@ void main() {
     expect(find.textContaining('Transfer the total'), findsOneWidget);
     expect(find.byType(TextField), findsWidgets);
   });
+
+  testWidgets('load failure shows the error state with a retry',
+      (WidgetTester tester) async {
+    // Phase 10: a non-API address failure surfaces LOAD_FAILED in the
+    // controller instead of spinning forever — the screen shows its
+    // error state and the retry recovers.
+    when(() => repository.listAddresses()).thenThrow(
+      StateError('platform failure'),
+    );
+
+    await pumpCheckout(tester);
+
+    expect(find.text("Couldn't load products"), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Place order'), findsNothing);
+
+    when(() => repository.listAddresses()).thenAnswer(
+      (_) async => <AddressDto>[_address()],
+    );
+    await tester.tap(find.text('Retry'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Place order'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

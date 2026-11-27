@@ -2,18 +2,19 @@
 
 Mission: build a Flutter customer-storefront app at `apps/mobile` on branch
 `flutter-app` (cut from `origin/phase-1-2-overnight` at `5a1fd5c`), phases
-0–9, fully autonomous, no owner questions. Status: **all 9 phases done
-locally, gates green. The final GitHub sync is NOT done yet** — per owner
-decision D-08 it happens when the owner is awake to approve its cards.
-See "Transfer to GitHub" below.
+0–9 plus a phase-10 hardening pass, fully autonomous, no owner questions.
+Status: **all 9 phases + phase 10 done locally, gates green. The final
+GitHub sync is NOT done yet** — per owner decision D-08 it happens when
+the owner is awake to approve its cards. See "Transfer to GitHub" below.
 
 ## What was built
 
 A complete customer storefront app (Android, iOS, web) talking only to
 `apps/api`. Arabic is the default locale (RTL), English is second.
 Stack: Riverpod 2, go_router, dio, freezed/json_serializable,
-`flutter_secure_storage`, `cached_network_image`, `google_fonts`
-(Albert Sans + Urbanist, the storefront families).
+`flutter_secure_storage`, `cached_network_image`, bundled Albert Sans +
+Urbanist TTFs (the storefront families; `google_fonts` was removed in
+phase 10 — the app renders its real typography fully offline).
 
 | Phase | What | Branch commit | Merged into `flutter-app` | Gate |
 |---|---|---|---|---|
@@ -27,14 +28,80 @@ Stack: Riverpod 2, go_router, dio, freezed/json_serializable,
 | 7 Polish | Image caching everywhere, pull-to-refresh, tooltips, WCAG AA contrast (caught + fixed a real dark-theme defect), RTL fixes on every screen, app icon placeholder | `a0da7cc` | `44e8ad2` | analyze clean, test 116/116, `flutter build web` passes; axe-style sweep: 0 violations on audited screens |
 | 8 Quality | 32 new tests, happy-path integration test, GitHub Actions workflow | `89c9efa` | `49172ab` | analyze clean, test **148/148** |
 | 9 Wrap-up | This report + `README.md` | `4aebdd7` | `cdd518e` | analyze clean, test 148/148 |
+| 10 Hardening | Stuck-spinner fix extended to account/orders/addresses/checkout (7 load paths, 6 regression tests); fonts bundled as TTFs, `google_fonts` removed; dark muted foreground measured + fixed (#64748B → #94A3B8); widget coverage for home / product detail / cart / checkout / login; load test 20→50→100 users + 3 checkouts + parallel idempotency proof (see "Phase 10 — Hardening" below) | `flutter/phase-10-hardening` | (merge commit recorded in PROGRESS.md) | analyze clean, test **163/163**, `flutter build web` passes |
 
 Final gate (re-verified on the merged tree): `flutter analyze` — no
-issues; `flutter test` — **148/148 passed**; `flutter build web` passes.
-All 9 phase branches are merged locally into `flutter-app` with real
+issues; `flutter test` — **163/163 passed**; `flutter build web` passes.
+All 10 phase branches are merged locally into `flutter-app` with real
 merge commits; full history is preserved. Nothing was pushed to GitHub
 except phase 0 (PR #3, merged before the plan change). `main` and
 `phase-1-2-overnight` were never touched; no force-push; no deploy;
 no secrets or `.env` files committed.
+
+## Phase 10 — Hardening (2026-11-27, owner out of the house)
+
+What changed:
+
+- **Stuck-spinner class closed** (known issue #1, except one follow-up):
+  the generic `catch` from phase 8's `CartController._load` fix now covers
+  the account, orders (first page + load more), order detail, addresses,
+  and checkout (load + quote) load paths. A non-API failure surfaces
+  `LOAD_FAILED` and clears the loading flag instead of spinning forever.
+  Six regression tests, one per controller (three for orders).
+  Remaining: `ProductListController` (`catalogue_providers.dart`) still
+  catches only `ApiException` in its loads — same hang class, out of the
+  phase-10 task's explicit controller list; the one remaining follow-up.
+- **Fonts bundled** (known issue #5 closed): 8 static TTFs
+  (Albert Sans + Urbanist, 400/500/600/700, ~352 KB) in
+  `assets/fonts/`, declared in `pubspec.yaml`; `google_fonts` removed.
+  The app works fully offline and the test `allowRuntimeFetching`
+  workaround (D-29/D-31) is gone.
+- **Dark muted foreground measured and fixed** (known issue #2 closed):
+  old #64748B was 3.90:1 on the dark surface (below WCAG AA 4.5:1);
+  new #94A3B8 is 7.24:1 (6.41:1 / 5.89:1 on the other dark surfaces),
+  pinned by test. Screens still use `colorScheme.onSurfaceVariant`
+  (Material default, D-27) — the token was fixed for correctness, not
+  rewired.
+- **Coverage extended**: 15 new tests (163 total) — home screen (2),
+  product detail / cart / checkout / login error states with retry,
+  plus app-side concurrency: single-flight token refresh (pre-existing
+  test), receive-timeout → `TIMEOUT` mapping, and double-tap order
+  placement calling the repository exactly once.
+- **App icon untouched** (placeholder "N" stays, per the task).
+
+Load test (live local demo API; driver + raw results in
+`~/workspace/loadtest-p10/`, kept outside the repo):
+
+| Endpoint | 20 users p50 / p95 | 50 users p50 / p95 | 100 users p50 / p95 |
+|---|---|---|---|
+| `GET /products?limit=12&sort=newest` | 113 / 295 ms | 251 / 658 ms | 297 / 1,393 ms |
+| `GET /categories` | 14 / 59 ms | 23 / 87 ms | 83 / 120 ms |
+| `GET /products?q=esp32` | 35 / 84 ms | 68 / 101 ms | 91 / 210 ms |
+| `GET /products/:slug` | 27 / 80 ms | 49 / 113 ms | 105 / 273 ms |
+| `POST /cart/preview` | 24 / 79 ms | 53 / 92 ms | 75 / 225 ms |
+
+- **Zero 5xx, zero transport errors** across ~3,400 requests (two runs);
+  every request 2xx in the clean run. First run's search 400s were the
+  driver's fault (`search` is not a param — the API takes `q`, D-38).
+- **Checkouts**: 3 fresh accounts (register is throttled 3/hour per IP —
+  the ceiling), 3 COD orders (`NE-20261127-0001`…`0003`); re-sending the
+  same idempotency key returned the same order each time. A parallel
+  double-send (two concurrent `POST /orders`, one fresh key) returned
+  statuses `[201, 200]` for the same order (`NE-20261127-0004`) with the
+  user's order count rising by exactly 1 — **no duplicate orders**.
+- **Honest limit — read this before quoting the numbers:** the driver,
+  the API, and Mongo all ran on the same 1.5-CPU sandbox cell, so the
+  latencies above are dominated by the cell, not the code. This proves
+  the system holds up under 100 concurrent users on sandbox hardware;
+  it is **not production-scale proof**. What must be re-checked on real
+  hosting: the same steps against the production-shaped deployment
+  (separate DB/API hosts, real network), sustained rather than burst
+  load, and a real-device checkout. The one endpoint to watch is
+  `GET /products` (list) — its p95 degrades fastest with concurrency
+  (295 → 658 → 1,393 ms); a candidate for server-side caching or an
+  index review on real hosting.
+- `flutter build web` prints a CupertinoIcons font warning; it is benign
+  (no code references `CupertinoIcons`, D-40).
 
 ## What's mocked (no API endpoint — see API_GAPS.md)
 
@@ -61,26 +128,22 @@ no secrets or `.env` files committed.
 
 ## Known issues
 
-1. **Other controllers still catch only `ApiException` in their loads.**
-   Phase 8 fixed this in `CartController._load` (a non-API failure left
-   `isLoading: true` forever — a real bug the integration test caught).
-   The same hang class exists in the account/orders/addresses/checkout
-   controllers' load paths. Follow-up, low risk (their loads only touch
-   the API, which throws `ApiException`).
-2. **Dark-theme muted foreground unmeasured.** The storefront dark
-   `--color-foreground-muted` (#64748b) was never contrast-swept (dark
-   mode was never swept in phase 7). The app's own dark scheme tokens
-   pass WCAG AA (pinned by test).
+1. **Other controllers still catch only `ApiException` in their loads —
+   mostly fixed in phase 10.** The account/orders/addresses/checkout
+   controllers now have the generic `catch` (see "Phase 10 — Hardening").
+   The one remaining instance is `ProductListController`
+   (`catalogue_providers.dart`) — same hang class, follow-up.
+2. **Dark-theme muted foreground — FIXED in phase 10.** Measured
+   #64748B at 3.90:1 (below AA); changed to #94A3B8 at 7.24:1, pinned by
+   test (D-36).
 3. **`onSurfaceVariant` is the Material default**, not the storefront
    muted token (D-27) — deliberate, contrast-verified deviation.
 4. **App icon is a placeholder** (navy + crimson "N", D-28). Replace
    `assets/icon/icon.png` with the real brand mark and re-run
    `dart run flutter_launcher_icons`.
-5. **Fonts are fetched at runtime** (`google_fonts`), not bundled. The app
-   falls back to system fonts offline; widget tests need
-   `GoogleFonts.config.allowRuntimeFetching = false` in `setUpAll`
-   before `AppTheme` is constructed (D-29/D-31). Bundling the TTFs
-   would remove both caveats.
+5. **Fonts — FIXED in phase 10.** The TTFs are bundled in
+   `assets/fonts/`; `google_fonts` is removed and the app renders its
+   real typography fully offline (D-35).
 6. **iOS was never built** — iOS cannot be built on Linux; it needs a Mac
    (D-07). **No APK was built** — no Android SDK in the sandbox (D-10).
    `flutter test` (Dart VM) and `flutter build web` are the verified gates.
@@ -98,18 +161,22 @@ no secrets or `.env` files committed.
    `phase-1-2-overnight` and **do not merge it** until reviewed; merging
    is the owner's call.
 2. **Replace the app icon** (`assets/icon/icon.png`, then
-   `dart run flutter_launcher_icons`) and decide on bundling the fonts.
+   `dart run flutter_launcher_icons`). Fonts are bundled since phase 10 —
+   no decision left there.
 3. **Run the app on a real device/emulator** (Android SDK) and **build
    iOS on a Mac**; point it at the API with
-   `--dart-define=API_BASE_URL=<your API URL>`.
+   `--dart-define=API_BASE_URL=<your API URL>`. Re-run the load steps
+   against the real hosting (see "Phase 10 — Hardening" — sandbox
+   numbers are not production proof).
 4. **Owner deliverables that unblock production behaviour** (same
    deferred list as the API missions): Cloudinary account; real
    `MANUAL_PAYMENT_*` values (wallet number, InstaPay address, WhatsApp
    number); authorized payment verifiers; shipping rate table; policy
    texts; contact channel.
 5. **Product decisions**: blog scope (ADV-3), Phase-8 coupons/reviews
-   scope, and the `ApiException`-only catch follow-up in §1 above.
-6. Read [DECISIONS.md](DECISIONS.md) (D-01…D-33) with the final PR —
+   scope, and the one remaining `ApiException`-only catch
+   (`ProductListController`, known issue #1).
+6. Read [DECISIONS.md](DECISIONS.md) (D-01…D-41) with the final PR —
    it is the record of every autonomous choice and its reasoning.
 
 ## Transfer to GitHub

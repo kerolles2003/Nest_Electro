@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Storefront design tokens, ported from
 /// `apps/storefront/src/app/globals.css` (`:root` = light, `.dark` = dark).
@@ -28,7 +27,12 @@ abstract final class AppColors {
   static const Color darkSecondary = Color(0xFF191F2F);
   static const Color darkMuted = Color(0xFF1E2638);
   static const Color darkBorder = Color(0xFF1E293B);
-  static const Color darkMutedForeground = Color(0xFF64748B);
+  // Phase 10: the storefront dark muted token (#64748B) measured only
+  // 3.90:1 on the dark background (3.45:1 on darkSecondary, 3.18:1 on
+  // darkMuted) — below WCAG AA 4.5:1. Slate-400 (#94A3B8) is the closest
+  // step that passes on all three dark surfaces (7.24 / 6.41 / 5.89:1).
+  // Deliberate deviation from the storefront token, like D-26/D-27.
+  static const Color darkMutedForeground = Color(0xFF94A3B8);
   static const Color darkDanger = Color(0xFFEF4444);
   static const Color darkSuccess = Color(0xFF22C55E);
   static const Color darkWarning = Color(0xFFF59E0B);
@@ -78,15 +82,17 @@ abstract final class AppTheme {
   static TextTheme _textTheme({required bool dark}) {
     final TextTheme base =
         dark ? ThemeData.dark().textTheme : ThemeData.light().textTheme;
-    final TextTheme body = GoogleFonts.albertSansTextTheme(base);
+    // Bundled fonts (assets/fonts, phase 10): Albert Sans body, Urbanist
+    // headings. No runtime fetching — the app works fully offline.
+    final TextTheme body = base.apply(fontFamily: 'AlbertSans');
     return body.copyWith(
-      displayLarge: GoogleFonts.urbanist(textStyle: body.displayLarge),
-      displayMedium: GoogleFonts.urbanist(textStyle: body.displayMedium),
-      displaySmall: GoogleFonts.urbanist(textStyle: body.displaySmall),
-      headlineLarge: GoogleFonts.urbanist(textStyle: body.headlineLarge),
-      headlineMedium: GoogleFonts.urbanist(textStyle: body.headlineMedium),
-      headlineSmall: GoogleFonts.urbanist(textStyle: body.headlineSmall),
-      titleLarge: GoogleFonts.urbanist(textStyle: body.titleLarge),
+      displayLarge: body.displayLarge?.copyWith(fontFamily: 'Urbanist'),
+      displayMedium: body.displayMedium?.copyWith(fontFamily: 'Urbanist'),
+      displaySmall: body.displaySmall?.copyWith(fontFamily: 'Urbanist'),
+      headlineLarge: body.headlineLarge?.copyWith(fontFamily: 'Urbanist'),
+      headlineMedium: body.headlineMedium?.copyWith(fontFamily: 'Urbanist'),
+      headlineSmall: body.headlineSmall?.copyWith(fontFamily: 'Urbanist'),
+      titleLarge: body.titleLarge?.copyWith(fontFamily: 'Urbanist'),
     );
   }
 

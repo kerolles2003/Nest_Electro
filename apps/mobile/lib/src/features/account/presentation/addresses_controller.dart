@@ -57,6 +57,16 @@ class AddressesController extends Notifier<AddressesState> {
       );
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, error: e);
+    } catch (_) {
+      // Non-API failure must not leave the list stuck loading (same hang
+      // class phase 8 fixed in CartController._load, D-32).
+      state = state.copyWith(
+        isLoading: false,
+        error: const ApiException(
+          code: 'LOAD_FAILED',
+          message: 'Could not load your addresses. Please try again.',
+        ),
+      );
     }
   }
 

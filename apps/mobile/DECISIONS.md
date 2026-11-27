@@ -345,3 +345,102 @@ sandbox; bump deliberately). Conventions follow the repo's `ci.yml`:
 `permissions: contents: read`, a `concurrency` group, no secrets, no
 deploy. It has NOT run in CI yet — no GitHub sync happens until the
 final sync after phase 9 (D-08); the first run will be on the final PR.
+
+## D-34 — Stuck-spinner fix extended to account/orders/addresses/checkout (2026-11-27)
+
+Phase 8 (D-32) fixed the hang class in `CartController._load` only. Phase 10
+applies the same generic `catch` to the seven remaining load paths
+(`AccountController._load`, `OrdersController._loadFirstPage` + `loadMore`,
+`OrderDetailController._load`, `AddressesController._load`,
+`CheckoutController._load` + `_fetchQuote`): a non-`ApiException` failure now
+surfaces `ApiException(code: 'LOAD_FAILED', …)` with a per-controller message
+and clears the loading flag, so the screen shows its error state with retry
+instead of spinning forever. Six regression tests (one per controller, three
+for orders) prove it. Deliberately NOT fixed: `ProductListController`
+(`catalogue_providers.dart`) has the same `ApiException`-only catch — it was
+outside the phase-10 task's explicit controller list, so it stays as the one
+remaining follow-up (see REPORT.md).
+
+## D-35 — Fonts bundled as static TTFs; google_fonts removed (2026-11-27)
+
+Albert Sans + Urbanist (400/500/600/700, 8 files, ~352 KB) are now in
+`assets/fonts/` and declared in `pubspec.yaml`; `AppTheme` uses
+`fontFamily: 'AlbertSans'` / Urbanist directly. The `google_fonts`
+dependency is gone, so the app renders its real typography fully offline
+and the `allowRuntimeFetching = false` test workaround (D-29/D-31) is
+deleted from the widget/integration tests. Files were fetched from
+fonts.gstatic.com via the css2 API (Mozilla/4.0 UA returns TTF) and verified
+as TrueType data before committing. This closes known issue #5.
+
+## D-36 — Dark muted foreground #64748B → #94A3B8 (2026-11-27)
+
+Measured, not guessed: the old dark muted token #64748B scored **3.90:1**
+on the dark surface #0C1322 (3.45:1 on darkSecondary, 3.18:1 on darkMuted) —
+all below WCAG AA 4.5:1; the light token #5F6873 passes (5.65/5.32:1).
+Changed to **#94A3B8** (slate-400): 7.24 / 6.41 / 5.89:1 on the three dark
+surfaces. Deliberate deviation from the storefront token, like D-26/D-27.
+The muted tokens are defined but no screen uses them yet — screens use
+`colorScheme.onSurfaceVariant` (Material default, D-27), which the existing
+contrast test already pins as passing in both themes — so the token was
+fixed for correctness and pinned by test, and `onSurfaceVariant` was NOT
+rewired (out of scope per D-27). The contrast test now uses the real
+`AppTheme.light/dark.colorScheme` (possible now fonts are bundled), removing
+a drift risk. This closes known issue #2.
+
+## D-37 — Load test: what was measured and what it does NOT prove (2026-11-27)
+
+Load was driven against the live local demo API (Mongo rs0 + API on this
+1.5-CPU sandbox cell) with a dependency-free Dart driver
+(`~/workspace/loadtest-p10/load_test.dart`, results in `results.json` next
+to it — kept outside the repo, not committed). Steps 20 → 50 → 100
+concurrent users, each doing home list + categories + search + product
+detail + cart preview; plus 3 full checkouts with fresh accounts (register
+is throttled 3/hour per IP, so 3 is the ceiling) and a parallel
+idempotency double-send. Results: 0 5xx, 0 transport errors across ~3,400
+requests; p95 at 100 users 1,393 ms on the products list, 120–273 ms
+elsewhere. This proves the API + app flow hold up under 100 concurrent
+users **on sandbox hardware** — it is NOT production-scale proof: the
+driver, API, and Mongo share one 1.5-CPU cell, so latency is dominated by
+the cell, not the code. What must be re-checked on real hosting: the same
+steps against the production-shaped deployment (separate DB/API hosts,
+real network), plus sustained (not burst) load and a real-device checkout.
+The one endpoint to watch is `GET /products` (list) — its p95 degrades
+fastest with concurrency (295 → 658 → 1,393 ms), likely the
+aggregation/sort; a candidate for server-side caching or an index review
+on real hosting.
+
+## D-38 — Search query param is `q`, not `search` (2026-11-27)
+
+The first load-test run sent `/products?search=esp32` and got 400 on every
+search call. That is the API's strict unknown-field validation, not an API
+bug: the app's `ProductQuery.toQueryParameters()` sends `q`. The driver was
+fixed and re-run clean (100% 2xx). Lesson recorded, not a product change.
+
+## D-39 — Parallel idempotency test needed a second script (2026-11-27)
+
+The first run's parallel double-send "failed" only because the first order
+had already consumed the cart — the second attempt placed an order from an
+empty cart, which is a test-setup error, not an idempotency failure.
+Re-testing needed a fresh cart on an existing account: the register limit
+(3/hour/IP) was exhausted, so a separate driver
+(`~/workspace/loadtest-p10/parallel_idempotency.dart`) re-logged-in as the
+first run's account, refilled the cart, and fired two concurrent
+`POST /orders` with one fresh key: statuses `[201, 200]`, one order
+(`NE-20261127-0004`), order count delta exactly +1. The API's idempotency
+handling is correct under a concurrent race.
+
+## D-40 — `flutter build web` CupertinoIcons font warning is benign (2026-11-27)
+
+The build prints "Expected to find fonts for (MaterialIcons,
+packages/cupertino_icons/CupertinoIcons), but found (MaterialIcons)". No
+code in `lib/` references `CupertinoIcons` — it is a transitive
+dependency's font the tool looks for. Nothing renders from it; no action
+taken.
+
+## D-41 — Load-test accounts and orders live in the demo DB only (2026-11-27)
+
+The load test created 3 throwaway accounts
+(`loadtest-p10-<n>-<ts>@example.test`) and 4 COD orders
+(`NE-20261127-0001`…`0004`) in the demo database. They are demo data, not
+committed anywhere, and the demo DB is rebuilt from seed on the next demo
+rebuild. No cleanup was performed (the demo DB is scratch by design).

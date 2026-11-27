@@ -130,4 +130,27 @@ void main() {
     expect(state.addresses.length, 2);
     expect(state.addresses.last.isDefault, true);
   });
+
+  test('non-API load failure surfaces LOAD_FAILED instead of spinning',
+      () async {
+    // Phase 10: the setUp container already loaded successfully (its
+    // microtasked load runs before this body), so the failing load is
+    // proven on a fresh container stubbed to throw first.
+    when(() => repository.listAddresses()).thenThrow(
+      StateError('platform failure'),
+    );
+    final ProviderContainer fresh = ProviderContainer(
+      overrides: <Override>[
+        accountRepositoryProvider.overrideWithValue(repository),
+      ],
+    );
+    addTearDown(fresh.dispose);
+    fresh.read(addressesControllerProvider.notifier);
+    await _pump();
+
+    final AddressesState state = fresh.read(addressesControllerProvider);
+    expect(state.isLoading, false);
+    expect(state.error?.code, 'LOAD_FAILED');
+    expect(state.addresses, isEmpty);
+  });
 }

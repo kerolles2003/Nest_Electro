@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:nest_electro/src/core/api/api_exception.dart';
 import 'package:nest_electro/src/core/l10n/gen/app_localizations.dart';
 import 'package:nest_electro/src/core/models/product.dart';
 import 'package:nest_electro/src/features/catalogue/data/catalogue_repository.dart';
@@ -145,5 +146,43 @@ void main() {
     expect(find.text('ESP32-CAM Module'), findsOneWidget);
     expect(find.text('Reviews are coming soon — this catalogue has no reviews yet.'),
         findsOneWidget);
+  });
+
+  testWidgets('load failure shows the error state with a retry',
+      (WidgetTester tester) async {
+    final _MockCatalogueRepository repository = _MockCatalogueRepository();
+    when(() => repository.getProduct(any())).thenThrow(
+      const ApiException(code: 'NETWORK_ERROR', message: 'down'),
+    );
+    when(() => repository.getRelated(any())).thenAnswer(
+      (_) async => <ProductListItemDto>[],
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: <Override>[
+          catalogueRepositoryProvider.overrideWithValue(repository),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: const ProductDetailScreen(slug: 'esp32-board'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Couldn't load products"), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+
+    when(() => repository.getProduct(any())).thenAnswer(
+      (_) async => _detail(),
+    );
+    await tester.tap(find.text('Retry'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('ESP32 Dev Board'), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 }

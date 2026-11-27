@@ -319,4 +319,75 @@ void main() {
     );
     verify(() => repository.getQuote('a2')).called(1);
   });
+
+  test('non-API load failure surfaces LOAD_FAILED instead of spinning',
+      () async {
+    // Phase 10: a platform failure is not an ApiException — checkout
+    // must still end with an error state, never isLoading forever.
+    when(() => repository.listAddresses()).thenThrow(
+      StateError('platform failure'),
+    );
+
+    await loadController();
+    final CheckoutState state = container.read(checkoutControllerProvider);
+    expect(state.isLoading, false);
+    expect(state.error?.code, 'LOAD_FAILED');
+    expect(state.addresses, isEmpty);
+  });
+
+  test('non-API quote failure clears isLoadingQuote with LOAD_FAILED',
+      () async {
+    when(() => repository.listAddresses()).thenAnswer(
+      (_) async => <AddressDto>[_address('a1', isDefault: true)],
+    );
+    when(() => repository.getPaymentMethods()).thenAnswer(
+      (_) async => _methods(),
+    );
+    when(() => repository.getQuote(any())).thenThrow(
+      StateError('platform failure'),
+    );
+
+    await loadController();
+    final CheckoutState state = container.read(checkoutControllerProvider);
+    expect(state.isLoading, false);
+    expect(state.isLoadingQuote, false);
+    expect(state.quote, isNull);
+    expect(state.error?.code, 'LOAD_FAILED');
+  });
+
+  test('double-tap placeOrder places exactly one order', () async {
+    // Phase 10: the second concurrent call sees isPlacingOrder and
+    // returns null without hitting the API — one idempotency key, one
+    // order, even if the user double-taps the button.
+    when(() => repository.listAddresses()).thenAnswer(
+      (_) async => <AddressDto>[_address('a1', isDefault: true)],
+    );
+    when(() => repository.getPaymentMethods()).thenAnswer(
+      (_) async => _methods(),
+    );
+    when(() => repository.getQuote(any())).thenAnswer(
+      (_) async => _quote(),
+    );
+    when(() => repository.placeOrder(any(), any())).thenAnswer(
+      (_) async {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        return _order();
+      },
+    );
+
+    final CheckoutController controller = await loadController();
+    expect(container.read(checkoutControllerProvider).canPlaceOrder, true);
+
+    final List<OrderDto?> results = await Future.wait(<Future<OrderDto?>>[
+      controller.placeOrder(),
+      controller.placeOrder(),
+    ]);
+    expect(results.whereType<OrderDto>(), hasLength(1));
+    expect(results, contains(isNull));
+    verify(() => repository.placeOrder(any(), any())).called(1);
+    expect(
+      container.read(checkoutControllerProvider).placedOrder?.orderNumber,
+      'NE-1001',
+    );
+  });
 }

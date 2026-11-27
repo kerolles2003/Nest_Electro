@@ -174,4 +174,34 @@ void main() {
     final List<GuestCartLineDto> stored = await GuestCartStorage().load();
     expect(stored.single.quantity, 2);
   });
+
+  testWidgets('preview failure shows the error state with a retry',
+      (WidgetTester tester) async {
+    // Phase 10: a non-API preview failure surfaces LOAD_FAILED in the
+    // controller instead of spinning forever — the screen shows its
+    // error state and the retry recovers.
+    await GuestCartStorage().save(
+      const <GuestCartLineDto>[
+        GuestCartLineDto(productId: 'p1', quantity: 2),
+      ],
+    );
+    when(() => repository.preview(any())).thenThrow(
+      StateError('platform failure'),
+    );
+
+    await pumpCart(tester);
+
+    expect(find.text("Couldn't load products"), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Product p1'), findsNothing);
+
+    when(() => repository.preview(any())).thenAnswer(
+      (_) async => _cart(<Map<String, dynamic>>[_lineJson('p1', 2)]),
+    );
+    await tester.tap(find.text('Retry'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Product p1'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

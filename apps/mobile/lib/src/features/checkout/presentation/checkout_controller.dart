@@ -167,6 +167,16 @@ class CheckoutController extends Notifier<CheckoutState> {
       }
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, error: e);
+    } catch (_) {
+      // Non-API failure must not leave checkout stuck loading (same hang
+      // class phase 8 fixed in CartController._load, D-32).
+      state = state.copyWith(
+        isLoading: false,
+        error: const ApiException(
+          code: 'LOAD_FAILED',
+          message: 'Could not load checkout. Please try again.',
+        ),
+      );
     }
   }
 
@@ -188,6 +198,17 @@ class CheckoutController extends Notifier<CheckoutState> {
         isLoadingQuote: false,
         clearQuote: true,
         error: e,
+      );
+    } catch (_) {
+      // Non-API failure must clear isLoadingQuote so the quote section
+      // shows its error state instead of spinning forever.
+      state = state.copyWith(
+        isLoadingQuote: false,
+        clearQuote: true,
+        error: const ApiException(
+          code: 'LOAD_FAILED',
+          message: 'Could not load the quote. Please try again.',
+        ),
       );
     }
   }

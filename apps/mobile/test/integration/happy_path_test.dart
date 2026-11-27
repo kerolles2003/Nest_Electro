@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nest_electro/src/app.dart';
@@ -255,9 +254,7 @@ OrderDto _order() {
 
 void main() {
   setUpAll(() {
-    // No network in tests: fall back to system fonts instead of fetching
-    // Google Fonts at runtime (same as the smoke test).
-    GoogleFonts.config.allowRuntimeFetching = false;
+    // Phase 10: fonts are bundled — no GoogleFonts config needed.
     // The cart controller reads guest storage (SharedPreferences) during
     // its load — without mock values that throws and the cart spins
     // forever (caught by this test before the fix).

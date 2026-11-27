@@ -80,10 +80,9 @@ Future<void> _pumpAr(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ar'),
-        // No theme: AppTheme uses google_fonts, which tries to fetch fonts
-        // over the network and fails inside the test zone. The default
-        // Material theme is enough for the RTL assertions; the contrast
-        // tests below read the scheme values without rendering text.
+        // Phase 10: fonts are bundled, so AppTheme constructs in tests.
+        // The default Material theme is still enough for the RTL
+        // assertions here; the contrast tests below use the real schemes.
         home: child,
       ),
     ),
@@ -182,40 +181,16 @@ void main() {
   });
 
   group('theme contrast (WCAG AA, normal text >= 4.5:1)', () {
-    // The schemes are built from the same AppColors tokens as
-    // AppTheme.light/dark. Constructing AppTheme itself in a test triggers
-    // google_fonts runtime font loading, which cannot run in the test
-    // zone (the fonts are fetched, not bundled), so the test pins the
-    // token wiring directly. If AppTheme's scheme arguments change, copy
-    // the change here.
-    const ColorScheme lightScheme = ColorScheme.light(
-      primary: AppColors.lightPrimary,
-      onPrimary: Colors.white,
-      secondary: AppColors.lightSecondary,
-      onSecondary: AppColors.lightForeground,
-      surface: AppColors.lightBackground,
-      onSurface: AppColors.lightForeground,
-      surfaceContainerLow: AppColors.lightMuted,
-      error: AppColors.lightDanger,
-      onError: Colors.white,
-      outline: AppColors.lightBorder,
-      tertiary: AppColors.lightSuccess,
-    );
-    const ColorScheme darkScheme = ColorScheme.dark(
-      primary: AppColors.darkPrimary,
-      onPrimary: AppColors.darkBackground,
-      secondary: AppColors.darkSecondary,
-      onSecondary: AppColors.darkForeground,
-      surface: AppColors.darkBackground,
-      onSurface: AppColors.darkForeground,
-      surfaceContainerLow: AppColors.darkSecondary,
-      error: AppColors.darkDanger,
-      onError: AppColors.darkBackground,
-      outline: AppColors.darkBorder,
-      tertiary: AppColors.darkSuccess,
-    );
-
-    void checkScheme(String name, ColorScheme scheme) {
+    // Phase 10: fonts are bundled, so AppTheme constructs in tests and
+    // the test pins the REAL schemes (no token copies to drift).
+    // The muted-foreground pairs are pinned too: the dark token was
+    // never measured before phase 10 and failed AA (3.90:1 on the dark
+    // background) until it was fixed to #94A3B8.
+    void checkScheme(
+      String name,
+      ColorScheme scheme, {
+      required Map<String, (Color, Color)> extraPairs,
+    }) {
       test(name, () {
         final Map<String, (Color, Color)> pairs = <String, (Color, Color)>{
           'onSurface / surface': (scheme.onSurface, scheme.surface),
@@ -226,6 +201,7 @@ void main() {
             scheme.onSurfaceVariant,
             scheme.surface,
           ),
+          ...extraPairs,
         };
         for (final MapEntry<String, (Color, Color)> entry in pairs.entries) {
           final double ratio = _contrast(entry.value.$1, entry.value.$2);
@@ -238,7 +214,37 @@ void main() {
       });
     }
 
-    checkScheme('light theme', lightScheme);
-    checkScheme('dark theme', darkScheme);
+    checkScheme(
+      'light theme',
+      AppTheme.light.colorScheme,
+      extraPairs: <String, (Color, Color)>{
+        'lightMutedForeground / surface': (
+          AppColors.lightMutedForeground,
+          AppColors.lightBackground,
+        ),
+        'lightMutedForeground / muted': (
+          AppColors.lightMutedForeground,
+          AppColors.lightMuted,
+        ),
+      },
+    );
+    checkScheme(
+      'dark theme',
+      AppTheme.dark.colorScheme,
+      extraPairs: <String, (Color, Color)>{
+        'darkMutedForeground / surface': (
+          AppColors.darkMutedForeground,
+          AppColors.darkBackground,
+        ),
+        'darkMutedForeground / secondary': (
+          AppColors.darkMutedForeground,
+          AppColors.darkSecondary,
+        ),
+        'darkMutedForeground / muted': (
+          AppColors.darkMutedForeground,
+          AppColors.darkMuted,
+        ),
+      },
+    );
   });
 }
