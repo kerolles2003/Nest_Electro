@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nest_electro/src/app.dart';
 
 void main() {
-  setUpAll(() {
-    // No network in tests: fall back to system fonts instead of fetching
-    // Google Fonts at runtime.
-    GoogleFonts.config.allowRuntimeFetching = false;
-  });
-
+  // Phase 10: fonts are bundled (assets/fonts) — no runtime fetching,
+  // so the smoke test needs no GoogleFonts config any more.
   testWidgets('app boots to the home screen', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: NestElectroApp()));
     // No pumpAndSettle: the hero carousel's 8-second auto-advance timer

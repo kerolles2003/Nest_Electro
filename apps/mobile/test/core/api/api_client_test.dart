@@ -276,8 +276,7 @@ void main() {
       expect(storage.saveCalls, 1);
     });
 
-    test('a non-401 error maps the envelope without refreshing', () async {
-      final _FakeTokenStorage storage = _FakeTokenStorage();
+    test('a non-401 error maps the envelope without refreshing', () async {      final _FakeTokenStorage storage = _FakeTokenStorage();
       final _FakeAdapter adapter = _FakeAdapter(
         (RequestOptions options) => _json(_errorEnvelope('VALIDATION_ERROR'), 422),
       );
@@ -310,4 +309,63 @@ void main() {
       expect(storage.clearCalls, 0);
     });
   });
+
+  group('timeouts', () {
+    test('a response slower than receiveTimeout surfaces TIMEOUT', () async {
+      final _FakeTokenStorage storage = _FakeTokenStorage();
+      // The adapter returns headers at once but the body stream stays
+      // silent for 300 ms — Dio's receiveTimeout watches the stream, so
+      // a 50 ms timeout must surface TIMEOUT, not hang and not return
+      // stale data.
+      final _FakeAdapter adapter = _FakeAdapter(
+        (RequestOptions options) => _delayedJson(<String, dynamic>{
+          'data': <String, dynamic>{'ok': true},
+        }, 200, 300),
+      );
+      final ApiClient client = ApiClient(
+        tokenStorage: storage,
+        localeResolver: () => 'en',
+        dio: Dio(
+          BaseOptions(
+            baseUrl: 'http://127.0.0.1:3002/api/v1',
+            receiveTimeout: const Duration(milliseconds: 50),
+          ),
+        )..httpClientAdapter = adapter,
+        refreshDio: Dio(BaseOptions(baseUrl: 'http://127.0.0.1:3002/api/v1')),
+      );
+
+      await expectLater(
+        client.getData<Map<String, dynamic>>(
+          '/products',
+          fromJson: (Object? json) => json as Map<String, dynamic>,
+        ),
+        throwsA(
+          isA<ApiException>().having(
+            (ApiException e) => e.code,
+            'code',
+            'TIMEOUT',
+          ),
+        ),
+      );
+    });
+  });
+}
+
+/// A JSON body whose stream stays silent for [delayMs] before emitting —
+/// used to prove Dio's receiveTimeout fires on a stalled body stream.
+ResponseBody _delayedJson(Object? data, int statusCode, int delayMs) {
+  final Uint8List bytes = Uint8List.fromList(utf8.encode(jsonEncode(data)));
+  final Stream<Uint8List> stream = Stream<Uint8List>.fromFuture(
+    Future<Uint8List>.delayed(
+      Duration(milliseconds: delayMs),
+      () => bytes,
+    ),
+  );
+  return ResponseBody(
+    stream,
+    statusCode,
+    headers: <String, List<String>>{
+      Headers.contentTypeHeader: <String>[Headers.jsonContentType],
+    },
+  );
 }

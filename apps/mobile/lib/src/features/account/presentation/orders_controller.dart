@@ -76,6 +76,16 @@ class OrdersController extends Notifier<OrdersState> {
       );
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, error: e);
+    } catch (_) {
+      // Non-API failure must not leave the list stuck loading (same hang
+      // class phase 8 fixed in CartController._load, D-32).
+      state = state.copyWith(
+        isLoading: false,
+        error: const ApiException(
+          code: 'LOAD_FAILED',
+          message: 'Could not load your orders. Please try again.',
+        ),
+      );
     }
   }
 
@@ -117,6 +127,16 @@ class OrdersController extends Notifier<OrdersState> {
       );
     } on ApiException catch (e) {
       state = state.copyWith(isLoadingMore: false, error: e);
+    } catch (_) {
+      // Same hang class as the first page: a non-API failure must clear
+      // isLoadingMore so the user can retry instead of spinning forever.
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: const ApiException(
+          code: 'LOAD_FAILED',
+          message: 'Could not load more orders. Please try again.',
+        ),
+      );
     }
   }
 }
@@ -177,6 +197,15 @@ class OrderDetailController extends FamilyNotifier<OrderDetailState, String> {
       state = state.copyWith(order: order, isLoading: false, clearError: true);
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, error: e);
+    } catch (_) {
+      // Non-API failure must not leave the detail screen stuck loading.
+      state = state.copyWith(
+        isLoading: false,
+        error: const ApiException(
+          code: 'LOAD_FAILED',
+          message: 'Could not load this order. Please try again.',
+        ),
+      );
     }
   }
 

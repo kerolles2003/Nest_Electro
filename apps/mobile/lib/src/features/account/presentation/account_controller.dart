@@ -62,6 +62,17 @@ class AccountController extends Notifier<AccountState> {
       state = state.copyWith(user: user, isLoading: false, clearError: true);
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, error: e);
+    } catch (_) {
+      // A non-API failure (e.g. a platform/storage error) must not leave
+      // the screen stuck on its loading spinner — same hang class phase 8
+      // fixed in CartController._load (D-32).
+      state = state.copyWith(
+        isLoading: false,
+        error: const ApiException(
+          code: 'LOAD_FAILED',
+          message: 'Could not load your profile. Please try again.',
+        ),
+      );
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:nest_electro/src/core/api/api_exception.dart';
 import 'package:nest_electro/src/core/api/providers.dart';
 import 'package:nest_electro/src/core/api/token_storage.dart';
 import 'package:nest_electro/src/core/l10n/gen/app_localizations.dart';
@@ -124,5 +125,29 @@ void main() {
 
     verify(() => repository.login(any())).called(1);
     expect(find.text('home'), findsOneWidget);
+  });
+
+  testWidgets('wrong credentials show the error banner',
+      (WidgetTester tester) async {
+    when(() => repository.login(any())).thenThrow(
+      const ApiException(
+        code: 'INVALID_CREDENTIALS',
+        message: 'Invalid email or password',
+      ),
+    );
+
+    await pumpLogin(tester);
+
+    await tester.enterText(
+      find.byType(TextFormField).first,
+      'user@example.com',
+    );
+    await tester.enterText(find.byType(TextFormField).last, 'wrongpass1');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Log in'));
+    await tester.pumpAndSettle();
+
+    verify(() => repository.login(any())).called(1);
+    expect(find.text('Invalid email or password'), findsOneWidget);
+    expect(find.text('home'), findsNothing);
   });
 }

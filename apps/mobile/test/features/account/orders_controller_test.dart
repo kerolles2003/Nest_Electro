@@ -262,4 +262,76 @@ void main() {
       'NOT_FOUND',
     );
   });
+
+  test('non-API list failure surfaces LOAD_FAILED instead of spinning',
+      () async {
+    // Phase 10: a platform failure is not an ApiException — the first
+    // page must still end with an error state, never isLoading forever.
+    when(
+      () => repository.listOrders(
+        page: any(named: 'page'),
+        limit: any(named: 'limit'),
+        status: any(named: 'status'),
+      ),
+    ).thenThrow(StateError('platform failure'));
+
+    container.read(ordersControllerProvider.notifier);
+    await _pump();
+
+    final OrdersState state = container.read(ordersControllerProvider);
+    expect(state.isLoading, false);
+    expect(state.error?.code, 'LOAD_FAILED');
+    expect(state.items, isEmpty);
+  });
+
+  test('non-API detail failure surfaces LOAD_FAILED instead of spinning',
+      () async {
+    when(() => repository.getOrder(any())).thenThrow(
+      StateError('platform failure'),
+    );
+    container.read(orderDetailControllerProvider('o1').notifier);
+    await _pump();
+
+    final OrderDetailState state = container.read(
+      orderDetailControllerProvider('o1'),
+    );
+    expect(state.isLoading, false);
+    expect(state.error?.code, 'LOAD_FAILED');
+    expect(state.order, isNull);
+  });
+
+  test('non-API loadMore failure clears isLoadingMore', () async {
+    when(
+      () => repository.listOrders(
+        page: any(named: 'page'),
+        limit: any(named: 'limit'),
+        status: any(named: 'status'),
+      ),
+    ).thenAnswer((Invocation inv) async {
+      final int page = inv.namedArguments[#page] as int;
+      if (page == 1) {
+        return _page(
+          List<OrderSummaryDto>.generate(
+            20,
+            (int i) => _summary('o$i', 'PLACED'),
+          ),
+          hasNext: true,
+        );
+      }
+      throw StateError('platform failure');
+    });
+
+    final OrdersController controller = container.read(
+      ordersControllerProvider.notifier,
+    );
+    await _pump();
+    expect(container.read(ordersControllerProvider).items.length, 20);
+
+    await controller.loadMore();
+    await _pump();
+    final OrdersState state = container.read(ordersControllerProvider);
+    expect(state.isLoadingMore, false);
+    expect(state.error?.code, 'LOAD_FAILED');
+    expect(state.items.length, 20);
+  });
 }

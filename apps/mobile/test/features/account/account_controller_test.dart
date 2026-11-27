@@ -142,4 +142,20 @@ void main() {
       'VALIDATION_ERROR',
     );
   });
+
+  test('non-API load failure surfaces LOAD_FAILED instead of spinning',
+      () async {
+    // Phase 10: a platform/storage failure is not an ApiException — the
+    // load must still end with an error state, never isLoading forever.
+    when(() => authRepository.me()).thenThrow(
+      StateError('secure storage failure'),
+    );
+    container.read(accountControllerProvider.notifier);
+    await _pump();
+
+    final AccountState state = container.read(accountControllerProvider);
+    expect(state.isLoading, false);
+    expect(state.error?.code, 'LOAD_FAILED');
+    expect(state.user, isNull);
+  });
 }
