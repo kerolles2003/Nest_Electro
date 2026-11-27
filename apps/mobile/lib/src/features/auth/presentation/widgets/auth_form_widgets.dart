@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nest_electro/src/core/l10n/gen/app_localizations.dart';
 
 /// Labelled text field used by all auth forms, with an optional
 /// show/hide toggle for passwords.
@@ -51,6 +52,9 @@ class _AuthTextFieldState extends State<AuthTextField> {
                 icon: Icon(
                   _visible ? Icons.visibility_off : Icons.visibility,
                 ),
+                tooltip: _visible
+                    ? AppLocalizations.of(context)!.passwordHide
+                    : AppLocalizations.of(context)!.passwordShow,
                 onPressed: () => setState(() => _visible = !_visible),
               )
             : null,

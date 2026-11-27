@@ -133,37 +133,38 @@ class CartScreen extends ConsumerWidget {
       );
     }
 
-    return ListView(
-      children: <Widget>[
-        if (loggedIn && state.guestLines.isNotEmpty)
-          _GuestBanner(linesCount: state.guestLines.length),
-        if (cart.hasBlockingIssues)
+    return RefreshIndicator(
+      onRefresh: () => ref.read(cartControllerProvider.notifier).refresh(),
+      child: ListView(
+        children: <Widget>[
+          if (loggedIn && state.guestLines.isNotEmpty)
+            _GuestBanner(linesCount: state.guestLines.length),
+          if (cart.hasBlockingIssues)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: _WarningCard(text: l10n.cartBlockingIssues),
+            ),
+          ...cart.items.map((CartLineDto line) => _CartLineTile(line: line)),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: _WarningCard(text: l10n.cartBlockingIssues),
-          ),
-        ...cart.items.map(
-          (CartLineDto line) => _CartLineTile(line: line),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                l10n.cartItemCount(cart.totalQuantity),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Text(
-                cart.itemsSubtotal.formatted,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  l10n.cartItemCount(cart.totalQuantity),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-              ),
-            ],
+                Text(
+                  cart.itemsSubtotal.formatted,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -194,9 +195,9 @@ class CartScreen extends ConsumerWidget {
                 ),
                 Text(
                   cart.itemsSubtotal.formatted,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -310,8 +311,9 @@ class _CartLineTile extends ConsumerWidget {
     final CartState state = ref.watch(cartControllerProvider);
     final String? statusText = switch (line.status) {
       CartLineStatus.priceChanged => l10n.cartLinePriceChanged,
-      CartLineStatus.reducedStock =>
-        l10n.cartLineReducedStock(line.effectiveQuantity),
+      CartLineStatus.reducedStock => l10n.cartLineReducedStock(
+        line.effectiveQuantity,
+      ),
       CartLineStatus.outOfStock => l10n.cartLineOutOfStock,
       CartLineStatus.unavailable => l10n.cartLineUnavailable,
       CartLineStatus.ok || CartLineStatus.unknown => null,
@@ -389,10 +391,7 @@ class _CartLineTile extends ConsumerWidget {
                         enabled: !state.isBusy,
                         onPressed: () => ref
                             .read(cartControllerProvider.notifier)
-                            .updateQuantity(
-                              line.productId,
-                              line.quantity - 1,
-                            ),
+                            .updateQuantity(line.productId, line.quantity - 1),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -408,10 +407,7 @@ class _CartLineTile extends ConsumerWidget {
                             line.effectiveQuantity < line.availableQuantity,
                         onPressed: () => ref
                             .read(cartControllerProvider.notifier)
-                            .updateQuantity(
-                              line.productId,
-                              line.quantity + 1,
-                            ),
+                            .updateQuantity(line.productId, line.quantity + 1),
                       ),
                       const Spacer(),
                       Text(
@@ -425,8 +421,8 @@ class _CartLineTile extends ConsumerWidget {
                         onPressed: state.isBusy
                             ? null
                             : () => ref
-                                .read(cartControllerProvider.notifier)
-                                .remove(line.productId),
+                                  .read(cartControllerProvider.notifier)
+                                  .remove(line.productId),
                       ),
                     ],
                   ),

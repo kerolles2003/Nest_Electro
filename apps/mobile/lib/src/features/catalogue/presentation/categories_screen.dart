@@ -25,57 +25,58 @@ class CategoriesScreen extends ConsumerWidget {
           final List<CategoryDto> roots = all
               .where((CategoryDto c) => c.parentId == null)
               .toList();
-          final Map<String, List<CategoryDto>> childrenByParent = <
-            String,
-            List<CategoryDto>
-          >{};
+          final Map<String, List<CategoryDto>> childrenByParent =
+              <String, List<CategoryDto>>{};
           for (final CategoryDto c in all) {
             if (c.parentId != null) {
-              childrenByParent.putIfAbsent(c.parentId!, () => <CategoryDto>[])
+              childrenByParent
+                  .putIfAbsent(c.parentId!, () => <CategoryDto>[])
                   .add(c);
             }
           }
-          return ListView.builder(
-            itemCount: roots.length,
-            itemBuilder: (_, int index) {
-              final CategoryDto root = roots[index];
-              final List<CategoryDto> children =
-                  childrenByParent[root.id] ?? const <CategoryDto>[];
-              if (children.isEmpty) {
-                return ListTile(
+          return RefreshIndicator(
+            onRefresh: () => _refresh(ref),
+            child: ListView.builder(
+              itemCount: roots.length,
+              itemBuilder: (_, int index) {
+                final CategoryDto root = roots[index];
+                final List<CategoryDto> children =
+                    childrenByParent[root.id] ?? const <CategoryDto>[];
+                if (children.isEmpty) {
+                  return ListTile(
+                    leading: const Icon(Icons.category_outlined),
+                    title: Text(root.name),
+                    subtitle: Text('${root.productCount}'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/categories/${root.slug}'),
+                  );
+                }
+                return ExpansionTile(
                   leading: const Icon(Icons.category_outlined),
                   title: Text(root.name),
                   subtitle: Text('${root.productCount}'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/categories/${root.slug}'),
-                );
-              }
-              return ExpansionTile(
-                leading: const Icon(Icons.category_outlined),
-                title: Text(root.name),
-                subtitle: Text('${root.productCount}'),
-                children: <Widget>[
-                  ListTile(
-                    title: Text(l10n.homeSeeAll),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push('/categories/${root.slug}'),
-                  ),
-                  ...children.map(
-                    (CategoryDto child) => ListTile(
-                      title: Text(child.name),
-                      subtitle: Text('${child.productCount}'),
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(l10n.homeSeeAll),
                       trailing: const Icon(Icons.chevron_right),
-                      contentPadding: const EdgeInsets.only(
-                        left: 56,
-                        right: 16,
-                      ),
-                      onTap: () =>
-                          context.push('/categories/${child.slug}'),
+                      onTap: () => context.push('/categories/${root.slug}'),
                     ),
-                  ),
-                ],
-              );
-            },
+                    ...children.map(
+                      (CategoryDto child) => ListTile(
+                        title: Text(child.name),
+                        subtitle: Text('${child.productCount}'),
+                        trailing: const Icon(Icons.chevron_right),
+                        contentPadding: const EdgeInsetsDirectional.only(
+                          start: 56,
+                          end: 16,
+                        ),
+                        onTap: () => context.push('/categories/${child.slug}'),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -102,5 +103,19 @@ class CategoriesScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Re-fetches the category list. A failure surfaces through the
+  /// screen's error state, so it is swallowed here.
+  Future<void> _refresh(WidgetRef ref) async {
+    await _guard(ref.refresh(categoriesProvider.future));
+  }
+
+  Future<void> _guard(Future<Object?> future) async {
+    try {
+      await future;
+    } catch (_) {
+      // The screen's error state shows the failure.
+    }
   }
 }

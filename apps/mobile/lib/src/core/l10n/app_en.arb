@@ -302,5 +302,8 @@
   "wishlistLocalOnly": "Saved on this device only — the API has no wishlist yet.",
   "wishlistAdded": "Added to wishlist.",
   "wishlistRemoved": "Removed from wishlist.",
-  "errorGeneric": "Something went wrong. Please try again."
+  "errorGeneric": "Something went wrong. Please try again.",
+  "passwordShow": "Show password",
+  "passwordHide": "Hide password",
+  "searchClear": "Clear search"
 }

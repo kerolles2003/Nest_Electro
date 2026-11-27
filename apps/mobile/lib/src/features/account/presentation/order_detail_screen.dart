@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -175,12 +176,17 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     contentPadding: EdgeInsets.zero,
                     leading: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        ApiConfig.imageUrl(item.imagePublicId),
+                      child: CachedNetworkImage(
+                        imageUrl: ApiConfig.imageUrl(item.imagePublicId),
                         width: 48,
                         height: 48,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) =>
+                        placeholder: (_, _) => Container(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                        ),
+                        errorWidget: (_, _, _) =>
                             const Icon(Icons.image_not_supported),
                       ),
                     ),
