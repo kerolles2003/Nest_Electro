@@ -810,7 +810,7 @@ class __$$LoginPayloadDtoImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$LoginPayloadDtoImpl implements _LoginPayloadDto {
+class _$LoginPayloadDtoImpl extends _LoginPayloadDto {
   const _$LoginPayloadDtoImpl({
     required this.tokenType,
     required this.accessToken,
@@ -819,7 +819,7 @@ class _$LoginPayloadDtoImpl implements _LoginPayloadDto {
     required this.refreshToken,
     required this.refreshTokenExpiresAt,
     required this.user,
-  });
+  }) : super._();
 
   factory _$LoginPayloadDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$LoginPayloadDtoImplFromJson(json);
@@ -894,7 +894,7 @@ class _$LoginPayloadDtoImpl implements _LoginPayloadDto {
   }
 }
 
-abstract class _LoginPayloadDto implements LoginPayloadDto {
+abstract class _LoginPayloadDto extends LoginPayloadDto {
   const factory _LoginPayloadDto({
     required final String tokenType,
     required final String accessToken,
@@ -904,6 +904,7 @@ abstract class _LoginPayloadDto implements LoginPayloadDto {
     required final DateTime refreshTokenExpiresAt,
     required final AuthUserDto user,
   }) = _$LoginPayloadDtoImpl;
+  const _LoginPayloadDto._() : super._();
 
   factory _LoginPayloadDto.fromJson(Map<String, dynamic> json) =
       _$LoginPayloadDtoImpl.fromJson;

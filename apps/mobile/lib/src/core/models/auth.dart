@@ -50,6 +50,18 @@ class LoginPayloadDto with _$LoginPayloadDto {
     required AuthUserDto user,
   }) = _LoginPayloadDto;
 
+  const LoginPayloadDto._();
+
+  /// The token half of the payload, for storage after login.
+  SessionTokensDto get sessionTokens => SessionTokensDto(
+        tokenType: tokenType,
+        accessToken: accessToken,
+        expiresIn: expiresIn,
+        accessTokenExpiresAt: accessTokenExpiresAt,
+        refreshToken: refreshToken,
+        refreshTokenExpiresAt: refreshTokenExpiresAt,
+      );
+
   factory LoginPayloadDto.fromJson(Map<String, dynamic> json) =>
       _$LoginPayloadDtoFromJson(json);
 }

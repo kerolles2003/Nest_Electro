@@ -110,6 +110,12 @@ abstract class AppLocalizations {
   /// **'My addresses'**
   String get addressesTitle;
 
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyHaveAccount;
+
   /// App name shown in the app bar
   ///
   /// In en, this message translates to:
@@ -140,6 +146,12 @@ abstract class AppLocalizations {
   /// **'Categories'**
   String get categoriesTitle;
 
+  /// No description provided for @checkInboxMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your inbox — we sent you a verification link.'**
+  String get checkInboxMessage;
+
   /// No description provided for @checkoutTitle.
   ///
   /// In en, this message translates to:
@@ -152,11 +164,71 @@ abstract class AppLocalizations {
   /// **'Coming soon'**
   String get comingSoon;
 
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPasswordLabel;
+
   /// No description provided for @contactTitle.
   ///
   /// In en, this message translates to:
   /// **'Contact us'**
   String get contactTitle;
+
+  /// No description provided for @createAccountLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Create one'**
+  String get createAccountLink;
+
+  /// No description provided for @emailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get emailInvalid;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get emailRequired;
+
+  /// No description provided for @emailVerificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This verification link is invalid or expired. Request a new one below.'**
+  String get emailVerificationFailed;
+
+  /// No description provided for @emailVerifiedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email is verified. You can now log in.'**
+  String get emailVerifiedMessage;
+
+  /// No description provided for @forgotPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get forgotPasswordButton;
+
+  /// No description provided for @forgotPasswordLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPasswordLink;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we\'ll send you a reset link.'**
+  String get forgotPasswordSubtitle;
 
   /// No description provided for @forgotPasswordTitle.
   ///
@@ -164,17 +236,71 @@ abstract class AppLocalizations {
   /// **'Forgot password'**
   String get forgotPasswordTitle;
 
+  /// No description provided for @fullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get fullNameLabel;
+
+  /// No description provided for @fullNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name is required'**
+  String get fullNameRequired;
+
+  /// No description provided for @fullNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name must not exceed 120 characters'**
+  String get fullNameTooLong;
+
+  /// No description provided for @fullNameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name must be at least 2 characters'**
+  String get fullNameTooShort;
+
+  /// No description provided for @goToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to login'**
+  String get goToLogin;
+
   /// No description provided for @homeWelcome.
   ///
   /// In en, this message translates to:
   /// **'Everything for your electronics projects'**
   String get homeWelcome;
 
+  /// No description provided for @invalidResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'This reset link is invalid or expired.'**
+  String get invalidResetLink;
+
   /// No description provided for @loading.
   ///
   /// In en, this message translates to:
   /// **'Loading…'**
   String get loading;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get loginButton;
+
+  /// No description provided for @loginLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get loginLink;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get loginSubtitle;
 
   /// No description provided for @loginTitle.
   ///
@@ -212,6 +338,12 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get navSearch;
 
+  /// No description provided for @noAccountYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get noAccountYet;
+
   /// No description provided for @orderDetailsTitle.
   ///
   /// In en, this message translates to:
@@ -229,6 +361,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page not found'**
   String get pageNotFound;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @passwordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get passwordRequired;
+
+  /// No description provided for @passwordResetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password was reset. You can now log in.'**
+  String get passwordResetDone;
+
+  /// No description provided for @passwordTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must not exceed 72 characters'**
+  String get passwordTooLong;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 10 characters'**
+  String get passwordTooShort;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @phoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid Egyptian mobile number'**
+  String get phoneInvalid;
+
+  /// No description provided for @phoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone (optional)'**
+  String get phoneLabel;
 
   /// No description provided for @productDetailsTitle.
   ///
@@ -248,11 +428,53 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get profileTitle;
 
+  /// No description provided for @registerButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get registerButton;
+
+  /// No description provided for @registerRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many registration attempts. Please wait an hour and try again.'**
+  String get registerRateLimited;
+
+  /// No description provided for @registerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account to shop and track orders'**
+  String get registerSubtitle;
+
   /// No description provided for @registerTitle.
   ///
   /// In en, this message translates to:
   /// **'Create account'**
   String get registerTitle;
+
+  /// No description provided for @resendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend email'**
+  String get resendButton;
+
+  /// No description provided for @resetLinkSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for this email, a reset link is on its way.'**
+  String get resetLinkSent;
+
+  /// No description provided for @resetPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPasswordButton;
+
+  /// No description provided for @resetPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password'**
+  String get resetPasswordSubtitle;
 
   /// No description provided for @retry.
   ///
@@ -265,6 +487,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search products…'**
   String get searchHint;
+
+  /// No description provided for @verifyEmailButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify email'**
+  String get verifyEmailButton;
+
+  /// No description provided for @verifyEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email'**
+  String get verifyEmailTitle;
+
+  /// No description provided for @verifyingEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying your email…'**
+  String get verifyingEmail;
 
   /// No description provided for @wishlistTitle.
   ///
