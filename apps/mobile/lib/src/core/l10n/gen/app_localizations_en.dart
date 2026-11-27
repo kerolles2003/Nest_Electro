@@ -632,4 +632,152 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addressDefaultBadge => 'Default';
+
+  @override
+  String get accountLogout => 'Log out';
+
+  @override
+  String get profileEdit => 'Edit profile';
+
+  @override
+  String get profileSave => 'Save changes';
+
+  @override
+  String get profileSaved => 'Profile updated.';
+
+  @override
+  String get profileEmailVerified => 'Email verified';
+
+  @override
+  String get profileEmailNotVerified => 'Email not verified';
+
+  @override
+  String get ordersEmpty => 'You have no orders yet.';
+
+  @override
+  String get ordersFilterAll => 'All';
+
+  @override
+  String get orderStatusPlaced => 'Placed';
+
+  @override
+  String get orderStatusConfirmed => 'Confirmed';
+
+  @override
+  String get orderStatusShipped => 'Shipped';
+
+  @override
+  String get orderStatusDelivered => 'Delivered';
+
+  @override
+  String get orderStatusDeliveryFailed => 'Delivery failed';
+
+  @override
+  String get orderStatusCancelled => 'Cancelled';
+
+  @override
+  String get orderStatusReturned => 'Returned';
+
+  @override
+  String get orderStatusUnknown => 'Unknown';
+
+  @override
+  String get orderDetailCancel => 'Cancel order';
+
+  @override
+  String get orderCancelTitle => 'Cancel this order?';
+
+  @override
+  String get orderCancelReason => 'Reason for cancellation';
+
+  @override
+  String get orderCancelReasonHint => 'Tell us briefly why you are cancelling';
+
+  @override
+  String get orderCancelConfirm => 'Yes, cancel the order';
+
+  @override
+  String get orderCancelled => 'Order cancelled.';
+
+  @override
+  String get orderResubmit => 'Resubmit payment proof';
+
+  @override
+  String get orderResubmitHint =>
+      'Enter the wallet / InstaPay account you sent the transfer from.';
+
+  @override
+  String get orderResubmitted => 'Payment proof resubmitted.';
+
+  @override
+  String get orderPaymentRejected =>
+      'Your payment verification was rejected. Check the account you sent from and resubmit.';
+
+  @override
+  String get orderDetailItems => 'Items';
+
+  @override
+  String get orderDetailPayment => 'Payment';
+
+  @override
+  String get orderDetailShipment => 'Shipment';
+
+  @override
+  String get orderDetailCancellation => 'Cancellation';
+
+  @override
+  String get orderDetailPlacedOn => 'Placed on';
+
+  @override
+  String get orderPaymentStatusPending => 'Payment pending';
+
+  @override
+  String get orderPaymentStatusPendingVerification =>
+      'Payment pending verification';
+
+  @override
+  String get orderPaymentStatusRejected => 'Payment verification rejected';
+
+  @override
+  String get orderPaymentStatusPaid => 'Paid';
+
+  @override
+  String get orderPaymentStatusRefunded => 'Refunded';
+
+  @override
+  String get addressesEmpty => 'No addresses saved yet.';
+
+  @override
+  String get addressesEdit => 'Edit address';
+
+  @override
+  String get addressesDelete => 'Delete address';
+
+  @override
+  String get addressesDeleteConfirm => 'Delete this address?';
+
+  @override
+  String get addressesDeleted => 'Address deleted.';
+
+  @override
+  String get addressesSetDefault => 'Set as default';
+
+  @override
+  String get addressesUpdated => 'Address updated.';
+
+  @override
+  String get wishlistEmpty => 'Your wishlist is empty.';
+
+  @override
+  String get wishlistLocalOnly =>
+      'Saved on this device only — the API has no wishlist yet.';
+
+  @override
+  String get wishlistAdded => 'Added to wishlist.';
+
+  @override
+  String get wishlistRemoved => 'Removed from wishlist.';
+
+  @override
+  String get errorGeneric => 'Something went wrong. Please try again.';
 }

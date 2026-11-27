@@ -187,3 +187,48 @@ stays auth-only because `POST /orders` requires a session; guests
 tapping checkout are sent to `/login?redirect=/checkout`. The router's
 auth-only matcher now also covers the `/checkout/` prefix so
 `/checkout/confirmation` is guarded too.
+
+## D-22 — Address list/create are duplicated between checkout and account (2026-11-27)
+
+`AccountRepository` owns the full address set (list/create/update/
+delete/set-default) while `CheckoutRepository` keeps its own
+list/create from phase 5. The duplication (~15 lines) is deliberate:
+checkout must not depend on the account feature, and refactoring the
+tested phase-5 checkout controller to share the repository was not
+worth the churn. If a third caller appears, extract a shared
+address repository then.
+
+## D-23 — Wishlist is local-only and guest-accessible (2026-11-27)
+
+The API has no wishlist endpoint (G1) and the storefront keeps its
+wishlist in Supabase, so the app's wishlist is a SharedPreferences
+mock (`nest_wishlist_v1`) holding an id/slug/name/image/price snapshot
+per item, with a banner on the screen saying it is device-only. `/wishlist`
+is NOT auth-guarded (guests can save items like they can keep a guest
+basket); tapping an item opens the live product detail. The heart toggle
+lives in the product detail AppBar.
+
+## D-24 — Order status filter is an array param; wire values are explicit (2026-11-27)
+
+`GET /orders?status=` takes an ARRAY (`?status=PLACED&status=…`), and
+`deliveryFailed.name.toUpperCase()` would give `DELIVERYFAILED` while
+the API expects `DELIVERY_FAILED`, so the repository maps each
+`OrderStatus` to its wire value explicitly. Cancel is offered for
+PLACED/CONFIRMED only and resubmit only for `VERIFICATION_REJECTED`
+payments (both mirror the storefront; the API is the final judge, 409
+when the status moved on).
+
+## D-25 — Demo observation: documented sandbox login fails; test accounts created (2026-11-27)
+
+The documented sandbox customer (`sandbox@nest-electronics.test` /
+`SandboxPass123`, from `sandbox.seed-data.ts`) returns
+`INVALID_CREDENTIALS` against the current demo DB — the sandbox seed
+was apparently not run against this data dir (or its password differs).
+Not an app defect: phase 6 was live-verified with two fresh customer
+accounts registered through the API (`phase6-test@` /
+`phase6-test2@nest-electronics.test`, verified via the dev-mailer link
+in `api.log`): `GET /auth/me`, `GET /orders` (empty `{data, meta}`
+envelope), `GET /users/me/addresses` (empty `{data: []}`) and
+`PATCH /users/me` (name updated) all match the app's models. Cancel /
+resubmit were verified against the OpenAPI spec + repo tests only —
+the test accounts have no orders.

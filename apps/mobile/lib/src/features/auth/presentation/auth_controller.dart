@@ -47,6 +47,10 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
+  /// Re-reads the session (`GET /auth/me`) — used after a profile update
+  /// so the session user reflects the new name/phone without a relogin.
+  Future<void> refresh() => _restore();
+
   Future<bool> login({
     required String email,
     required String password,

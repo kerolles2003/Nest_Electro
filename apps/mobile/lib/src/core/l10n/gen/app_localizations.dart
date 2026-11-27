@@ -1273,6 +1273,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default'**
   String get addressDefaultBadge;
+
+  /// No description provided for @accountLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get accountLogout;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profileEdit;
+
+  /// No description provided for @profileSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get profileSave;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated.'**
+  String get profileSaved;
+
+  /// No description provided for @profileEmailVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified'**
+  String get profileEmailVerified;
+
+  /// No description provided for @profileEmailNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Email not verified'**
+  String get profileEmailNotVerified;
+
+  /// No description provided for @ordersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no orders yet.'**
+  String get ordersEmpty;
+
+  /// No description provided for @ordersFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get ordersFilterAll;
+
+  /// No description provided for @orderStatusPlaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Placed'**
+  String get orderStatusPlaced;
+
+  /// No description provided for @orderStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get orderStatusConfirmed;
+
+  /// No description provided for @orderStatusShipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped'**
+  String get orderStatusShipped;
+
+  /// No description provided for @orderStatusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get orderStatusDelivered;
+
+  /// No description provided for @orderStatusDeliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery failed'**
+  String get orderStatusDeliveryFailed;
+
+  /// No description provided for @orderStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get orderStatusCancelled;
+
+  /// No description provided for @orderStatusReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned'**
+  String get orderStatusReturned;
+
+  /// No description provided for @orderStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get orderStatusUnknown;
+
+  /// No description provided for @orderDetailCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get orderDetailCancel;
+
+  /// No description provided for @orderCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get orderCancelTitle;
+
+  /// No description provided for @orderCancelReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for cancellation'**
+  String get orderCancelReason;
+
+  /// No description provided for @orderCancelReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us briefly why you are cancelling'**
+  String get orderCancelReasonHint;
+
+  /// No description provided for @orderCancelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, cancel the order'**
+  String get orderCancelConfirm;
+
+  /// No description provided for @orderCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Order cancelled.'**
+  String get orderCancelled;
+
+  /// No description provided for @orderResubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Resubmit payment proof'**
+  String get orderResubmit;
+
+  /// No description provided for @orderResubmitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the wallet / InstaPay account you sent the transfer from.'**
+  String get orderResubmitHint;
+
+  /// No description provided for @orderResubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment proof resubmitted.'**
+  String get orderResubmitted;
+
+  /// No description provided for @orderPaymentRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment verification was rejected. Check the account you sent from and resubmit.'**
+  String get orderPaymentRejected;
+
+  /// No description provided for @orderDetailItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get orderDetailItems;
+
+  /// No description provided for @orderDetailPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get orderDetailPayment;
+
+  /// No description provided for @orderDetailShipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment'**
+  String get orderDetailShipment;
+
+  /// No description provided for @orderDetailCancellation.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation'**
+  String get orderDetailCancellation;
+
+  /// No description provided for @orderDetailPlacedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Placed on'**
+  String get orderDetailPlacedOn;
+
+  /// No description provided for @orderPaymentStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment pending'**
+  String get orderPaymentStatusPending;
+
+  /// No description provided for @orderPaymentStatusPendingVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment pending verification'**
+  String get orderPaymentStatusPendingVerification;
+
+  /// No description provided for @orderPaymentStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment verification rejected'**
+  String get orderPaymentStatusRejected;
+
+  /// No description provided for @orderPaymentStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get orderPaymentStatusPaid;
+
+  /// No description provided for @orderPaymentStatusRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get orderPaymentStatusRefunded;
+
+  /// No description provided for @addressesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No addresses saved yet.'**
+  String get addressesEmpty;
+
+  /// No description provided for @addressesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit address'**
+  String get addressesEdit;
+
+  /// No description provided for @addressesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete address'**
+  String get addressesDelete;
+
+  /// No description provided for @addressesDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this address?'**
+  String get addressesDeleteConfirm;
+
+  /// No description provided for @addressesDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Address deleted.'**
+  String get addressesDeleted;
+
+  /// No description provided for @addressesSetDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as default'**
+  String get addressesSetDefault;
+
+  /// No description provided for @addressesUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Address updated.'**
+  String get addressesUpdated;
+
+  /// No description provided for @wishlistEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wishlist is empty.'**
+  String get wishlistEmpty;
+
+  /// No description provided for @wishlistLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device only — the API has no wishlist yet.'**
+  String get wishlistLocalOnly;
+
+  /// No description provided for @wishlistAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to wishlist.'**
+  String get wishlistAdded;
+
+  /// No description provided for @wishlistRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from wishlist.'**
+  String get wishlistRemoved;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get errorGeneric;
 }
 
 class _AppLocalizationsDelegate
