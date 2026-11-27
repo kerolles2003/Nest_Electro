@@ -9,6 +9,13 @@ import 'package:nest_electro/src/features/auth/presentation/login_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/register_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/reset_password_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/verify_email_screen.dart';
+import 'package:nest_electro/src/features/catalogue/data/product_query.dart';
+import 'package:nest_electro/src/features/catalogue/presentation/brand_screen.dart';
+import 'package:nest_electro/src/features/catalogue/presentation/categories_screen.dart';
+import 'package:nest_electro/src/features/catalogue/presentation/category_screen.dart';
+import 'package:nest_electro/src/features/catalogue/presentation/product_detail_screen.dart';
+import 'package:nest_electro/src/features/catalogue/presentation/product_list_screen.dart';
+import 'package:nest_electro/src/features/catalogue/presentation/search_screen.dart';
 import 'package:nest_electro/src/features/common/presentation/placeholder_screen.dart';
 import 'package:nest_electro/src/features/home/presentation/home_screen.dart';
 
@@ -31,6 +38,35 @@ bool _isAuthOnly(String location) {
     return true;
   }
   return location.startsWith('/account/');
+}
+
+/// Builds a [ProductQuery] from the listing URL. Params mirror the web
+/// listing (`app/products/search-params.ts`): prices in EGP (converted to
+/// piastres here), `in_stock`/`featured` as flags, `sort` as the API
+/// string. Unknown sorts fall back to `newest`.
+ProductQuery _productQueryFromUri(GoRouterState state) {
+  final Map<String, String> params = state.uri.queryParameters;
+  int? price(String key) {
+    final int? egp = int.tryParse(params[key] ?? '');
+    return egp == null ? null : egp * 100;
+  }
+
+  final ProductSort sort = ProductSort.values
+      .where((ProductSort s) => s.value == params['sort'])
+      .firstOrNull ?? ProductSort.newest;
+
+  return ProductQuery(
+    page: int.tryParse(params['page'] ?? '') ?? 1,
+    q: params['q'],
+    category: params['category'],
+    brand: params['brand'],
+    minPrice: price('min_price'),
+    maxPrice: price('max_price'),
+    inStock: params['in_stock'] == 'true',
+    featured: params['featured'] == 'true',
+    spec: params['spec'],
+    sort: sort,
+  );
 }
 
 class _RouterRefreshNotifier extends ChangeNotifier {
@@ -74,32 +110,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/products',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'products'),
+            ProductListScreen(query: _productQueryFromUri(state)),
       ),
       GoRoute(
         path: '/products/:slug',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'product-details'),
+            ProductDetailScreen(slug: state.pathParameters['slug']!),
       ),
       GoRoute(
         path: '/categories',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'categories'),
+            const CategoriesScreen(),
       ),
       GoRoute(
         path: '/categories/:slug',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'category'),
+            CategoryScreen(slug: state.pathParameters['slug']!),
       ),
       GoRoute(
         path: '/brands/:slug',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'brand'),
+            BrandScreen(slug: state.pathParameters['slug']!),
       ),
       GoRoute(
         path: '/search',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'search'),
+            const SearchScreen(),
       ),
       GoRoute(
         path: '/cart',

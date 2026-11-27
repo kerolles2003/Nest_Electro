@@ -221,4 +221,220 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wishlistTitle => 'Wishlist';
+
+  @override
+  String get heroSlide1Kicker => 'Ship same day from Cairo';
+
+  @override
+  String get heroSlide1Title => 'Build what\'s next.';
+
+  @override
+  String get heroSlide1Subtitle =>
+      'Arduino, ESP32, sensors, and robotics modules stocked for serious student and maker projects.';
+
+  @override
+  String get heroSlide1Cta => 'Browse all components';
+
+  @override
+  String get heroSlide2Kicker => 'Recently restocked';
+
+  @override
+  String get heroSlide2Title => 'ESP32-S3 dev boards.';
+
+  @override
+  String get heroSlide2Subtitle =>
+      'Dual-core, Wi-Fi plus BLE, PSRAM-ready boards for IoT prototypes and graduation builds.';
+
+  @override
+  String get heroSlide2Cta => 'Shop ESP32';
+
+  @override
+  String get heroSlide3Kicker => 'Student project ready';
+
+  @override
+  String get heroSlide3Title => 'Start your senior project.';
+
+  @override
+  String get heroSlide3Subtitle =>
+      'Curated parts for robotics, sensors, displays, motor drivers, and power systems.';
+
+  @override
+  String get heroSlide3Cta => 'Explore project parts';
+
+  @override
+  String get trustCairoStock => 'Cairo stock';
+
+  @override
+  String get trustCairoStockSub => 'Dispatch before 3 PM';
+
+  @override
+  String get trustVerifiedParts => 'Verified parts';
+
+  @override
+  String get trustVerifiedPartsSub => 'Boards and modules checked';
+
+  @override
+  String get trustCod => 'Cash on delivery';
+
+  @override
+  String get trustCodSub => 'Pay after arrival';
+
+  @override
+  String get trustSupport => 'Engineer support';
+
+  @override
+  String get trustSupportSub => 'Help choosing compatible parts';
+
+  @override
+  String get homeFeatured => 'Featured products';
+
+  @override
+  String get homeNewArrivals => 'New arrivals';
+
+  @override
+  String get homeCategories => 'Shop by category';
+
+  @override
+  String get homeBrands => 'Our brands';
+
+  @override
+  String get homeSeeAll => 'See all';
+
+  @override
+  String get homeQuickCategories => 'Popular categories';
+
+  @override
+  String get filterTitle => 'Filters';
+
+  @override
+  String get filterCategory => 'Category';
+
+  @override
+  String get filterBrand => 'Brand';
+
+  @override
+  String get filterPrice => 'Price';
+
+  @override
+  String get filterMinPrice => 'Min price (EGP)';
+
+  @override
+  String get filterMaxPrice => 'Max price (EGP)';
+
+  @override
+  String get filterInStockOnly => 'In stock only';
+
+  @override
+  String get filterApply => 'Apply filters';
+
+  @override
+  String get filterClear => 'Clear all';
+
+  @override
+  String get sortLabel => 'Sort';
+
+  @override
+  String get sortRelevance => 'Most relevant';
+
+  @override
+  String get sortNewest => 'Newest';
+
+  @override
+  String get sortPriceAsc => 'Price: Low to High';
+
+  @override
+  String get sortPriceDesc => 'Price: High to Low';
+
+  @override
+  String get sortRating => 'Top rated';
+
+  @override
+  String get sortNameAsc => 'Name: A to Z';
+
+  @override
+  String productsCount(int count) {
+    return '$count products';
+  }
+
+  @override
+  String get emptyProducts => 'No products found';
+
+  @override
+  String get emptyProductsHint =>
+      'Try a different search or clear the filters.';
+
+  @override
+  String get errorLoadProducts => 'Couldn\'t load products';
+
+  @override
+  String get loadMore => 'Load more';
+
+  @override
+  String get loadingMore => 'Loading more…';
+
+  @override
+  String get searchTitle => 'Search';
+
+  @override
+  String get searchEmptyHint => 'Search by name, SKU, or brand — try “ESP32”.';
+
+  @override
+  String get searchSuggestions => 'Suggestions';
+
+  @override
+  String get searchNoSuggestions => 'No suggestions';
+
+  @override
+  String get detailSpecs => 'Specifications';
+
+  @override
+  String get detailDescription => 'Description';
+
+  @override
+  String get detailRelated => 'Related products';
+
+  @override
+  String get detailReviews => 'Reviews';
+
+  @override
+  String get detailReviewsComingSoon =>
+      'Reviews are coming soon — this catalogue has no reviews yet.';
+
+  @override
+  String get detailSku => 'SKU';
+
+  @override
+  String detailStockCount(int count) {
+    return '$count in stock';
+  }
+
+  @override
+  String detailSoldCount(int count) {
+    return '$count sold';
+  }
+
+  @override
+  String get availabilityInStock => 'In stock';
+
+  @override
+  String get availabilityLowStock => 'Low stock';
+
+  @override
+  String get availabilityOutOfStock => 'Out of stock';
+
+  @override
+  String get detailOutOfStockNote => 'This item is currently out of stock.';
+
+  @override
+  String detailOff(int percent) {
+    return '$percent% off';
+  }
+
+  @override
+  String ratingCount(int count) {
+    return '$count reviews';
+  }
+
+  @override
+  String get filterAll => 'All';
 }

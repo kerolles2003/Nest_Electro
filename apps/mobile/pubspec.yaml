@@ -35,3 +35,19 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+  # Storefront artwork copied from apps/storefront/public/images (same
+  # repo, same project). Category images are null on the live API, so the
+  # local files are the only artwork for the category tiles and hero.
+  assets:
+    - assets/images/banners/1.webp
+    - assets/images/banners/2.webp
+    - assets/images/banners/3.webp
+    - assets/images/categories/microcontrollers.png
+    - assets/images/categories/sensors.png
+    - assets/images/categories/passive-components.png
+    - assets/images/categories/power.png
+    - assets/images/categories/connectivity.png
+    - assets/images/categories/tools.png
+    - assets/images/categories/displays.png
+    - assets/images/categories/motors-robotics.png

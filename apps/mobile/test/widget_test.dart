@@ -13,7 +13,11 @@ void main() {
 
   testWidgets('app boots to the home screen', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: NestElectroApp()));
-    await tester.pumpAndSettle();
+    // No pumpAndSettle: the hero carousel's 8-second auto-advance timer
+    // never settles, and the home providers hit the network. A few manual
+    // pumps are enough — the scaffold, app bar and hero render at once.
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byKey(const Key('home-screen')), findsOneWidget);
     expect(find.text('نيست إلكترو'), findsOneWidget);
   });

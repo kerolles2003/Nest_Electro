@@ -1,1 +1,177 @@
-{"@@locale":"ar","@appTitle":{"description":"App name shown in the app bar"},"accountTitle":"حسابي","addressesTitle":"عناويني","alreadyHaveAccount":"لديك حساب بالفعل؟","appTitle":"نيست إلكترو","blogTitle":"المدونة","browseProducts":"تصفّح المنتجات","cartTitle":"السلة","categoriesTitle":"الفئات","checkInboxMessage":"تفقّد بريدك — أرسلنا لك رابط التأكيد.","checkoutTitle":"إتمام الطلب","comingSoon":"قريبًا","confirmPasswordLabel":"تأكيد كلمة المرور","contactTitle":"تواصل معنا","createAccountLink":"أنشئ حسابًا","emailInvalid":"أدخل بريدًا إلكترونيًا صحيحًا","emailLabel":"البريد الإلكتروني","emailRequired":"البريد الإلكتروني مطلوب","emailVerificationFailed":"رابط التأكيد غير صالح أو منتهٍ. اطلب رابطًا جديدًا بالأسفل.","emailVerifiedMessage":"تم تأكيد بريدك. يمكنك تسجيل الدخول الآن.","forgotPasswordButton":"إرسال رابط الاستعادة","forgotPasswordLink":"نسيت كلمة المرور؟","forgotPasswordSubtitle":"أدخل بريدك وسنرسل لك رابط الاستعادة.","forgotPasswordTitle":"نسيت كلمة المرور","fullNameLabel":"الاسم الكامل","fullNameRequired":"الاسم الكامل مطلوب","fullNameTooLong":"الاسم الكامل 120 حرفًا بحد أقصى","fullNameTooShort":"الاسم الكامل حرفان على الأقل","goToLogin":"الانتقال لتسجيل الدخول","homeWelcome":"كل ما تحتاجه لمشاريعك الإلكترونية","invalidResetLink":"رابط الاستعادة غير صالح أو منتهٍ.","loading":"جارٍ التحميل…","loginButton":"تسجيل الدخول","loginLink":"سجّل الدخول","loginSubtitle":"أهلًا بعودتك","loginTitle":"تسجيل الدخول","navAccount":"حسابي","navCart":"السلة","navCategories":"الفئات","navHome":"الرئيسية","navSearch":"بحث","noAccountYet":"ليس لديك حساب؟","orderDetailsTitle":"تفاصيل الطلب","ordersTitle":"طلباتي","pageNotFound":"الصفحة غير موجودة","passwordLabel":"كلمة المرور","passwordRequired":"كلمة المرور مطلوبة","passwordResetDone":"تم تعيين كلمة مرور جديدة. يمكنك تسجيل الدخول الآن.","passwordTooLong":"كلمة المرور 72 حرفًا بحد أقصى","passwordTooShort":"كلمة المرور 10 أحرف على الأقل","passwordsDoNotMatch":"كلمتا المرور غير متطابقتين","phoneInvalid":"أدخل رقم هاتف مصري صحيح","phoneLabel":"رقم الهاتف (اختياري)","productDetailsTitle":"تفاصيل المنتج","productsTitle":"المنتجات","profileTitle":"الملف الشخصي","registerButton":"إنشاء الحساب","registerRateLimited":"محاولات تسجيل كثيرة. انتظر ساعة ثم حاول مجددًا.","registerSubtitle":"أنشئ حسابك للتسوق ومتابعة طلباتك","registerTitle":"إنشاء حساب","resendButton":"إعادة إرسال البريد","resetLinkSent":"إذا كان هناك حساب بهذا البريد، فستصلك رسالة الاستعادة.","resetPasswordButton":"تعيين كلمة مرور جديدة","resetPasswordSubtitle":"اختر كلمة مرور جديدة","retry":"إعادة المحاولة","searchHint":"ابحث عن منتج…","verifyEmailButton":"تأكيد البريد الإلكتروني","verifyEmailTitle":"تأكيد بريدك الإلكتروني","verifyingEmail":"جارٍ تأكيد بريدك…","wishlistTitle":"المفضلة"}
+{
+  "@@locale": "ar",
+  "@appTitle": {
+    "description": "App name shown in the app bar"
+  },
+  "accountTitle": "حسابي",
+  "addressesTitle": "عناويني",
+  "alreadyHaveAccount": "لديك حساب بالفعل؟",
+  "appTitle": "نيست إلكترو",
+  "blogTitle": "المدونة",
+  "browseProducts": "تصفّح المنتجات",
+  "cartTitle": "السلة",
+  "categoriesTitle": "الفئات",
+  "checkInboxMessage": "تفقّد بريدك — أرسلنا لك رابط التأكيد.",
+  "checkoutTitle": "إتمام الطلب",
+  "comingSoon": "قريبًا",
+  "confirmPasswordLabel": "تأكيد كلمة المرور",
+  "contactTitle": "تواصل معنا",
+  "createAccountLink": "أنشئ حسابًا",
+  "emailInvalid": "أدخل بريدًا إلكترونيًا صحيحًا",
+  "emailLabel": "البريد الإلكتروني",
+  "emailRequired": "البريد الإلكتروني مطلوب",
+  "emailVerificationFailed": "رابط التأكيد غير صالح أو منتهٍ. اطلب رابطًا جديدًا بالأسفل.",
+  "emailVerifiedMessage": "تم تأكيد بريدك. يمكنك تسجيل الدخول الآن.",
+  "forgotPasswordButton": "إرسال رابط الاستعادة",
+  "forgotPasswordLink": "نسيت كلمة المرور؟",
+  "forgotPasswordSubtitle": "أدخل بريدك وسنرسل لك رابط الاستعادة.",
+  "forgotPasswordTitle": "نسيت كلمة المرور",
+  "fullNameLabel": "الاسم الكامل",
+  "fullNameRequired": "الاسم الكامل مطلوب",
+  "fullNameTooLong": "الاسم الكامل 120 حرفًا بحد أقصى",
+  "fullNameTooShort": "الاسم الكامل حرفان على الأقل",
+  "goToLogin": "الانتقال لتسجيل الدخول",
+  "homeWelcome": "كل ما تحتاجه لمشاريعك الإلكترونية",
+  "invalidResetLink": "رابط الاستعادة غير صالح أو منتهٍ.",
+  "loading": "جارٍ التحميل…",
+  "loginButton": "تسجيل الدخول",
+  "loginLink": "سجّل الدخول",
+  "loginSubtitle": "أهلًا بعودتك",
+  "loginTitle": "تسجيل الدخول",
+  "navAccount": "حسابي",
+  "navCart": "السلة",
+  "navCategories": "الفئات",
+  "navHome": "الرئيسية",
+  "navSearch": "بحث",
+  "noAccountYet": "ليس لديك حساب؟",
+  "orderDetailsTitle": "تفاصيل الطلب",
+  "ordersTitle": "طلباتي",
+  "pageNotFound": "الصفحة غير موجودة",
+  "passwordLabel": "كلمة المرور",
+  "passwordRequired": "كلمة المرور مطلوبة",
+  "passwordResetDone": "تم تعيين كلمة مرور جديدة. يمكنك تسجيل الدخول الآن.",
+  "passwordTooLong": "كلمة المرور 72 حرفًا بحد أقصى",
+  "passwordTooShort": "كلمة المرور 10 أحرف على الأقل",
+  "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+  "phoneInvalid": "أدخل رقم هاتف مصري صحيح",
+  "phoneLabel": "رقم الهاتف (اختياري)",
+  "productDetailsTitle": "تفاصيل المنتج",
+  "productsTitle": "المنتجات",
+  "profileTitle": "الملف الشخصي",
+  "registerButton": "إنشاء الحساب",
+  "registerRateLimited": "محاولات تسجيل كثيرة. انتظر ساعة ثم حاول مجددًا.",
+  "registerSubtitle": "أنشئ حسابك للتسوق ومتابعة طلباتك",
+  "registerTitle": "إنشاء حساب",
+  "resendButton": "إعادة إرسال البريد",
+  "resetLinkSent": "إذا كان هناك حساب بهذا البريد، فستصلك رسالة الاستعادة.",
+  "resetPasswordButton": "تعيين كلمة مرور جديدة",
+  "resetPasswordSubtitle": "اختر كلمة مرور جديدة",
+  "retry": "إعادة المحاولة",
+  "searchHint": "ابحث عن منتج…",
+  "verifyEmailButton": "تأكيد البريد الإلكتروني",
+  "verifyEmailTitle": "تأكيد بريدك الإلكتروني",
+  "verifyingEmail": "جارٍ تأكيد بريدك…",
+  "wishlistTitle": "المفضلة",
+  "heroSlide1Kicker": "شحن في نفس اليوم من القاهرة",
+  "heroSlide1Title": "ابنِ ما هو قادم.",
+  "heroSlide1Subtitle": "أردوينو وESP32 وحساسات ووحدات روبوتات متوفرة لمشاريع الطلاب والمصنّعين الجادة.",
+  "heroSlide1Cta": "تصفح كل المكونات",
+  "heroSlide2Kicker": "أعيد تخزينه حديثًا",
+  "heroSlide2Title": "لوحات تطوير ESP32-S3.",
+  "heroSlide2Subtitle": "لوحات ثنائية النواة، واي فاي وبلوتوث، جاهزة للذاكرة PSRAM لنماذج إنترنت الأشياء ومشاريع التخرج.",
+  "heroSlide2Cta": "تسوق ESP32",
+  "heroSlide3Kicker": "جاهز لمشروعك الدراسي",
+  "heroSlide3Title": "ابدأ مشروع تخرجك.",
+  "heroSlide3Subtitle": "قطع مختارة للروبوتات والحساسات والشاشات ومشغلات الموتورات وأنظمة الطاقة.",
+  "heroSlide3Cta": "استكشف قطع المشاريع",
+  "trustCairoStock": "مخزون القاهرة",
+  "trustCairoStockSub": "الشحن قبل 3 عصرًا",
+  "trustVerifiedParts": "قطع موثوقة",
+  "trustVerifiedPartsSub": "اللوحات والوحدات مفحوصة",
+  "trustCod": "الدفع عند الاستلام",
+  "trustCodSub": "ادفع بعد الاستلام",
+  "trustSupport": "دعم هندسي",
+  "trustSupportSub": "مساعدة في اختيار القطع المتوافقة",
+  "homeFeatured": "منتجات مميزة",
+  "homeNewArrivals": "وصل حديثًا",
+  "homeCategories": "تسوق حسب الفئة",
+  "homeBrands": "علاماتنا التجارية",
+  "homeSeeAll": "عرض الكل",
+  "homeQuickCategories": "فئات شائعة",
+  "filterTitle": "الفلاتر",
+  "filterCategory": "الفئة",
+  "filterBrand": "العلامة التجارية",
+  "filterPrice": "السعر",
+  "filterMinPrice": "أقل سعر (ج.م)",
+  "filterMaxPrice": "أعلى سعر (ج.م)",
+  "filterInStockOnly": "المتوفر فقط",
+  "filterApply": "تطبيق الفلاتر",
+  "filterClear": "مسح الكل",
+  "sortLabel": "ترتيب",
+  "sortRelevance": "الأكثر صلة",
+  "sortNewest": "الأحدث",
+  "sortPriceAsc": "السعر: من الأقل للأعلى",
+  "sortPriceDesc": "السعر: من الأعلى للأقل",
+  "sortRating": "الأعلى تقييمًا",
+  "sortNameAsc": "الاسم: أ إلى ي",
+  "productsCount": "عدد المنتجات: {count}",
+  "@productsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyProducts": "لا توجد منتجات",
+  "emptyProductsHint": "جرّب بحثًا آخر أو امسح الفلاتر.",
+  "errorLoadProducts": "تعذر تحميل المنتجات",
+  "loadMore": "تحميل المزيد",
+  "loadingMore": "جارٍ تحميل المزيد…",
+  "searchTitle": "بحث",
+  "searchEmptyHint": "ابحث بالاسم أو رقم القطعة أو العلامة — جرّب «ESP32».",
+  "searchSuggestions": "اقتراحات",
+  "searchNoSuggestions": "لا توجد اقتراحات",
+  "detailSpecs": "المواصفات",
+  "detailDescription": "الوصف",
+  "detailRelated": "منتجات ذات صلة",
+  "detailReviews": "التقييمات",
+  "detailReviewsComingSoon": "التقييمات قادمة قريبًا — لا توجد تقييمات بعد.",
+  "detailSku": "رمز المنتج",
+  "detailStockCount": "المتوفر: {count}",
+  "@detailStockCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailSoldCount": "تم بيع {count}",
+  "@detailSoldCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "availabilityInStock": "متوفر",
+  "availabilityLowStock": "كمية قليلة",
+  "availabilityOutOfStock": "غير متوفر",
+  "detailOutOfStockNote": "هذا المنتج غير متوفر حاليًا.",
+  "detailOff": "خصم {percent}٪",
+  "@detailOff": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingCount": "{count} تقييم",
+  "@ratingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterAll": "الكل"
+}
