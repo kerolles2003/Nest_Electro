@@ -19,10 +19,10 @@ full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
 ## Last completed step
 
 - Phase 8 (Quality) DONE and merged locally.
-  - Phase branch `flutter/phase-8-quality`, commit `TODO` (filled in at
-    commit time — see git log).
-  - Gate: `flutter analyze` clean (no issues); `flutter test` green
-    148/148 (was 116/116 — 32 new tests).
+  - Phase branch `flutter/phase-8-quality`, commit `89c9efa`
+    ("test(mobile): phase 8 quality", 13 files, +2142/−60).
+  - Merged into `flutter-app` with merge commit `49172ab`.
+  - Gate re-verified on the merged tree: analyze clean, test 148/148.
   - Unit tests (21 new, all passing):
     `test/core/api/api_client_test.dart` (6 — interceptor headers,
     401 → refresh once + retry, failed refresh clears tokens and throws
@@ -112,8 +112,8 @@ full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
 - Phase 7 Polish — DONE (commit `a0da7cc`, merge
   `44e8ad2`). Gate: analyze clean, test 116/116,
   `flutter build web` passes.
-- Phase 8 Quality — DONE (commit on `flutter/phase-8-quality`, merge
-  into `flutter-app` — see git log). Gate: analyze clean, test 148/148.
+- Phase 8 Quality — DONE (commit `89c9efa` on `flutter/phase-8-quality`,
+  merge `49172ab` into `flutter-app`). Gate: analyze clean, test 148/148.
 
 ## Phases remaining
 
