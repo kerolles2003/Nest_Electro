@@ -627,4 +627,151 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addressDefaultBadge => 'افتراضي';
+
+  @override
+  String get accountLogout => 'تسجيل الخروج';
+
+  @override
+  String get profileEdit => 'تعديل الملف الشخصي';
+
+  @override
+  String get profileSave => 'حفظ التغييرات';
+
+  @override
+  String get profileSaved => 'تم تحديث الملف الشخصي.';
+
+  @override
+  String get profileEmailVerified => 'البريد الإلكتروني موثّق';
+
+  @override
+  String get profileEmailNotVerified => 'البريد الإلكتروني غير موثّق';
+
+  @override
+  String get ordersEmpty => 'ليس لديك طلبات بعد.';
+
+  @override
+  String get ordersFilterAll => 'الكل';
+
+  @override
+  String get orderStatusPlaced => 'تم تقديمه';
+
+  @override
+  String get orderStatusConfirmed => 'مؤكد';
+
+  @override
+  String get orderStatusShipped => 'تم الشحن';
+
+  @override
+  String get orderStatusDelivered => 'تم التوصيل';
+
+  @override
+  String get orderStatusDeliveryFailed => 'فشل التوصيل';
+
+  @override
+  String get orderStatusCancelled => 'ملغي';
+
+  @override
+  String get orderStatusReturned => 'مرتجع';
+
+  @override
+  String get orderStatusUnknown => 'غير معروف';
+
+  @override
+  String get orderDetailCancel => 'إلغاء الطلب';
+
+  @override
+  String get orderCancelTitle => 'إلغاء هذا الطلب؟';
+
+  @override
+  String get orderCancelReason => 'سبب الإلغاء';
+
+  @override
+  String get orderCancelReasonHint => 'أخبرنا باختصار لماذا تلغي الطلب';
+
+  @override
+  String get orderCancelConfirm => 'نعم، ألغِ الطلب';
+
+  @override
+  String get orderCancelled => 'تم إلغاء الطلب.';
+
+  @override
+  String get orderResubmit => 'إعادة إرسال إثبات الدفع';
+
+  @override
+  String get orderResubmitHint =>
+      'أدخل حساب المحفظة / إنستا باي الذي أرسلت منه التحويل.';
+
+  @override
+  String get orderResubmitted => 'تمت إعادة إرسال إثبات الدفع.';
+
+  @override
+  String get orderPaymentRejected =>
+      'تم رفض التحقق من دفعتك. تأكد من الحساب الذي أرسلت منه وأعد الإرسال.';
+
+  @override
+  String get orderDetailItems => 'المنتجات';
+
+  @override
+  String get orderDetailPayment => 'الدفع';
+
+  @override
+  String get orderDetailShipment => 'الشحنة';
+
+  @override
+  String get orderDetailCancellation => 'الإلغاء';
+
+  @override
+  String get orderDetailPlacedOn => 'تم الطلب في';
+
+  @override
+  String get orderPaymentStatusPending => 'الدفع معلق';
+
+  @override
+  String get orderPaymentStatusPendingVerification => 'الدفع بانتظار التحقق';
+
+  @override
+  String get orderPaymentStatusRejected => 'تم رفض التحقق من الدفع';
+
+  @override
+  String get orderPaymentStatusPaid => 'مدفوع';
+
+  @override
+  String get orderPaymentStatusRefunded => 'تم استرداده';
+
+  @override
+  String get addressesEmpty => 'لا توجد عناوين محفوظة بعد.';
+
+  @override
+  String get addressesEdit => 'تعديل العنوان';
+
+  @override
+  String get addressesDelete => 'حذف العنوان';
+
+  @override
+  String get addressesDeleteConfirm => 'حذف هذا العنوان؟';
+
+  @override
+  String get addressesDeleted => 'تم حذف العنوان.';
+
+  @override
+  String get addressesSetDefault => 'تعيين كافتراضي';
+
+  @override
+  String get addressesUpdated => 'تم تحديث العنوان.';
+
+  @override
+  String get wishlistEmpty => 'قائمة الأمنيات فارغة.';
+
+  @override
+  String get wishlistLocalOnly =>
+      'محفوظة على هذا الجهاز فقط — لا توجد قائمة أمنيات في الـ API بعد.';
+
+  @override
+  String get wishlistAdded => 'تمت الإضافة إلى قائمة الأمنيات.';
+
+  @override
+  String get wishlistRemoved => 'تمت الإزالة من قائمة الأمنيات.';
+
+  @override
+  String get errorGeneric => 'حدث خطأ ما. حاول مرة أخرى.';
 }

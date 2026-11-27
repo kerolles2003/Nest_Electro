@@ -6,11 +6,15 @@ import 'package:nest_electro/src/features/auth/presentation/validators.dart';
 /// Address form used by the checkout (when the user has no saved address)
 /// and, in Phase 6, by the addresses screen. Validation mirrors the API:
 /// label/fullName/street/city/governorate required, phone is an Egyptian
-/// mobile, postal code optional.
+/// mobile, postal code optional. Pass [initial] to edit an existing address
+/// — the fields are pre-filled and `onSubmit` still returns the full DTO;
+/// the caller converts it to an [UpdateAddressDto] for the PATCH call.
 class AddAddressForm extends StatefulWidget {
-  const AddAddressForm({required this.onSubmit, super.key});
+  const AddAddressForm({required this.onSubmit, this.initial, super.key});
 
   final Future<bool> Function(CreateAddressDto dto) onSubmit;
+
+  final AddressDto? initial;
 
   @override
   State<AddAddressForm> createState() => _AddAddressFormState();
@@ -27,6 +31,22 @@ class _AddAddressFormState extends State<AddAddressForm> {
   final TextEditingController _postalCode = TextEditingController();
   bool _isDefault = false;
   bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final AddressDto? initial = widget.initial;
+    if (initial != null) {
+      _label.text = initial.label;
+      _fullName.text = initial.fullName;
+      _phone.text = initial.phone;
+      _street.text = initial.street;
+      _city.text = initial.city;
+      _governorate.text = initial.governorate;
+      _postalCode.text = initial.postalCode;
+      _isDefault = initial.isDefault;
+    }
+  }
 
   @override
   void dispose() {

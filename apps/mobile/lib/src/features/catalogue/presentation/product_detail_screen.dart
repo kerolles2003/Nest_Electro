@@ -6,6 +6,7 @@ import 'package:nest_electro/src/core/config/api_config.dart';
 import 'package:nest_electro/src/core/l10n/gen/app_localizations.dart';
 import 'package:nest_electro/src/core/models/enums.dart';
 import 'package:nest_electro/src/core/models/product.dart';
+import 'package:nest_electro/src/features/account/presentation/wishlist_controller.dart';
 import 'package:nest_electro/src/features/cart/presentation/cart_controller.dart';
 import 'package:nest_electro/src/features/cart/presentation/widgets/cart_button.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/catalogue_providers.dart';
@@ -35,7 +36,10 @@ class ProductDetailScreen extends ConsumerWidget {
         key: const Key('product-detail-screen'),
         appBar: AppBar(
           title: Text(product.name),
-          actions: const <Widget>[CartButton()],
+          actions: <Widget>[
+            _WishlistButton(product: product),
+            const CartButton(),
+          ],
         ),
         bottomNavigationBar: _AddToCartBar(product: product),
         body: SingleChildScrollView(
@@ -278,6 +282,39 @@ class ProductDetailScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Heart toggle for the local wishlist (no API endpoint — G1). Shows a
+/// filled heart when the product is saved.
+class _WishlistButton extends ConsumerWidget {
+  const _WishlistButton({required this.product});
+
+  final ProductDetailDto product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final bool saved =
+        ref.watch(wishlistControllerProvider).isSaved(product.id);
+    return IconButton(
+      icon: Icon(saved ? Icons.favorite : Icons.favorite_border),
+      tooltip: l10n.wishlistTitle,
+      onPressed: () async {
+        final bool nowSaved = await ref
+            .read(wishlistControllerProvider.notifier)
+            .toggle(product);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                nowSaved ? l10n.wishlistAdded : l10n.wishlistRemoved,
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 }

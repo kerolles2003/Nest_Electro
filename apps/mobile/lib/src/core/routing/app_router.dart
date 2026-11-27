@@ -9,6 +9,12 @@ import 'package:nest_electro/src/features/auth/presentation/login_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/register_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/reset_password_screen.dart';
 import 'package:nest_electro/src/features/auth/presentation/verify_email_screen.dart';
+import 'package:nest_electro/src/features/account/presentation/account_screen.dart';
+import 'package:nest_electro/src/features/account/presentation/addresses_screen.dart';
+import 'package:nest_electro/src/features/account/presentation/order_detail_screen.dart';
+import 'package:nest_electro/src/features/account/presentation/orders_screen.dart';
+import 'package:nest_electro/src/features/account/presentation/profile_screen.dart';
+import 'package:nest_electro/src/features/account/presentation/wishlist_screen.dart';
 import 'package:nest_electro/src/features/cart/presentation/cart_screen.dart';
 import 'package:nest_electro/src/features/catalogue/data/product_query.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/brand_screen.dart';
@@ -197,32 +203,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/account',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'account'),
+            const AccountScreen(),
       ),
       GoRoute(
         path: '/account/profile',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'profile'),
+            const ProfileScreen(),
       ),
       GoRoute(
         path: '/account/orders',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'orders'),
+            const OrdersScreen(),
       ),
       GoRoute(
         path: '/account/orders/:id',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'order-details'),
+            OrderDetailScreen(orderId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/account/addresses',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'addresses'),
+            const AddressesScreen(),
       ),
       GoRoute(
         path: '/wishlist',
         builder: (BuildContext context, GoRouterState state) =>
-            const PlaceholderScreen(label: 'wishlist'),
+            const WishlistScreen(),
       ),
       GoRoute(
         path: '/blog',
