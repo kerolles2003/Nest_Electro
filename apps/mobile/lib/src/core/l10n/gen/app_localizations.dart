@@ -511,6 +511,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wishlist'**
   String get wishlistTitle;
+
+  /// No description provided for @heroSlide1Kicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Ship same day from Cairo'**
+  String get heroSlide1Kicker;
+
+  /// No description provided for @heroSlide1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Build what\'s next.'**
+  String get heroSlide1Title;
+
+  /// No description provided for @heroSlide1Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Arduino, ESP32, sensors, and robotics modules stocked for serious student and maker projects.'**
+  String get heroSlide1Subtitle;
+
+  /// No description provided for @heroSlide1Cta.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse all components'**
+  String get heroSlide1Cta;
+
+  /// No description provided for @heroSlide2Kicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently restocked'**
+  String get heroSlide2Kicker;
+
+  /// No description provided for @heroSlide2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'ESP32-S3 dev boards.'**
+  String get heroSlide2Title;
+
+  /// No description provided for @heroSlide2Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dual-core, Wi-Fi plus BLE, PSRAM-ready boards for IoT prototypes and graduation builds.'**
+  String get heroSlide2Subtitle;
+
+  /// No description provided for @heroSlide2Cta.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop ESP32'**
+  String get heroSlide2Cta;
+
+  /// No description provided for @heroSlide3Kicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Student project ready'**
+  String get heroSlide3Kicker;
+
+  /// No description provided for @heroSlide3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your senior project.'**
+  String get heroSlide3Title;
+
+  /// No description provided for @heroSlide3Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Curated parts for robotics, sensors, displays, motor drivers, and power systems.'**
+  String get heroSlide3Subtitle;
+
+  /// No description provided for @heroSlide3Cta.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore project parts'**
+  String get heroSlide3Cta;
+
+  /// No description provided for @trustCairoStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Cairo stock'**
+  String get trustCairoStock;
+
+  /// No description provided for @trustCairoStockSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispatch before 3 PM'**
+  String get trustCairoStockSub;
+
+  /// No description provided for @trustVerifiedParts.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified parts'**
+  String get trustVerifiedParts;
+
+  /// No description provided for @trustVerifiedPartsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Boards and modules checked'**
+  String get trustVerifiedPartsSub;
+
+  /// No description provided for @trustCod.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on delivery'**
+  String get trustCod;
+
+  /// No description provided for @trustCodSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay after arrival'**
+  String get trustCodSub;
+
+  /// No description provided for @trustSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Engineer support'**
+  String get trustSupport;
+
+  /// No description provided for @trustSupportSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Help choosing compatible parts'**
+  String get trustSupportSub;
+
+  /// No description provided for @homeFeatured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured products'**
+  String get homeFeatured;
+
+  /// No description provided for @homeNewArrivals.
+  ///
+  /// In en, this message translates to:
+  /// **'New arrivals'**
+  String get homeNewArrivals;
+
+  /// No description provided for @homeCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop by category'**
+  String get homeCategories;
+
+  /// No description provided for @homeBrands.
+  ///
+  /// In en, this message translates to:
+  /// **'Our brands'**
+  String get homeBrands;
+
+  /// No description provided for @homeSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get homeSeeAll;
+
+  /// No description provided for @homeQuickCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular categories'**
+  String get homeQuickCategories;
+
+  /// No description provided for @filterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filterTitle;
+
+  /// No description provided for @filterCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get filterCategory;
+
+  /// No description provided for @filterBrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get filterBrand;
+
+  /// No description provided for @filterPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get filterPrice;
+
+  /// No description provided for @filterMinPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Min price (EGP)'**
+  String get filterMinPrice;
+
+  /// No description provided for @filterMaxPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Max price (EGP)'**
+  String get filterMaxPrice;
+
+  /// No description provided for @filterInStockOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock only'**
+  String get filterInStockOnly;
+
+  /// No description provided for @filterApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply filters'**
+  String get filterApply;
+
+  /// No description provided for @filterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get filterClear;
+
+  /// No description provided for @sortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get sortLabel;
+
+  /// No description provided for @sortRelevance.
+  ///
+  /// In en, this message translates to:
+  /// **'Most relevant'**
+  String get sortRelevance;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get sortNewest;
+
+  /// No description provided for @sortPriceAsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: Low to High'**
+  String get sortPriceAsc;
+
+  /// No description provided for @sortPriceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: High to Low'**
+  String get sortPriceDesc;
+
+  /// No description provided for @sortRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Top rated'**
+  String get sortRating;
+
+  /// No description provided for @sortNameAsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Name: A to Z'**
+  String get sortNameAsc;
+
+  /// No description provided for @productsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} products'**
+  String productsCount(int count);
+
+  /// No description provided for @emptyProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'No products found'**
+  String get emptyProducts;
+
+  /// No description provided for @emptyProductsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different search or clear the filters.'**
+  String get emptyProductsHint;
+
+  /// No description provided for @errorLoadProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load products'**
+  String get errorLoadProducts;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get loadMore;
+
+  /// No description provided for @loadingMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more…'**
+  String get loadingMore;
+
+  /// No description provided for @searchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchTitle;
+
+  /// No description provided for @searchEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, SKU, or brand — try “ESP32”.'**
+  String get searchEmptyHint;
+
+  /// No description provided for @searchSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions'**
+  String get searchSuggestions;
+
+  /// No description provided for @searchNoSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No suggestions'**
+  String get searchNoSuggestions;
+
+  /// No description provided for @detailSpecs.
+  ///
+  /// In en, this message translates to:
+  /// **'Specifications'**
+  String get detailSpecs;
+
+  /// No description provided for @detailDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get detailDescription;
+
+  /// No description provided for @detailRelated.
+  ///
+  /// In en, this message translates to:
+  /// **'Related products'**
+  String get detailRelated;
+
+  /// No description provided for @detailReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get detailReviews;
+
+  /// No description provided for @detailReviewsComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews are coming soon — this catalogue has no reviews yet.'**
+  String get detailReviewsComingSoon;
+
+  /// No description provided for @detailSku.
+  ///
+  /// In en, this message translates to:
+  /// **'SKU'**
+  String get detailSku;
+
+  /// No description provided for @detailStockCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in stock'**
+  String detailStockCount(int count);
+
+  /// No description provided for @detailSoldCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sold'**
+  String detailSoldCount(int count);
+
+  /// No description provided for @availabilityInStock.
+  ///
+  /// In en, this message translates to:
+  /// **'In stock'**
+  String get availabilityInStock;
+
+  /// No description provided for @availabilityLowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock'**
+  String get availabilityLowStock;
+
+  /// No description provided for @availabilityOutOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock'**
+  String get availabilityOutOfStock;
+
+  /// No description provided for @detailOutOfStockNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This item is currently out of stock.'**
+  String get detailOutOfStockNote;
+
+  /// No description provided for @detailOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% off'**
+  String detailOff(int percent);
+
+  /// No description provided for @ratingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} reviews'**
+  String ratingCount(int count);
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
 }
 
 class _AppLocalizationsDelegate

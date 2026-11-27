@@ -1,1 +1,177 @@
-{"@@locale":"en","@appTitle":{"description":"App name shown in the app bar"},"accountTitle":"My account","addressesTitle":"My addresses","alreadyHaveAccount":"Already have an account?","appTitle":"Nest Electro","blogTitle":"Blog","browseProducts":"Browse products","cartTitle":"Cart","categoriesTitle":"Categories","checkInboxMessage":"Check your inbox — we sent you a verification link.","checkoutTitle":"Checkout","comingSoon":"Coming soon","confirmPasswordLabel":"Confirm password","contactTitle":"Contact us","createAccountLink":"Create one","emailInvalid":"Enter a valid email address","emailLabel":"Email","emailRequired":"Email is required","emailVerificationFailed":"This verification link is invalid or expired. Request a new one below.","emailVerifiedMessage":"Your email is verified. You can now log in.","forgotPasswordButton":"Send reset link","forgotPasswordLink":"Forgot password?","forgotPasswordSubtitle":"Enter your email and we'll send you a reset link.","forgotPasswordTitle":"Forgot password","fullNameLabel":"Full name","fullNameRequired":"Full name is required","fullNameTooLong":"Full name must not exceed 120 characters","fullNameTooShort":"Full name must be at least 2 characters","goToLogin":"Go to login","homeWelcome":"Everything for your electronics projects","invalidResetLink":"This reset link is invalid or expired.","loading":"Loading…","loginButton":"Log in","loginLink":"Log in","loginSubtitle":"Welcome back","loginTitle":"Log in","navAccount":"Account","navCart":"Cart","navCategories":"Categories","navHome":"Home","navSearch":"Search","noAccountYet":"Don't have an account?","orderDetailsTitle":"Order details","ordersTitle":"My orders","pageNotFound":"Page not found","passwordLabel":"Password","passwordRequired":"Password is required","passwordResetDone":"Your password was reset. You can now log in.","passwordTooLong":"Password must not exceed 72 characters","passwordTooShort":"Password must be at least 10 characters","passwordsDoNotMatch":"Passwords do not match","phoneInvalid":"Enter a valid Egyptian mobile number","phoneLabel":"Phone (optional)","productDetailsTitle":"Product details","productsTitle":"Products","profileTitle":"Profile","registerButton":"Create account","registerRateLimited":"Too many registration attempts. Please wait an hour and try again.","registerSubtitle":"Create your account to shop and track orders","registerTitle":"Create account","resendButton":"Resend email","resetLinkSent":"If an account exists for this email, a reset link is on its way.","resetPasswordButton":"Reset password","resetPasswordSubtitle":"Choose a new password","retry":"Retry","searchHint":"Search products…","verifyEmailButton":"Verify email","verifyEmailTitle":"Verify your email","verifyingEmail":"Verifying your email…","wishlistTitle":"Wishlist"}
+{
+  "@@locale": "en",
+  "@appTitle": {
+    "description": "App name shown in the app bar"
+  },
+  "accountTitle": "My account",
+  "addressesTitle": "My addresses",
+  "alreadyHaveAccount": "Already have an account?",
+  "appTitle": "Nest Electro",
+  "blogTitle": "Blog",
+  "browseProducts": "Browse products",
+  "cartTitle": "Cart",
+  "categoriesTitle": "Categories",
+  "checkInboxMessage": "Check your inbox — we sent you a verification link.",
+  "checkoutTitle": "Checkout",
+  "comingSoon": "Coming soon",
+  "confirmPasswordLabel": "Confirm password",
+  "contactTitle": "Contact us",
+  "createAccountLink": "Create one",
+  "emailInvalid": "Enter a valid email address",
+  "emailLabel": "Email",
+  "emailRequired": "Email is required",
+  "emailVerificationFailed": "This verification link is invalid or expired. Request a new one below.",
+  "emailVerifiedMessage": "Your email is verified. You can now log in.",
+  "forgotPasswordButton": "Send reset link",
+  "forgotPasswordLink": "Forgot password?",
+  "forgotPasswordSubtitle": "Enter your email and we'll send you a reset link.",
+  "forgotPasswordTitle": "Forgot password",
+  "fullNameLabel": "Full name",
+  "fullNameRequired": "Full name is required",
+  "fullNameTooLong": "Full name must not exceed 120 characters",
+  "fullNameTooShort": "Full name must be at least 2 characters",
+  "goToLogin": "Go to login",
+  "homeWelcome": "Everything for your electronics projects",
+  "invalidResetLink": "This reset link is invalid or expired.",
+  "loading": "Loading…",
+  "loginButton": "Log in",
+  "loginLink": "Log in",
+  "loginSubtitle": "Welcome back",
+  "loginTitle": "Log in",
+  "navAccount": "Account",
+  "navCart": "Cart",
+  "navCategories": "Categories",
+  "navHome": "Home",
+  "navSearch": "Search",
+  "noAccountYet": "Don't have an account?",
+  "orderDetailsTitle": "Order details",
+  "ordersTitle": "My orders",
+  "pageNotFound": "Page not found",
+  "passwordLabel": "Password",
+  "passwordRequired": "Password is required",
+  "passwordResetDone": "Your password was reset. You can now log in.",
+  "passwordTooLong": "Password must not exceed 72 characters",
+  "passwordTooShort": "Password must be at least 10 characters",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "phoneInvalid": "Enter a valid Egyptian mobile number",
+  "phoneLabel": "Phone (optional)",
+  "productDetailsTitle": "Product details",
+  "productsTitle": "Products",
+  "profileTitle": "Profile",
+  "registerButton": "Create account",
+  "registerRateLimited": "Too many registration attempts. Please wait an hour and try again.",
+  "registerSubtitle": "Create your account to shop and track orders",
+  "registerTitle": "Create account",
+  "resendButton": "Resend email",
+  "resetLinkSent": "If an account exists for this email, a reset link is on its way.",
+  "resetPasswordButton": "Reset password",
+  "resetPasswordSubtitle": "Choose a new password",
+  "retry": "Retry",
+  "searchHint": "Search products…",
+  "verifyEmailButton": "Verify email",
+  "verifyEmailTitle": "Verify your email",
+  "verifyingEmail": "Verifying your email…",
+  "wishlistTitle": "Wishlist",
+  "heroSlide1Kicker": "Ship same day from Cairo",
+  "heroSlide1Title": "Build what's next.",
+  "heroSlide1Subtitle": "Arduino, ESP32, sensors, and robotics modules stocked for serious student and maker projects.",
+  "heroSlide1Cta": "Browse all components",
+  "heroSlide2Kicker": "Recently restocked",
+  "heroSlide2Title": "ESP32-S3 dev boards.",
+  "heroSlide2Subtitle": "Dual-core, Wi-Fi plus BLE, PSRAM-ready boards for IoT prototypes and graduation builds.",
+  "heroSlide2Cta": "Shop ESP32",
+  "heroSlide3Kicker": "Student project ready",
+  "heroSlide3Title": "Start your senior project.",
+  "heroSlide3Subtitle": "Curated parts for robotics, sensors, displays, motor drivers, and power systems.",
+  "heroSlide3Cta": "Explore project parts",
+  "trustCairoStock": "Cairo stock",
+  "trustCairoStockSub": "Dispatch before 3 PM",
+  "trustVerifiedParts": "Verified parts",
+  "trustVerifiedPartsSub": "Boards and modules checked",
+  "trustCod": "Cash on delivery",
+  "trustCodSub": "Pay after arrival",
+  "trustSupport": "Engineer support",
+  "trustSupportSub": "Help choosing compatible parts",
+  "homeFeatured": "Featured products",
+  "homeNewArrivals": "New arrivals",
+  "homeCategories": "Shop by category",
+  "homeBrands": "Our brands",
+  "homeSeeAll": "See all",
+  "homeQuickCategories": "Popular categories",
+  "filterTitle": "Filters",
+  "filterCategory": "Category",
+  "filterBrand": "Brand",
+  "filterPrice": "Price",
+  "filterMinPrice": "Min price (EGP)",
+  "filterMaxPrice": "Max price (EGP)",
+  "filterInStockOnly": "In stock only",
+  "filterApply": "Apply filters",
+  "filterClear": "Clear all",
+  "sortLabel": "Sort",
+  "sortRelevance": "Most relevant",
+  "sortNewest": "Newest",
+  "sortPriceAsc": "Price: Low to High",
+  "sortPriceDesc": "Price: High to Low",
+  "sortRating": "Top rated",
+  "sortNameAsc": "Name: A to Z",
+  "productsCount": "{count} products",
+  "@productsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyProducts": "No products found",
+  "emptyProductsHint": "Try a different search or clear the filters.",
+  "errorLoadProducts": "Couldn't load products",
+  "loadMore": "Load more",
+  "loadingMore": "Loading more…",
+  "searchTitle": "Search",
+  "searchEmptyHint": "Search by name, SKU, or brand — try “ESP32”.",
+  "searchSuggestions": "Suggestions",
+  "searchNoSuggestions": "No suggestions",
+  "detailSpecs": "Specifications",
+  "detailDescription": "Description",
+  "detailRelated": "Related products",
+  "detailReviews": "Reviews",
+  "detailReviewsComingSoon": "Reviews are coming soon — this catalogue has no reviews yet.",
+  "detailSku": "SKU",
+  "detailStockCount": "{count} in stock",
+  "@detailStockCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailSoldCount": "{count} sold",
+  "@detailSoldCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "availabilityInStock": "In stock",
+  "availabilityLowStock": "Low stock",
+  "availabilityOutOfStock": "Out of stock",
+  "detailOutOfStockNote": "This item is currently out of stock.",
+  "detailOff": "{percent}% off",
+  "@detailOff": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingCount": "{count} reviews",
+  "@ratingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterAll": "All"
+}

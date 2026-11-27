@@ -218,4 +218,220 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wishlistTitle => 'المفضلة';
+
+  @override
+  String get heroSlide1Kicker => 'شحن في نفس اليوم من القاهرة';
+
+  @override
+  String get heroSlide1Title => 'ابنِ ما هو قادم.';
+
+  @override
+  String get heroSlide1Subtitle =>
+      'أردوينو وESP32 وحساسات ووحدات روبوتات متوفرة لمشاريع الطلاب والمصنّعين الجادة.';
+
+  @override
+  String get heroSlide1Cta => 'تصفح كل المكونات';
+
+  @override
+  String get heroSlide2Kicker => 'أعيد تخزينه حديثًا';
+
+  @override
+  String get heroSlide2Title => 'لوحات تطوير ESP32-S3.';
+
+  @override
+  String get heroSlide2Subtitle =>
+      'لوحات ثنائية النواة، واي فاي وبلوتوث، جاهزة للذاكرة PSRAM لنماذج إنترنت الأشياء ومشاريع التخرج.';
+
+  @override
+  String get heroSlide2Cta => 'تسوق ESP32';
+
+  @override
+  String get heroSlide3Kicker => 'جاهز لمشروعك الدراسي';
+
+  @override
+  String get heroSlide3Title => 'ابدأ مشروع تخرجك.';
+
+  @override
+  String get heroSlide3Subtitle =>
+      'قطع مختارة للروبوتات والحساسات والشاشات ومشغلات الموتورات وأنظمة الطاقة.';
+
+  @override
+  String get heroSlide3Cta => 'استكشف قطع المشاريع';
+
+  @override
+  String get trustCairoStock => 'مخزون القاهرة';
+
+  @override
+  String get trustCairoStockSub => 'الشحن قبل 3 عصرًا';
+
+  @override
+  String get trustVerifiedParts => 'قطع موثوقة';
+
+  @override
+  String get trustVerifiedPartsSub => 'اللوحات والوحدات مفحوصة';
+
+  @override
+  String get trustCod => 'الدفع عند الاستلام';
+
+  @override
+  String get trustCodSub => 'ادفع بعد الاستلام';
+
+  @override
+  String get trustSupport => 'دعم هندسي';
+
+  @override
+  String get trustSupportSub => 'مساعدة في اختيار القطع المتوافقة';
+
+  @override
+  String get homeFeatured => 'منتجات مميزة';
+
+  @override
+  String get homeNewArrivals => 'وصل حديثًا';
+
+  @override
+  String get homeCategories => 'تسوق حسب الفئة';
+
+  @override
+  String get homeBrands => 'علاماتنا التجارية';
+
+  @override
+  String get homeSeeAll => 'عرض الكل';
+
+  @override
+  String get homeQuickCategories => 'فئات شائعة';
+
+  @override
+  String get filterTitle => 'الفلاتر';
+
+  @override
+  String get filterCategory => 'الفئة';
+
+  @override
+  String get filterBrand => 'العلامة التجارية';
+
+  @override
+  String get filterPrice => 'السعر';
+
+  @override
+  String get filterMinPrice => 'أقل سعر (ج.م)';
+
+  @override
+  String get filterMaxPrice => 'أعلى سعر (ج.م)';
+
+  @override
+  String get filterInStockOnly => 'المتوفر فقط';
+
+  @override
+  String get filterApply => 'تطبيق الفلاتر';
+
+  @override
+  String get filterClear => 'مسح الكل';
+
+  @override
+  String get sortLabel => 'ترتيب';
+
+  @override
+  String get sortRelevance => 'الأكثر صلة';
+
+  @override
+  String get sortNewest => 'الأحدث';
+
+  @override
+  String get sortPriceAsc => 'السعر: من الأقل للأعلى';
+
+  @override
+  String get sortPriceDesc => 'السعر: من الأعلى للأقل';
+
+  @override
+  String get sortRating => 'الأعلى تقييمًا';
+
+  @override
+  String get sortNameAsc => 'الاسم: أ إلى ي';
+
+  @override
+  String productsCount(int count) {
+    return 'عدد المنتجات: $count';
+  }
+
+  @override
+  String get emptyProducts => 'لا توجد منتجات';
+
+  @override
+  String get emptyProductsHint => 'جرّب بحثًا آخر أو امسح الفلاتر.';
+
+  @override
+  String get errorLoadProducts => 'تعذر تحميل المنتجات';
+
+  @override
+  String get loadMore => 'تحميل المزيد';
+
+  @override
+  String get loadingMore => 'جارٍ تحميل المزيد…';
+
+  @override
+  String get searchTitle => 'بحث';
+
+  @override
+  String get searchEmptyHint =>
+      'ابحث بالاسم أو رقم القطعة أو العلامة — جرّب «ESP32».';
+
+  @override
+  String get searchSuggestions => 'اقتراحات';
+
+  @override
+  String get searchNoSuggestions => 'لا توجد اقتراحات';
+
+  @override
+  String get detailSpecs => 'المواصفات';
+
+  @override
+  String get detailDescription => 'الوصف';
+
+  @override
+  String get detailRelated => 'منتجات ذات صلة';
+
+  @override
+  String get detailReviews => 'التقييمات';
+
+  @override
+  String get detailReviewsComingSoon =>
+      'التقييمات قادمة قريبًا — لا توجد تقييمات بعد.';
+
+  @override
+  String get detailSku => 'رمز المنتج';
+
+  @override
+  String detailStockCount(int count) {
+    return 'المتوفر: $count';
+  }
+
+  @override
+  String detailSoldCount(int count) {
+    return 'تم بيع $count';
+  }
+
+  @override
+  String get availabilityInStock => 'متوفر';
+
+  @override
+  String get availabilityLowStock => 'كمية قليلة';
+
+  @override
+  String get availabilityOutOfStock => 'غير متوفر';
+
+  @override
+  String get detailOutOfStockNote => 'هذا المنتج غير متوفر حاليًا.';
+
+  @override
+  String detailOff(int percent) {
+    return 'خصم $percent٪';
+  }
+
+  @override
+  String ratingCount(int count) {
+    return '$count تقييم';
+  }
+
+  @override
+  String get filterAll => 'الكل';
 }
