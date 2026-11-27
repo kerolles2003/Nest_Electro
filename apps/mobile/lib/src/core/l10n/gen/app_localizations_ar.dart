@@ -434,4 +434,197 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get filterAll => 'الكل';
+
+  @override
+  String get addToCart => 'أضف إلى السلة';
+
+  @override
+  String get addedToCart => 'تمت الإضافة إلى السلة';
+
+  @override
+  String get viewCart => 'عرض السلة';
+
+  @override
+  String get cartEmpty => 'سلتك فارغة';
+
+  @override
+  String get cartEmptyHint => 'تصفح المنتجات وأضف القطع التي تحتاجها.';
+
+  @override
+  String get cartSubtotal => 'المجموع الفرعي';
+
+  @override
+  String get cartCheckout => 'إتمام الشراء';
+
+  @override
+  String get cartClear => 'مسح السلة';
+
+  @override
+  String get cartLoginToCheckout => 'سجّل دخولك لإتمام الشراء';
+
+  @override
+  String get cartBlockingIssues =>
+      'بعض المنتجات تحتاج انتباهك قبل إتمام الشراء.';
+
+  @override
+  String get cartLinePriceChanged => 'تغيّر السعر منذ إضافتك للمنتج';
+
+  @override
+  String cartLineReducedStock(int count) {
+    return 'المتبقي $count فقط — تم تقليل الكمية';
+  }
+
+  @override
+  String get cartLineOutOfStock => 'غير متوفر';
+
+  @override
+  String get cartLineUnavailable => 'لم يعد متاحًا';
+
+  @override
+  String cartGuestBanner(int count) {
+    return 'لديك $count منتج في سلة الضيف.';
+  }
+
+  @override
+  String get cartMoveToAccount => 'نقل إلى حسابي';
+
+  @override
+  String get cartMovedToAccount => 'تم نقل سلة الضيف إلى حسابك.';
+
+  @override
+  String cartItemCount(int count) {
+    return '$count منتجات';
+  }
+
+  @override
+  String get checkoutAddress => 'عنوان التوصيل';
+
+  @override
+  String get checkoutAddAddress => 'أضف عنوانًا';
+
+  @override
+  String get checkoutNoAddress => 'أضف عنوان توصيل للمتابعة.';
+
+  @override
+  String get checkoutQuote => 'ملخص الطلب';
+
+  @override
+  String get checkoutShipping => 'الشحن';
+
+  @override
+  String get checkoutShippingUnpriced => 'يُحسب عند التوصيل';
+
+  @override
+  String get checkoutGrandTotal => 'الإجمالي';
+
+  @override
+  String get checkoutVatIncluded => 'شامل ضريبة القيمة المضافة';
+
+  @override
+  String get checkoutPaymentMethod => 'طريقة الدفع';
+
+  @override
+  String get checkoutCodNote => 'ادفع نقدًا عند استلام طلبك.';
+
+  @override
+  String get checkoutWalletInstructions =>
+      'حوّل الإجمالي إلى رقم المحفظة هذا، ثم أرسل لقطة شاشة للتحويل عبر واتساب.';
+
+  @override
+  String get checkoutInstapayInstructions =>
+      'حوّل الإجمالي إلى عنوان إنستاباي هذا، ثم أرسل لقطة شاشة للتحويل عبر واتساب.';
+
+  @override
+  String get checkoutTransferSender =>
+      'حساب محفظتك / إنستاباي (الذي أرسلت منه)';
+
+  @override
+  String get checkoutTransferSenderHint => 'مثال: 01xxxxxxxxx';
+
+  @override
+  String get checkoutCustomerNote => 'ملاحظة على الطلب (اختياري)';
+
+  @override
+  String get checkoutPlaceOrder => 'تأكيد الطلب';
+
+  @override
+  String get checkoutPlacingOrder => 'جارٍ تأكيد طلبك…';
+
+  @override
+  String get checkoutCannotPlaceOrder =>
+      'لا يمكن تأكيد هذا الطلب بعد — راجع المنتجات أعلاه.';
+
+  @override
+  String get checkoutPaymentMethodsUnavailable =>
+      'تعذر تحميل تعليمات الدفع — الدفع عند الاستلام متاح.';
+
+  @override
+  String get orderConfirmationTitle => 'تم تأكيد الطلب';
+
+  @override
+  String get orderPlacedMessage => 'شكرًا! تم تأكيد طلبك.';
+
+  @override
+  String get orderNumber => 'طلب';
+
+  @override
+  String get orderContinueShopping => 'متابعة التسوق';
+
+  @override
+  String get orderViewOrder => 'عرض الطلب';
+
+  @override
+  String get orderPaymentPendingVerification =>
+      'دفعتك قيد التحقق. أرسل لقطة شاشة للتحويل عبر واتساب لنؤكدها.';
+
+  @override
+  String get orderCodPending => 'يرجى تجهيز الإجمالي نقدًا عند الاستلام.';
+
+  @override
+  String get addressLabel => 'الاسم (مثال: المنزل، العمل)';
+
+  @override
+  String get addressFullName => 'الاسم الكامل';
+
+  @override
+  String get addressPhone => 'رقم الهاتف';
+
+  @override
+  String get addressStreet => 'عنوان الشارع';
+
+  @override
+  String get addressCity => 'المدينة';
+
+  @override
+  String get addressGovernorate => 'المحافظة';
+
+  @override
+  String get addressPostalCode => 'الرمز البريدي (اختياري)';
+
+  @override
+  String get addressIsDefault => 'تعيين كعنوان افتراضي';
+
+  @override
+  String get addressSave => 'حفظ العنوان';
+
+  @override
+  String get addressAdded => 'تم حفظ العنوان.';
+
+  @override
+  String get quantityLabel => 'الكمية';
+
+  @override
+  String get removeItem => 'إزالة';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get requiredField => 'هذا الحقل مطلوب';
+
+  @override
+  String get checkoutDiscount => 'الخصم';
+
+  @override
+  String get addressDefaultBadge => 'افتراضي';
 }

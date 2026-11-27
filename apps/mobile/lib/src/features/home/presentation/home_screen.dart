@@ -10,6 +10,7 @@ import 'package:nest_electro/src/core/models/brand.dart';
 import 'package:nest_electro/src/core/models/category.dart';
 import 'package:nest_electro/src/core/models/pagination.dart';
 import 'package:nest_electro/src/core/models/product.dart';
+import 'package:nest_electro/src/features/cart/presentation/widgets/cart_button.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/catalogue_providers.dart';
 import 'package:nest_electro/src/features/catalogue/presentation/widgets/product_rail.dart';
 
@@ -45,11 +46,7 @@ class HomeScreen extends ConsumerWidget {
             tooltip: l10n.searchTitle,
             onPressed: () => context.push('/search'),
           ),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined),
-            tooltip: l10n.cartTitle,
-            onPressed: () => context.push('/cart'),
-          ),
+          const CartButton(),
         ],
       ),
       body: SingleChildScrollView(

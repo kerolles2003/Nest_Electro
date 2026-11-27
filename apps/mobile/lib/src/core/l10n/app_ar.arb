@@ -173,5 +173,86 @@
       }
     }
   },
-  "filterAll": "الكل"
+  "filterAll": "الكل",
+  "addToCart": "أضف إلى السلة",
+  "addedToCart": "تمت الإضافة إلى السلة",
+  "viewCart": "عرض السلة",
+  "cartEmpty": "سلتك فارغة",
+  "cartEmptyHint": "تصفح المنتجات وأضف القطع التي تحتاجها.",
+  "cartSubtotal": "المجموع الفرعي",
+  "cartCheckout": "إتمام الشراء",
+  "cartClear": "مسح السلة",
+  "cartLoginToCheckout": "سجّل دخولك لإتمام الشراء",
+  "cartBlockingIssues": "بعض المنتجات تحتاج انتباهك قبل إتمام الشراء.",
+  "cartLinePriceChanged": "تغيّر السعر منذ إضافتك للمنتج",
+  "cartLineReducedStock": "المتبقي {count} فقط — تم تقليل الكمية",
+  "@cartLineReducedStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartLineOutOfStock": "غير متوفر",
+  "cartLineUnavailable": "لم يعد متاحًا",
+  "cartGuestBanner": "لديك {count} منتج في سلة الضيف.",
+  "@cartGuestBanner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartMoveToAccount": "نقل إلى حسابي",
+  "cartMovedToAccount": "تم نقل سلة الضيف إلى حسابك.",
+  "cartItemCount": "{count} منتجات",
+  "@cartItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "checkoutAddress": "عنوان التوصيل",
+  "checkoutAddAddress": "أضف عنوانًا",
+  "checkoutNoAddress": "أضف عنوان توصيل للمتابعة.",
+  "checkoutQuote": "ملخص الطلب",
+  "checkoutShipping": "الشحن",
+  "checkoutShippingUnpriced": "يُحسب عند التوصيل",
+  "checkoutGrandTotal": "الإجمالي",
+  "checkoutVatIncluded": "شامل ضريبة القيمة المضافة",
+  "checkoutPaymentMethod": "طريقة الدفع",
+  "checkoutCodNote": "ادفع نقدًا عند استلام طلبك.",
+  "checkoutWalletInstructions": "حوّل الإجمالي إلى رقم المحفظة هذا، ثم أرسل لقطة شاشة للتحويل عبر واتساب.",
+  "checkoutInstapayInstructions": "حوّل الإجمالي إلى عنوان إنستاباي هذا، ثم أرسل لقطة شاشة للتحويل عبر واتساب.",
+  "checkoutTransferSender": "حساب محفظتك / إنستاباي (الذي أرسلت منه)",
+  "checkoutTransferSenderHint": "مثال: 01xxxxxxxxx",
+  "checkoutCustomerNote": "ملاحظة على الطلب (اختياري)",
+  "checkoutPlaceOrder": "تأكيد الطلب",
+  "checkoutPlacingOrder": "جارٍ تأكيد طلبك…",
+  "checkoutCannotPlaceOrder": "لا يمكن تأكيد هذا الطلب بعد — راجع المنتجات أعلاه.",
+  "checkoutPaymentMethodsUnavailable": "تعذر تحميل تعليمات الدفع — الدفع عند الاستلام متاح.",
+  "orderConfirmationTitle": "تم تأكيد الطلب",
+  "orderPlacedMessage": "شكرًا! تم تأكيد طلبك.",
+  "orderNumber": "طلب",
+  "orderContinueShopping": "متابعة التسوق",
+  "orderViewOrder": "عرض الطلب",
+  "orderPaymentPendingVerification": "دفعتك قيد التحقق. أرسل لقطة شاشة للتحويل عبر واتساب لنؤكدها.",
+  "orderCodPending": "يرجى تجهيز الإجمالي نقدًا عند الاستلام.",
+  "addressLabel": "الاسم (مثال: المنزل، العمل)",
+  "addressFullName": "الاسم الكامل",
+  "addressPhone": "رقم الهاتف",
+  "addressStreet": "عنوان الشارع",
+  "addressCity": "المدينة",
+  "addressGovernorate": "المحافظة",
+  "addressPostalCode": "الرمز البريدي (اختياري)",
+  "addressIsDefault": "تعيين كعنوان افتراضي",
+  "addressSave": "حفظ العنوان",
+  "addressAdded": "تم حفظ العنوان.",
+  "quantityLabel": "الكمية",
+  "removeItem": "إزالة",
+  "cancel": "إلغاء",
+  "requiredField": "هذا الحقل مطلوب",
+  "checkoutDiscount": "الخصم",
+  "addressDefaultBadge": "افتراضي"
 }
