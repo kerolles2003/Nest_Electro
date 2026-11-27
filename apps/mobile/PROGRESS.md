@@ -14,83 +14,61 @@ Demo API: http://127.0.0.1:3002/api/v1 (health ok, 60 products). Do NOT run a
 full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
 `MUSE_FINAL_GITHUB_HANDOFF_REVIEW.md` in the repo root.
 
-## Current phase: 9 — Wrap-up (NOT started)
+## Current phase: MISSION LOCALLY COMPLETE — final GitHub sync pending owner awake
 
 ## Last completed step
 
+- Phase 9 (Wrap-up) DONE and merged locally.
+  - Phase branch `flutter/phase-9-wrap-up`, commit `4aebdd7`
+    ("docs(mobile): phase 9 wrap-up", README.md + REPORT.md, +275/−10).
+  - Merged into `flutter-app` with merge commit `cdd518e`.
+  - Gate: `flutter analyze` clean (no issues); `flutter test` green
+    148/148.
+  - README.md: run instructions (dart-defines per target), architecture
+    (feature-first, Riverpod/go_router/dio/freezed), i18n, what is mocked,
+    test conventions.
+  - REPORT.md: per-phase table with commits/merges/gates, what's mocked
+    (API gaps G1–G9), known issues, what the owner needs to do next,
+    transfer section.
+  - Bundle fallback created + verified:
+    `~/workspace/nest-electro-flutter-app-v1.bundle` (7,069,177 bytes,
+    `git bundle verify` passed) — `flutter-app` at `cdd518e` + all 10
+    `flutter/phase-*` branches; prerequisite `5a1fd5c`. (First attempt
+    was 20.7 MB with the whole monorepo history; recreated pruned to
+    `5a1fd5c..flutter-app`.)
 - Phase 8 (Quality) DONE and merged locally.
   - Phase branch `flutter/phase-8-quality`, commit `89c9efa`
     ("test(mobile): phase 8 quality", 13 files, +2142/−60).
   - Merged into `flutter-app` with merge commit `49172ab`.
   - Gate re-verified on the merged tree: analyze clean, test 148/148.
-  - Unit tests (21 new, all passing):
-    `test/core/api/api_client_test.dart` (6 — interceptor headers,
-    401 → refresh once + retry, failed refresh clears tokens and throws
-    the ORIGINAL 401 envelope, no double-refresh on the retried request,
-    concurrent 401s share one in-flight refresh, non-401 maps the
-    envelope without refreshing; fake HttpClientAdapter + in-memory fake
-    TokenStorage, injected dio/refreshDio),
-    `test/features/auth/auth_repository_test.dart` (6 — login saves
-    tokens, register saves none, logout clears in `finally` but still
-    propagates the server error, logoutAll, me, forgot/reset/verify/
-    resend),
-    `test/features/checkout/checkout_repository_test.dart` (5 — quote,
-    payment methods, placeOrder posts `Idempotency-Key` and strips nulls,
-    list/create address),
-    `test/features/account/wishlist_controller_test.dart` (4 — load,
-    toggle add with snapshot, toggle remove, remove by id).
-  - Widget tests (10 new, all passing):
-    `test/features/catalogue/categories_screen_test.dart` (2 — roots with
-    children grouped under ExpansionTiles; error + retry),
-    `test/features/account/order_detail_screen_test.dart` (4 — PLACED
-    shows items/totals/cancel, rejected verification shows resubmit,
-    DELIVERED has no cancel, error + retry),
-    `test/features/auth/register_screen_test.dart` (2 — validation
-    errors; register navigates to `/verify-email`),
-    `test/features/checkout/order_confirmation_screen_test.dart` (2 —
-    COD shows number/total/cash note; wallet shows copyable transfer
-    instructions).
-  - Integration test (1 new, passing):
-    `test/integration/happy_path_test.dart` — real `NestElectroApp`
-    with mocked repos, Arabic locale: home → tap featured product →
-    detail → add to cart → snackbar → view cart → checkout (default
-    address + COD) → confirm → confirmation shows NE-1001 + 300.00 EGP.
-  - GitHub Actions workflow added: `.github/workflows/mobile.yml`
-    (analyze + test on apps/mobile only, Flutter pinned 3.35.7,
-    `contents: read`, follows `ci.yml` conventions). Not run in CI yet —
-    first run will be on the final PR (D-33).
+  - Unit tests (21 new): `api_client_test.dart` (6), `auth_repository_test.dart`
+    (6), `checkout_repository_test.dart` (5), `wishlist_controller_test.dart` (4).
+  - Widget tests (10 new): categories (2), order detail (4), register (2),
+    order confirmation (2).
+  - Integration test (1 new, passing): `test/integration/happy_path_test.dart`
+    — home → product detail → add to cart → cart → checkout (default
+    address + COD) → confirmation (NE-1001, 300.00 EGP).
+  - GitHub Actions workflow: `.github/workflows/mobile.yml` (analyze +
+    test on apps/mobile only, Flutter 3.35.7). Not run in CI yet — first
+    run will be on the final PR (D-33).
   - Real bugs found and fixed by the integration test (D-30, D-32):
-    CartController read providers inside its microtasked `_load` —
-    Riverpod stale-dependency throw on auth change; `build()` now
-    captures the watched value + repo + storage and passes them in.
-    `_load` caught only `ApiException`, so a non-API failure (unmocked
-    SharedPreferences in the test) left `isLoading: true` forever —
-    generic catch now surfaces `LOAD_FAILED` with retry.
-  - Decisions D-30 (stale-dependency fix), D-31 (D-29 refined:
-    `AppTheme` CAN be constructed in tests if
-    `allowRuntimeFetching = false` is set in `setUpAll` BEFORE the theme
-    is constructed), D-32 (integration-test lessons + cart fix), D-33
-    (mobile.yml workflow).
-  - Test lessons: `FilledButton.icon` is a private `_FilledButtonWithIcon`
-    subclass — `widgetWithText(FilledButton, …)` never matches it, tap
-    the label text; cart mocks must be stateful (`getCart` returning
-    empty forever lets a rebuild overwrite an added line); tests touching
-    guest storage need `SharedPreferences.setMockInitialValues({})`.
-  - Follow-up noted, not fixed: other controllers still catch only
-    `ApiException` in their loads (same stuck-spinner class) — for
-    REPORT.md.
+    CartController stale-dependency throw (build() now captures deps);
+    `_load` caught only `ApiException` and left `isLoading: true`
+    forever on a local failure — generic catch surfaces `LOAD_FAILED`.
+  - Decisions D-30…D-33 recorded.
 
 ## Next step
 
-- Phase 9 (Wrap-up): README.md in apps/mobile (how to run against the
-  local API, dart-defines, architecture) + REPORT.md (what's done,
-  what's mocked, API gaps, known issues, what the owner needs to do
-  next). Then the ONE GitHub sync (create `flutter-app` if missing —
-  it already exists at `81d1037`, reuse it; upload all files; open the
-  final PR `flutter-app` → `phase-1-2-overnight`, DO NOT merge) when the
-  owner is awake to approve its cards. If sync cannot complete, prepare
-  a git bundle of `flutter-app` + phase branches and record its path in
-  REPORT.md.
+- **Final GitHub sync — ONLY when the owner is awake to approve its cards
+  (D-08).** One sync: reuse the existing remote `flutter-app` branch (tip
+  `81d1037`, phase 0 only — do NOT re-create it), snapshot-upload the
+  finished `flutter-app` content (EXCLUDE binary icon PNGs from the
+  `push_files` manifest — snapshot push is text-only), open the final PR
+  `flutter-app` → `phase-1-2-overnight`, **DO NOT merge it**. If the sync
+  ultimately cannot complete, the bundle above
+  (`~/workspace/nest-electro-flutter-app-v1.bundle`, `flutter-app`
+  `cdd518e`) is the transfer vehicle — fetch it on the owner's machine
+  and confirm the tip SHA before pushing.
 
 ## Phases done
 
@@ -114,14 +92,15 @@ full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
   `flutter build web` passes.
 - Phase 8 Quality — DONE (commit `89c9efa` on `flutter/phase-8-quality`,
   merge `49172ab` into `flutter-app`). Gate: analyze clean, test 148/148.
+- Phase 9 Wrap-up — DONE (commit `4aebdd7` on `flutter/phase-9-wrap-up`,
+  merge `cdd518e` into `flutter-app`). Gate: analyze clean, test 148/148.
 
 ## Phases remaining
 
-- 9 Wrap-up (README.md + REPORT.md + final PR
-  `flutter-app` → `phase-1-2-overnight`, NOT merged; one GitHub sync
-  when the owner is awake; if sync cannot complete, prepare a git bundle
-  of `flutter-app` + phase branches and record its path in REPORT.md).
+- Final GitHub sync + final PR (NOT merged) — pending the owner being
+  awake to approve its cards (D-08). Nothing else is open locally.
 
 ## Blockers
 
-- (none)
+- (none locally; the final sync is gated on the owner being awake, by
+  his own decision — not a technical blocker)

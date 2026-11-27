@@ -26,7 +26,7 @@ Stack: Riverpod 2, go_router, dio, freezed/json_serializable,
 | 6 Account | Profile, order history + detail (cancel / resubmit payment), addresses CRUD, local wishlist | `5d5d594` | `9a55103` | analyze clean, test 112/112, `flutter build web` passes; live-verified with a fresh customer account |
 | 7 Polish | Image caching everywhere, pull-to-refresh, tooltips, WCAG AA contrast (caught + fixed a real dark-theme defect), RTL fixes on every screen, app icon placeholder | `a0da7cc` | `44e8ad2` | analyze clean, test 116/116, `flutter build web` passes; axe-style sweep: 0 violations on audited screens |
 | 8 Quality | 32 new tests, happy-path integration test, GitHub Actions workflow | `89c9efa` | `49172ab` | analyze clean, test **148/148** |
-| 9 Wrap-up | This report + `README.md` | `flutter/phase-9-wrap-up` | (merge SHA in git log) | analyze clean, test 148/148 |
+| 9 Wrap-up | This report + `README.md` | `4aebdd7` | `cdd518e` | analyze clean, test 148/148 |
 
 Final gate (re-verified on the merged tree): `flutter analyze` — no
 issues; `flutter test` — **148/148 passed**; `flutter build web` passes.
@@ -124,7 +124,9 @@ no secrets or `.env` files committed.
   `push_files` manifest — snapshot push is text-only; the git bundle
   below carries them.
 - **Bundle fallback:** `~/workspace/nest-electro-flutter-app-v1.bundle`
-  (created after the phase-9 merge; verified with `git bundle verify`).
-  If the GitHub sync ultimately cannot complete, this bundle is the
-  transfer vehicle — same pattern as bundle v7. Fetch it on the owner's
-  machine and confirm the `flutter-app` tip SHA before pushing.
+  (7,069,177 bytes, `git bundle verify` passed). Contains `flutter-app`
+  at `cdd518e` plus all 10 `flutter/phase-*` branches; prerequisite is
+  `5a1fd5c` (`phase-1-2-overnight` tip, already on GitHub). If the GitHub
+  sync ultimately cannot complete, this bundle is the transfer vehicle —
+  same pattern as bundle v7. Fetch it on the owner's machine and confirm
+  the `flutter-app` tip SHA before pushing.
