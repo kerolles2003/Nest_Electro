@@ -16,48 +16,54 @@ bundle of `flutter-app` + phase branches, path in `REPORT.md`.
 
 ## Current phase
 
-**Phase 3 — Auth (starting)**
+**Phase 4 — Catalogue (starting)**
 
-- Branch: `flutter/phase-3-auth` (to be cut from `flutter-app` at `d6305fd`).
-- AuthRepository + AuthController (Riverpod), login/register/forgot/reset/
-  verify screens, router guards (auth-required routes → /login, authed
-  users away from /login|/register), 429 register rate-limit UX.
+- Branch: `flutter/phase-4-catalogue` (to be cut from `flutter-app` at
+  `328aacf`).
+- CatalogueRepository + Riverpod providers, home (hero, categories,
+  featured, brands), categories, product list (search/filter/sort/
+  pagination), product detail with image gallery.
 
 ## Last completed step
 
-- **Phase 2 — DONE.** Core committed (`2856a00`, 45 files, +20841) and
-  merged LOCALLY into `flutter-app` (merge commit `d6305fd`). Gate passed:
-  `flutter analyze` clean (no issues), `flutter test` green (19/19).
-  Includes: ApiClient (dio + Accept-Language + Bearer + 401 refresh-once
-  with shared in-flight refresh), TokenStorage, ApiException, freezed
-  models for the full customer surface (verified against the live spec and
-  live responses), D-12 (header-driven localization) + D-13 (nullability
-  follows live data). One fix during the phase: `analysis_options.yaml`
-  now ignores `invalid_annotation_target` — `@JsonKey` on freezed factory
-  parameters is the documented pattern and IS consumed by the generator
-  (verified `unknownValue:` in `*.g.dart`). One tooling hiccup: the first
-  `build_runner` run was cut by a service restart with zero outputs; the
-  retry completed (33 outputs, exit 0).
-- **Phase 1 — DONE.** Scaffold committed (`bfd98d5`, 85 files) and merged
-  LOCALLY into `flutter-app` (merge commit `ed0653d`). Gate passed:
-  `flutter analyze` clean, `flutter test` green (1/1 smoke).
-- **Phase 0 — DONE.** Docs committed locally (`f91cade`); PR #3 merged on
-  GitHub (merge commit `81d1037`, remote `flutter-app` tip); local
-  `flutter-app` fast-forwarded to `f91cade`. Remote/local SHA difference
-  recorded (D-09) — same phase-0 content.
+- **Phase 3 — DONE.** Auth committed (`1d239a3`, 23 files) and merged
+  LOCALLY into `flutter-app` (merge commit `328aacf`). Gate passed:
+  `flutter analyze` clean, `flutter test` green (36/36). Includes:
+  AuthRepository, AuthController (session restore, errors as ApiException),
+  5 screens, router guards, validation mirroring the API policy
+  (password 10/72, Egyptian mobile). Fixes during the phase: freezed
+  union cases are library-private — state is read via an `AuthStateX`
+  extension (custom getters in the class body do not survive freezed
+  union codegen); login widget test tapped the AppBar title instead of
+  the button (same "Log in" text) — fixed with
+  `find.widgetWithText(ElevatedButton, …)`.
+- **Demo restored (2026-11-27 ~19:40 EET).** The sandbox service restart
+  had killed mongod + all three servers. Restarted from the intact data
+  dir (no re-seed): mongod 27018, API 3002 (health ok), storefront 3000
+  (200), admin 3001 (200); catalogue still 60 products. Live login probe:
+  wrong credentials → 401 `INVALID_CREDENTIALS` envelope, exactly the
+  shape `ApiException` maps.
+- **Phase 2 — DONE.** Core committed (`2856a00`, 45 files) and merged
+  LOCALLY into `flutter-app` (`d6305fd`). Gate: analyze clean, test 19/19.
+- **Phase 1 — DONE.** Scaffold committed (`bfd98d5`) and merged locally
+  (`ed0653d`). Gate: analyze clean, test 1/1.
+- **Phase 0 — DONE.** Docs (`f91cade`); PR #3 merged on GitHub
+  (`81d1037`); local `flutter-app` fast-forwarded to `f91cade` (D-09).
 - Plan change recorded in `DECISIONS.md` (D-08…D-13).
 
 ## Next step
 
-1. Cut `flutter/phase-3-auth` from `flutter-app`; mirror the storefront's
-   auth form validation (check `apps/storefront` auth pages).
-2. Write AuthRepository, AuthController (session restore on start via
-   `GET /auth/me`), login/register/forgot/reset/verify screens, router
-   guards via `refreshListenable`, ARB strings, 429 UX.
-3. Tests: controller unit tests (mock ApiClient/TokenStorage), login
-   widget test.
+1. Cut `flutter/phase-4-catalogue` from `flutter-app`; mirror the
+   storefront's home sections and product-list filters
+   (`apps/storefront/src/app/page.tsx`, `products/`).
+2. Write CatalogueRepository + providers (list w/ pagination, detail,
+   related, suggestions, categories, brands), home/categories/list/
+   detail/search screens with gallery, ARB strings.
+3. Tests: repository + list-controller unit tests, list/detail widget
+   tests (mocked repo).
 4. Gate (`flutter analyze` clean, `flutter test` green) → commit on
-   `flutter/phase-3-auth` → merge LOCALLY into `flutter-app` → Phase 4.
+   `flutter/phase-4-catalogue` → merge LOCALLY into `flutter-app` →
+   Phase 5.
 
 ## Blockers
 
@@ -65,13 +71,17 @@ bundle of `flutter-app` + phase branches, path in `REPORT.md`.
 - Note: sandbox memory is tight (8 GB total, ~450 MB available with the demo
   running). If a Flutter build OOMs, stop the demo servers and retry — the demo
   can be rebuilt later; the app work takes priority.
+- Note: `muse.edit` on this file twice failed to match visually-identical
+  text (2026-11-27, similarity 0.99) — likely invisible whitespace; rewrite
+  the whole file with `muse.write` instead of editing it in place, and never
+  run two edits on the same file in parallel.
 
 ## Phase checklist
 
 - [x] 0. Recon — SCREENS.md + API_GAPS.md (merged: GitHub PR #3 `81d1037`)
 - [x] 1. Scaffold (merged locally: `ed0653d`; analyze clean, test 1/1)
 - [x] 2. Core (dio client, models) (merged locally: `d6305fd`; analyze clean, test 19/19)
-- [ ] 3. Auth
+- [x] 3. Auth (merged locally: `328aacf`; analyze clean, test 36/36)
 - [ ] 4. Catalogue
 - [ ] 5. Cart & checkout
 - [ ] 6. Account
