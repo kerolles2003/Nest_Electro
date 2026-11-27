@@ -1,0 +1,57 @@
+# Nest Electro — Flutter app CI (apps/mobile only)
+#
+# Runs `flutter analyze` and `flutter test` for the customer storefront
+# app. No build, no deploy, no secrets: the app talks to the API only via
+# a --dart-define base URL at run time, and tests use mocks throughout.
+# Deliberately scoped to apps/mobile/** so web/API changes do not pay for
+# a Flutter run and Flutter changes do not trigger the pnpm workspace CI.
+
+name: Mobile
+
+on:
+  push:
+    branches: [main, phase-1-2-overnight, flutter-app, 'flutter/**', 'muse/**']
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/mobile.yml'
+  pull_request:
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/mobile.yml'
+  workflow_dispatch:
+
+# Least privilege: this job only reads the repo and reports checks.
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    name: Analyze + Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          # Pinned to the SDK the app was built and verified against
+          # (Flutter 3.35.7 / Dart 3.9.2). Bump deliberately, never
+          # implicitly, so a new SDK cannot silently change the gate.
+          flutter-version: '3.35.7'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test

@@ -14,62 +14,83 @@ Demo API: http://127.0.0.1:3002/api/v1 (health ok, 60 products). Do NOT run a
 full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
 `MUSE_FINAL_GITHUB_HANDOFF_REVIEW.md` in the repo root.
 
-## Current phase: 8 — Quality (NOT started)
+## Current phase: 9 — Wrap-up (NOT started)
 
 ## Last completed step
 
-- Phase 7 (Polish) DONE and merged locally.
-  - Phase branch `flutter/phase-7-polish`, commit `a0da7cc`
-    ("feat(mobile): phase 7 polish", 50 files, +811/−743).
-  - Merged into `flutter-app` with merge commit `44e8ad2`.
+- Phase 8 (Quality) DONE and merged locally.
+  - Phase branch `flutter/phase-8-quality`, commit `TODO` (filled in at
+    commit time — see git log).
   - Gate: `flutter analyze` clean (no issues); `flutter test` green
-    116/116 (was 112/112 — 4 new tests in `test/rtl_and_a11y_test.dart`).
-    `flutter build web` also passes.
-  - Image caching: the last 3 `Image.network` uses (orders, order detail,
-    wishlist) are now `CachedNetworkImage` with placeholder + error widget.
-    No `Image.network` left in `lib/`.
-  - Pull-to-refresh added to home, product list, cart, checkout, profile,
-    product detail and categories (orders/addresses/wishlist already had
-    it). Search is query-driven — no refresh. Each refresh re-runs the
-    screen's own loader; failures surface through the screen's error
-    state, so refresh errors are swallowed.
-  - Accessibility: tooltips added to the 3 IconButtons missing them
-    (password show/hide, search clear, order-confirmation copy — 3 new
-    ARB keys); the WCAG contrast test caught a REAL defect — dark white
-    on #EF4444 was 3.76:1, fixed by making dark `onError` the near-black
-    background #0C1322 (4.97:1, D-26); the error token itself is unchanged.
-  - RTL: hero gradient now uses `AlignmentDirectional`, product-card
-    corner badges use `Positioned.directional`, categories child indent
-    uses `EdgeInsetsDirectional`; symmetric `fromLTRB(16,…,16,…)` paddings
-    are RTL-harmless. Two widget tests pump home + product list in
-    Arabic and assert `TextDirection.rtl` + Arabic strings + no overflow.
-  - App icon placeholder: navy #1a1a2e + crimson #cf3549 "N" PNG generated
-    (`assets/icon/icon.png`), applied to Android/iOS/web via
-    `flutter_launcher_icons` (devDependency). Owner to replace with the
-    real brand mark (D-28). Generated icon PNGs are binary — EXCLUDE from
-    any connector `push_files` manifest at the final sync.
-  - Decisions D-26 (dark onError), D-27 (`onSurfaceVariant` is the
-    Material default, not the storefront muted token — contrast-verified),
-    D-28 (icon placeholder + binary exclusion), D-29 (`AppTheme` cannot
-    be constructed in tests — google_fonts runtime fetch; contrast test
-    pins the token wiring directly).
-  - Fixes during the phase: paren-counting lesson — when wrapping a
-    scrollable in `RefreshIndicator`, anchor the closing edit on a unique
-    block (the bottom-bar tails look identical and swallowed two edits);
-    `AppTheme` in tests fails at file load (google_fonts) — see D-29.
-  - Empty/loading/error sweep: every screen already had all three states
-    except the brand/category header fallback (title falls back to the
-    slug when the detail fetch fails — acceptable, the list carries the
-    states). No gaps filled beyond the refresh/tooltip/contrast work.
+    148/148 (was 116/116 — 32 new tests).
+  - Unit tests (21 new, all passing):
+    `test/core/api/api_client_test.dart` (6 — interceptor headers,
+    401 → refresh once + retry, failed refresh clears tokens and throws
+    the ORIGINAL 401 envelope, no double-refresh on the retried request,
+    concurrent 401s share one in-flight refresh, non-401 maps the
+    envelope without refreshing; fake HttpClientAdapter + in-memory fake
+    TokenStorage, injected dio/refreshDio),
+    `test/features/auth/auth_repository_test.dart` (6 — login saves
+    tokens, register saves none, logout clears in `finally` but still
+    propagates the server error, logoutAll, me, forgot/reset/verify/
+    resend),
+    `test/features/checkout/checkout_repository_test.dart` (5 — quote,
+    payment methods, placeOrder posts `Idempotency-Key` and strips nulls,
+    list/create address),
+    `test/features/account/wishlist_controller_test.dart` (4 — load,
+    toggle add with snapshot, toggle remove, remove by id).
+  - Widget tests (10 new, all passing):
+    `test/features/catalogue/categories_screen_test.dart` (2 — roots with
+    children grouped under ExpansionTiles; error + retry),
+    `test/features/account/order_detail_screen_test.dart` (4 — PLACED
+    shows items/totals/cancel, rejected verification shows resubmit,
+    DELIVERED has no cancel, error + retry),
+    `test/features/auth/register_screen_test.dart` (2 — validation
+    errors; register navigates to `/verify-email`),
+    `test/features/checkout/order_confirmation_screen_test.dart` (2 —
+    COD shows number/total/cash note; wallet shows copyable transfer
+    instructions).
+  - Integration test (1 new, passing):
+    `test/integration/happy_path_test.dart` — real `NestElectroApp`
+    with mocked repos, Arabic locale: home → tap featured product →
+    detail → add to cart → snackbar → view cart → checkout (default
+    address + COD) → confirm → confirmation shows NE-1001 + 300.00 EGP.
+  - GitHub Actions workflow added: `.github/workflows/mobile.yml`
+    (analyze + test on apps/mobile only, Flutter pinned 3.35.7,
+    `contents: read`, follows `ci.yml` conventions). Not run in CI yet —
+    first run will be on the final PR (D-33).
+  - Real bugs found and fixed by the integration test (D-30, D-32):
+    CartController read providers inside its microtasked `_load` —
+    Riverpod stale-dependency throw on auth change; `build()` now
+    captures the watched value + repo + storage and passes them in.
+    `_load` caught only `ApiException`, so a non-API failure (unmocked
+    SharedPreferences in the test) left `isLoading: true` forever —
+    generic catch now surfaces `LOAD_FAILED` with retry.
+  - Decisions D-30 (stale-dependency fix), D-31 (D-29 refined:
+    `AppTheme` CAN be constructed in tests if
+    `allowRuntimeFetching = false` is set in `setUpAll` BEFORE the theme
+    is constructed), D-32 (integration-test lessons + cart fix), D-33
+    (mobile.yml workflow).
+  - Test lessons: `FilledButton.icon` is a private `_FilledButtonWithIcon`
+    subclass — `widgetWithText(FilledButton, …)` never matches it, tap
+    the label text; cart mocks must be stateful (`getCart` returning
+    empty forever lets a rebuild overwrite an added line); tests touching
+    guest storage need `SharedPreferences.setMockInitialValues({})`.
+  - Follow-up noted, not fixed: other controllers still catch only
+    `ApiException` in their loads (same stuck-spinner class) — for
+    REPORT.md.
 
 ## Next step
 
-- Phase 8 (Quality): cut `flutter/phase-8-quality` from `flutter-app`.
-  Unit tests for repositories and notifiers, widget tests for the key
-  screens, one integration test of the happy path (browse → cart →
-  checkout) against mocks. Add a GitHub Actions workflow for analyze +
-  test on apps/mobile only. Then gate (analyze clean, test green) →
-  commit → local merge → heartbeat.
+- Phase 9 (Wrap-up): README.md in apps/mobile (how to run against the
+  local API, dart-defines, architecture) + REPORT.md (what's done,
+  what's mocked, API gaps, known issues, what the owner needs to do
+  next). Then the ONE GitHub sync (create `flutter-app` if missing —
+  it already exists at `81d1037`, reuse it; upload all files; open the
+  final PR `flutter-app` → `phase-1-2-overnight`, DO NOT merge) when the
+  owner is awake to approve its cards. If sync cannot complete, prepare
+  a git bundle of `flutter-app` + phase branches and record its path in
+  REPORT.md.
 
 ## Phases done
 
@@ -91,10 +112,12 @@ full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
 - Phase 7 Polish — DONE (commit `a0da7cc`, merge
   `44e8ad2`). Gate: analyze clean, test 116/116,
   `flutter build web` passes.
+- Phase 8 Quality — DONE (commit on `flutter/phase-8-quality`, merge
+  into `flutter-app` — see git log). Gate: analyze clean, test 148/148.
 
 ## Phases remaining
 
-- 8 Quality · 9 Wrap-up (README.md + REPORT.md + final PR
+- 9 Wrap-up (README.md + REPORT.md + final PR
   `flutter-app` → `phase-1-2-overnight`, NOT merged; one GitHub sync
   when the owner is awake; if sync cannot complete, prepare a git bundle
   of `flutter-app` + phase branches and record its path in REPORT.md).

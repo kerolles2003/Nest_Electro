@@ -280,3 +280,68 @@ change, the test file's copies must be updated too (noted in the test).
 Bundling the fonts (Albert Sans + Urbanist TTFs in `assets/fonts`) would
 remove this limitation and let the app work fully offline — left for the
 owner to decide; see REPORT.md in phase 9.
+
+## D-30 — CartController: never read providers inside the microtasked load (2026-11-27)
+
+`CartController.build()` watches the auth state, so it rebuilds on
+login/logout. Its `_load` ran in a microtask and read the watched auth
+provider (then `_repo`/`_storage`) via `ref.read` — Riverpod throws
+"Cannot use ref functions after the dependency of a provider changed but
+before the provider rebuilt" when the dependency changed between the
+microtask being scheduled and running (caught by the phase 8 integration
+test, which restores a session during the first pumps). Fix: `build()`
+captures the watched value, the repository and the storage and passes
+them as arguments to `_load({authed, repo, storage})`; `_load` falls back
+to the `ref.read` getters only when called from UI event handlers
+(`refresh()`), where the provider is fresh. Only `CartController` had
+this pattern — other controllers' microtasked loads read stable
+repository providers.
+
+## D-31 — D-29 refined: `AppTheme` CAN be constructed in widget tests (2026-11-27)
+
+The phase 7 failure was timing, not a hard limitation: `AppTheme.light`
+was evaluated at `main()` time, before `setUpAll` ran. If a test file
+sets `GoogleFonts.config.allowRuntimeFetching = false` in `setUpAll`
+BEFORE anything constructs the theme, the full app (with `AppTheme`)
+boots in tests — the smoke test and the phase 8 integration test both do
+this. The phase 7 contrast test's token-pinned copies remain valid (they
+pin the wiring, not the construction), but future tests need not avoid
+`AppTheme`. Bundling the fonts (assets/fonts) would remove the
+`setUpAll` ordering requirement entirely — still the owner's call; see
+REPORT.md in phase 9.
+
+## D-32 — Integration-test lessons + a real cart robustness fix (2026-11-27)
+
+The happy-path integration test (browse → cart → checkout →
+confirmation, mocked repos, Arabic locale) caught four things:
+
+1. `FilledButton.icon`'s runtime type is the private
+   `_FilledButtonWithIcon`, so `find.widgetWithText(FilledButton, …)`
+   never matches it — tap the label text instead. (Plain-constructor
+   `FilledButton`/`ElevatedButton` match normally.)
+2. Cart mocks must be stateful: `getCart()` returning an empty cart
+   forever lets a controller rebuild (auth change) overwrite an added
+   line with the empty cart. The mock now keeps a `lineAdded` flag; the
+   real server behaves the same way.
+3. Any test that touches guest storage must call
+   `SharedPreferences.setMockInitialValues({})` in `setUpAll` — without
+   it `store.load()` throws a platform error.
+4. Real app bug, fixed: `CartController._load` caught only
+   `ApiException`, so a non-API failure (e.g. the unmocked
+   SharedPreferences above) left `isLoading: true` forever and the cart
+   screen spun indefinitely with the line already in state. `_load`
+   now has a generic `catch` that surfaces `ApiException(code:
+   'LOAD_FAILED', …)` — the screen shows its error state with retry.
+   Other controllers still catch only `ApiException` in their loads
+   (same hang class) — follow-up, not fixed in phase 8; recorded for
+   REPORT.md.
+
+## D-33 — GitHub Actions workflow for apps/mobile only (2026-11-27)
+
+`.github/workflows/mobile.yml` runs `flutter analyze` + `flutter test`
+on pushes/PRs touching `apps/mobile/**` (or the workflow itself),
+Flutter pinned to 3.35.7 via `subosito/flutter-action` (same pin as the
+sandbox; bump deliberately). Conventions follow the repo's `ci.yml`:
+`permissions: contents: read`, a `concurrency` group, no secrets, no
+deploy. It has NOT run in CI yet — no GitHub sync happens until the
+final sync after phase 9 (D-08); the first run will be on the final PR.
