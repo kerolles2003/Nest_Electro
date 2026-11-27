@@ -16,27 +16,36 @@ bundle of `flutter-app` + phase branches, path in `REPORT.md`.
 
 ## Current phase
 
-**Phase 4 — Catalogue (starting)**
+**Phase 5 — Cart & checkout (starting)**
 
-- Branch: `flutter/phase-4-catalogue` (to be cut from `flutter-app` at
-  `328aacf`).
-- CatalogueRepository + Riverpod providers, home (hero, categories,
-  featured, brands), categories, product list (search/filter/sort/
-  pagination), product detail with image gallery.
+- Branch: `flutter/phase-5-cart-checkout` (to be cut from `flutter-app` at
+  `3066b42`).
+- CartRepository + cart state (local persistence, synced if the API
+  supports it), cart screen, address selection, checkout quote,
+  payment-methods, order placement with `Idempotency-Key`, order
+  confirmation. Payments: use whatever the API exposes (COD / WALLET /
+  INSTAPAY instructions); NO real payment gateway SDK — stub + log in
+  API_GAPS.md if the flow needs one.
 
 ## Last completed step
 
+- **Phase 4 — DONE.** Catalogue committed (`072a140`, 38 files, +5012)
+  and merged LOCALLY into `flutter-app` (merge commit `3066b42`). Gate
+  passed: `flutter analyze` clean, `flutter test` green (54/54). Includes:
+  CatalogueRepository + ProductQuery + ProductListController, home (hero,
+  trust bar, category grid, featured/new-arrival rails, brands strip),
+  product list (search/filter/sort/infinite scroll), product detail
+  (gallery, price block, specs, related), categories tree, category/brand
+  screens, search with debounced suggestions, 66 new ARB strings
+  (en + ar). `flutter build web` also passes. Live-verified: featured
+  query returns 10 items with facets + priceRange; brand logo is null on
+  live records (initial fallback). Fixes during the phase: ProductCard
+  image uses `Expanded` (a square AspectRatio overflowed on wide cells)
+  + Flexible price/rating rows; smoke test uses manual pumps (hero timer
+  never settles under pumpAndSettle). Decisions D-14…D-19 recorded.
 - **Phase 3 — DONE.** Auth committed (`1d239a3`, 23 files) and merged
   LOCALLY into `flutter-app` (merge commit `328aacf`). Gate passed:
-  `flutter analyze` clean, `flutter test` green (36/36). Includes:
-  AuthRepository, AuthController (session restore, errors as ApiException),
-  5 screens, router guards, validation mirroring the API policy
-  (password 10/72, Egyptian mobile). Fixes during the phase: freezed
-  union cases are library-private — state is read via an `AuthStateX`
-  extension (custom getters in the class body do not survive freezed
-  union codegen); login widget test tapped the AppBar title instead of
-  the button (same "Log in" text) — fixed with
-  `find.widgetWithText(ElevatedButton, …)`.
+  `flutter analyze` clean, `flutter test` green (36/36).
 - **Demo restored (2026-11-27 ~19:40 EET).** The sandbox service restart
   had killed mongod + all three servers. Restarted from the intact data
   dir (no re-seed): mongod 27018, API 3002 (health ok), storefront 3000
@@ -49,21 +58,24 @@ bundle of `flutter-app` + phase branches, path in `REPORT.md`.
   (`ed0653d`). Gate: analyze clean, test 1/1.
 - **Phase 0 — DONE.** Docs (`f91cade`); PR #3 merged on GitHub
   (`81d1037`); local `flutter-app` fast-forwarded to `f91cade` (D-09).
-- Plan change recorded in `DECISIONS.md` (D-08…D-13).
+- Plan change recorded in `DECISIONS.md` (D-08…D-19).
 
 ## Next step
 
-1. Cut `flutter/phase-4-catalogue` from `flutter-app`; mirror the
-   storefront's home sections and product-list filters
-   (`apps/storefront/src/app/page.tsx`, `products/`).
-2. Write CatalogueRepository + providers (list w/ pagination, detail,
-   related, suggestions, categories, brands), home/categories/list/
-   detail/search screens with gallery, ARB strings.
-3. Tests: repository + list-controller unit tests, list/detail widget
+1. Cut `flutter/phase-5-cart-checkout` from `flutter-app`; read the
+   storefront cart/checkout flow + the cart/order models from Phase 2
+   (`GET /cart`, `POST /cart/items`, `PATCH/DELETE /cart/items/{id}`,
+   `POST /cart/preview`, `POST /checkout/quote`, `GET
+   /checkout/payment-methods`, `POST /orders` with `Idempotency-Key`).
+2. Write CartRepository + cart state (Riverpod), cart screen (quantity
+   steppers, line statuses, preview for guests), checkout screen
+   (address → quote → payment method → place order), confirmation
+   screen, "Add to cart" on the product detail screen, ARB strings.
+3. Tests: cart repository + controller unit tests, cart/checkout widget
    tests (mocked repo).
 4. Gate (`flutter analyze` clean, `flutter test` green) → commit on
-   `flutter/phase-4-catalogue` → merge LOCALLY into `flutter-app` →
-   Phase 5.
+   `flutter/phase-5-cart-checkout` → merge LOCALLY into `flutter-app` →
+   Phase 6.
 
 ## Blockers
 
@@ -82,7 +94,7 @@ bundle of `flutter-app` + phase branches, path in `REPORT.md`.
 - [x] 1. Scaffold (merged locally: `ed0653d`; analyze clean, test 1/1)
 - [x] 2. Core (dio client, models) (merged locally: `d6305fd`; analyze clean, test 19/19)
 - [x] 3. Auth (merged locally: `328aacf`; analyze clean, test 36/36)
-- [ ] 4. Catalogue
+- [x] 4. Catalogue (merged locally: `3066b42`; analyze clean, test 54/54)
 - [ ] 5. Cart & checkout
 - [ ] 6. Account
 - [ ] 7. Polish

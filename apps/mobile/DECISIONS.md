@@ -114,3 +114,54 @@ the spec says required, and every "event happened at" timestamp
 Money `amount` is `int` (integer piastres per the API contract, verified
 live: `38000`); `average`/`weight` are `double` (json_serializable coerces
 `num` → `double`).
+
+## D-14 — Category/hero artwork copied from the storefront (2026-11-27)
+
+The live API returns `image: null` for every category, so the category
+tiles and hero have no server artwork. The storefront's local files are
+the only artwork: 3 hero webps + the 8 root-category PNGs were copied
+from `apps/storefront/public/images/` into `apps/mobile/assets/images/`
+(6.5 MB total, same repo, same project). Brand logos are different —
+`BrandDto.logo` is a real `ProductImageDto` (null on live records), so
+brand tiles fetch the logo via `ApiConfig.imageUrl` and fall back to the
+brand's initial letter.
+
+## D-15 — Featured is a filter, not a sort (2026-11-27)
+
+The API has no `featured` sort value (its sort enum is frozen:
+relevance/newest/price_asc/price_desc/rating/name_asc). The featured rail
+is `GET /products?featured=true&sort=newest` — the same mapping the
+storefront's listing page uses for its legacy "Featured" sort.
+
+## D-16 — Category tree built client-side from the flat list (2026-11-27)
+
+`GET /categories/tree` returns nested `children`, but our `CategoryDto`
+does not model them (json_serializable drops unknown fields). The flat
+`GET /categories` (15 items) carries `parentId`/`depth`, so roots and
+children are grouped client-side instead.
+
+## D-17 — Product list: immutable query, navigation as the filter action (2026-11-27)
+
+`ProductQuery` (freezed) is the single source of truth for a listing.
+The `ProductListController` is a `FamilyNotifier` keyed by that query:
+first page loads on build (microtask), `loadMore()` appends, `refresh()`
+re-fetches page 1. Changing a filter or sort navigates to a new
+`/products?...` URL (prices in EGP in the URL, ×100 to piastres at the
+router — mirroring the web listing), which rebuilds the screen with a new
+query and a fresh provider instance.
+
+## D-18 — Demo died in a sandbox service restart; restarted, not rebuilt (2026-11-27)
+
+Mongod + API + storefront + admin were all down after the restart that
+also interrupted a `build_runner` run. The Mongo data dir was intact, so
+the demo was restarted from it (mongod `--fork`, API `node dist/main.js`
+with `browser-check/env.sh` + local-media vars, frontends `pnpm start`
+with explicit ports) — no re-seed, catalogue still 60 products, live
+login probe 401 `INVALID_CREDENTIALS` as expected.
+
+## D-19 — Smoke test uses manual pumps, not pumpAndSettle (2026-11-27)
+
+The hero carousel's 8-second `Timer.periodic` auto-advance never
+settles, so `pumpAndSettle` times out once the home screen is real.
+`test/widget_test.dart` now pumps two 1-second frames instead. The timer
+itself is correct app behaviour (the web hero auto-advances too).
