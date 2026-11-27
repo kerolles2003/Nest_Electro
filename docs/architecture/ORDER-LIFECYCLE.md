@@ -87,6 +87,45 @@ This makes the incoherent live combination *"shipped + payment pending"* represe
 
 **No refund workflow.** The legacy plan specified a 5-state refund lifecycle (`requested → approved → processed → completed/failed`). It was never built, and with no payment provider it would model nothing real — refunds are a bank transfer or wallet payment made by hand. MVP records the *outcome* (`REFUNDED` + `refundedAmount` + `refundNote`), not a workflow. **REMOVED** per BEHAVIOR-DECISIONS O13.
 
+### 3.1 Manual prepayment (Wallet / InstaPay) — the PAY-3 gate
+
+> Added 2026-11-22. Sections 1–3 above describe the original COD-only design.
+> Manual prepayment was implemented later and overlays — never replaces — the
+> rules above. Where this subsection and the COD text differ, this subsection
+> governs non-COD orders and the COD text governs COD orders.
+
+Alongside COD, a customer may prepay by manual Wallet or InstaPay transfer.
+There is no payment provider: the customer transfers to the shop's published
+number/address, sends evidence out-of-band (WhatsApp + screenshot + order
+reference), and an authorized admin verifies it by hand. Evidence NEVER marks
+an order paid by itself; only an admin decision does.
+
+| Status | Meaning | Set by |
+|---|---|---|
+| `PENDING_VERIFICATION` | Customer declared a manual transfer; evidence awaiting review | System, at placement |
+| `PAID` | An authorized admin verified the transfer (amount-matched, attributable, audited) | Admin, explicitly |
+| `PAYMENT_REJECTED` | An authorized admin rejected the evidence | Admin, explicitly |
+
+**Rule (PAY-3, owner-approved): a non-COD order MUST NOT enter fulfilment
+until `payment.status = PAID`.** The gate sits inside the lifecycle
+transition itself (`OrderLifecycleService.apply()`), not in any controller,
+and covers the transitions into `CONFIRMED`, `SHIPPED` and `DELIVERED`.
+COD orders are exempt — their payment event is delivery, per ADR-ORDER-002.
+
+**The gate is fail-closed.** If a non-COD order's payment record is missing,
+null, or carries an unrecognized method/status, the transition is refused
+with `422 PAYMENT_REQUIRED_BEFORE_FULFILMENT` inside the transition
+transaction — it does not default to "probably COD". Legacy or corrupt
+records therefore stop at the gate instead of shipping unpaid. The automatic
+`DELIVERED → PAID` collection transition remains **COD-only**: delivery can
+never auto-pay a non-COD record.
+
+**Segregation of duties (PAY-1, owner-ratified).** An admin may not approve
+or reject payment evidence for an order that same admin placed. A refused
+self-decision is itself audited (`ORDER_PAYMENT_CHANGED`, outcome `refused`,
+reason `SEGREGATION_OF_DUTIES`), written outside the aborting transaction so
+the record survives.
+
 ---
 
 ## 4. State machine

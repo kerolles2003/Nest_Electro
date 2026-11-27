@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsDefined,
   IsInt,
   IsOptional,
   IsUrl,
@@ -55,6 +56,10 @@ export class CreateCategoryDto {
   slug!: string;
 
   @ApiProperty({ type: LocalizedTextInputDto })
+  // IsDefined is load-bearing: ValidateNested skips an ABSENT property, so
+  // without it a body with no `name` passed validation and the service
+  // dereferenced undefined — a 500 for a client error.
+  @IsDefined({ message: 'name is required' })
   @ValidateNested()
   @Type(() => LocalizedTextInputDto)
   name!: LocalizedTextInputDto;
@@ -145,6 +150,10 @@ export class CreateBrandDto {
   slug!: string;
 
   @ApiProperty({ type: LocalizedTextInputDto })
+  // IsDefined is load-bearing: ValidateNested skips an ABSENT property, so
+  // without it a body with no `name` passed validation and the service
+  // dereferenced undefined — a 500 for a client error.
+  @IsDefined({ message: 'name is required' })
   @ValidateNested()
   @Type(() => LocalizedTextInputDto)
   name!: LocalizedTextInputDto;

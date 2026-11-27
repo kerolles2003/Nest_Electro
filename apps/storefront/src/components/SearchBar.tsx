@@ -55,8 +55,9 @@ export function SearchBar({ initialQuery = '' }: SearchBarProps) {
           </button>
         )}
 
-        <button 
+        <button
           type="submit"
+          aria-label="Search"
           className="rounded-md bg-primary p-2.5 text-primary-foreground shadow-md transition-all hover:bg-primary-hover active:scale-95"
         >
           <Search className="w-5 h-5" />

@@ -5,6 +5,7 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
+  IsDefined,
   IsEnum,
   IsInt,
   IsOptional,
@@ -87,6 +88,11 @@ export class CreateProductDto {
   slug!: string;
 
   @ApiProperty({ type: LocalizedTextInputDto })
+  // IsDefined is load-bearing, not decoration: ValidateNested skips an
+  // ABSENT property entirely, so without it a body with no `name` passed
+  // validation and the service dereferenced undefined — a 500 for a client
+  // error. (Scalar fields never had this hole: IsString fails on undefined.)
+  @IsDefined({ message: 'name is required' })
   @ValidateNested()
   @Type(() => LocalizedTextInputDto)
   name!: LocalizedTextInputDto;

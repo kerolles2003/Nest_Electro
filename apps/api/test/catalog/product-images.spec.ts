@@ -241,6 +241,19 @@ beforeAll(async () => {
 afterAll(async () => {
   if (createdProductIds.length > 0) {
     await auditLogs.deleteMany({ 'entity.id': { $in: createdProductIds } }).exec();
+    // Media deletions are audited against the ASSET, not the product, so the
+    // line above cannot reach them: the row's entity.id is the asset id and
+    // its document is already gone (a completed destroy removes it). The
+    // row's label is the publicId, which embeds the product id — scope by
+    // that prefix. Without this, every image this suite deletes leaves its
+    // MEDIA_DELETE_REQUESTED + MEDIA_DELETED pair behind (exactly 4 rows
+    // per run) and the global teardown guard fails the run on them.
+    await auditLogs
+      .deleteMany({
+        'entity.type': 'MEDIA',
+        'entity.label': new RegExp(`^nest/products/(${createdProductIds.map(String).join('|')})/`),
+      })
+      .exec();
     await slugRedirects.deleteMany({ entityId: { $in: createdProductIds } }).exec();
     await products.deleteMany({ _id: { $in: createdProductIds } }).exec();
   }

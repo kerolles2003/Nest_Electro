@@ -8,6 +8,16 @@ import { cn } from "./utils"
 export interface ProductCardProps extends React.HTMLAttributes<HTMLDivElement> {
   product: ProductCardDTO
   variant?: "grid" | "list"
+  /**
+   * Heading level for the product name. `h3` (the default) is correct under
+   * a section `h2` — home-page rails, related products. Listing pages whose
+   * cards sit directly under the page `h1` (catalogue, category, brand,
+   * search) must pass `h2`: an `h1` followed by `h3` card titles skips a
+   * level, which is an axe heading-order violation and a broken outline
+   * for screen-reader navigation. Purely semantic — styling is class-based
+   * and identical at either level.
+   */
+  titleAs?: "h2" | "h3"
   onAddToCart?: (product: ProductCardDTO) => void
   onWishlist?: (product: ProductCardDTO) => void
   isWishlisted?: boolean
@@ -53,6 +63,7 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
 export function ProductCard({
   product,
   variant = "grid",
+  titleAs: TitleTag = "h3",
   className,
   onAddToCart,
   onWishlist,
@@ -146,9 +157,9 @@ export function ProductCard({
         {/* Info */}
         <div className="flex-1 min-w-0">
           <a href={`/products/${product.slug}`} className="block">
-            <h3 className="text-[14px] font-bold text-foreground leading-[1.2] line-clamp-2 hover:text-primary transition-colors">
+            <TitleTag className="text-[14px] font-bold text-foreground leading-[1.2] line-clamp-2 hover:text-primary transition-colors">
               {product.name}
-            </h3>
+            </TitleTag>
           </a>
 
           <div className="mt-2 flex items-center gap-3">
@@ -255,9 +266,9 @@ export function ProductCard({
       <div className="pt-3 flex flex-col flex-1 relative z-10">
         <div className="flex flex-col flex-1">
           <a href={`/products/${product.slug}`} className="block group/title focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-            <h3 className="text-[14px] font-bold text-foreground leading-[1.32] line-clamp-2 min-h-[38px] group-hover/title:text-primary transition-colors duration-150">
+            <TitleTag className="text-[14px] font-bold text-foreground leading-[1.32] line-clamp-2 min-h-[38px] group-hover/title:text-primary transition-colors duration-150">
               {product.name}
-            </h3>
+            </TitleTag>
           </a>
 
           <div className="mt-3 flex items-baseline gap-2">
