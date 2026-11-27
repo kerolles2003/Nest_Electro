@@ -93,3 +93,24 @@ sandbox; `flutter build web` may be used as an extra compile check where useful.
 `gen_l10n` runs with `synthetic-package: false` into `lib/src/core/l10n/gen/`.
 The generated Dart files are committed (small, text, regenerable) so the tree
 analyzes without a prior `flutter pub get`.
+
+## D-12 — Content localization is header-driven (verified live, 2026-11-27)
+
+The API localizes product/category names and descriptions from the
+`Accept-Language` request header — the same product returns Arabic with
+`ar` and English with `en`; DTOs carry plain strings, never both languages.
+The dio client therefore sends `Accept-Language` matching the app locale
+(Arabic by default, English when the user switches). No per-field bilingual
+model is needed.
+
+## D-13 — Model nullability follows live data, not just the OpenAPI
+
+The OpenAPI marks several fields required that the live API returns as
+`null` (verified: `CategoryDto.parentId` is `null` for root categories,
+`brand`/`salePrice`/`logo` are `null` on real records, `ProductSpecDto.unit`
+is `null`). Freezed models therefore make those fields nullable even where
+the spec says required, and every "event happened at" timestamp
+(`collectedAt`, `decidedAt`, `deliveredAt`, `lastLoginAt`, …) is nullable.
+Money `amount` is `int` (integer piastres per the API contract, verified
+live: `38000`); `average`/`weight` are `double` (json_serializable coerces
+`num` → `double`).
