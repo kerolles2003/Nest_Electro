@@ -1,102 +1,76 @@
-# PROGRESS — Nest Electro Flutter app
+# Nest Electro — Flutter mobile app: PROGRESS
 
-Heartbeat protocol: on every wake-up, read this file + `git status` / `git log`,
-continue from "Next step". Do not restart finished work. A step that fails 3 times
-goes under Blockers with a workaround/skip.
+Mission: build a Flutter customer-storefront app at `apps/mobile`, phases 0–9,
+on local branch `flutter-app` cut from `origin/phase-1-2-overnight` (5a1fd5c).
+Per-phase branches `flutter/phase-N-<name>` pass the gate
+(`flutter analyze` clean, `flutter test` green) and are merged LOCALLY into
+`flutter-app` with a real merge commit — no GitHub writes until the final sync
+(owner decision D-08: he sleeps and cannot approve cards overnight).
+Final PR `flutter-app` → `phase-1-2-overnight` is opened at the end and NOT
+merged. Never touch main or phase-1-2-overnight; no force-push; no deploy.
 
-## Plan (owner decision, 2026-11-27 evening — see DECISIONS.md D-08)
+Flutter SDK: `~/workspace/flutter-sdk` (3.35.7, Dart 3.9.2) — add `bin/` to PATH.
+Demo API: http://127.0.0.1:3002/api/v1 (health ok, 60 products). Do NOT run a
+full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
+`MUSE_FINAL_GITHUB_HANDOFF_REVIEW.md` in the repo root.
 
-Per-phase GitHub PRs/merges are OFF (owner asleep, cannot approve cards).
-Each phase: own local branch `flutter/phase-N-<name>` from `flutter-app` →
-gate (`flutter analyze` clean, `flutter test` green) → merge LOCALLY into
-`flutter-app` with a real merge commit. NO GitHub writes until the final sync
-after Phase 9: one sync (create `flutter-app` if missing, upload files, open
-final PR `flutter-app` → `phase-1-2-overnight`, DO NOT merge). Fallback: git
-bundle of `flutter-app` + phase branches, path in `REPORT.md`.
-
-## Current phase
-
-**Phase 5 — Cart & checkout (starting)**
-
-- Branch: `flutter/phase-5-cart-checkout` (to be cut from `flutter-app` at
-  `3066b42`).
-- CartRepository + cart state (local persistence, synced if the API
-  supports it), cart screen, address selection, checkout quote,
-  payment-methods, order placement with `Idempotency-Key`, order
-  confirmation. Payments: use whatever the API exposes (COD / WALLET /
-  INSTAPAY instructions); NO real payment gateway SDK — stub + log in
-  API_GAPS.md if the flow needs one.
+## Current phase: 6 — Account (NOT started)
 
 ## Last completed step
 
-- **Phase 4 — DONE.** Catalogue committed (`072a140`, 38 files, +5012)
-  and merged LOCALLY into `flutter-app` (merge commit `3066b42`). Gate
-  passed: `flutter analyze` clean, `flutter test` green (54/54). Includes:
-  CatalogueRepository + ProductQuery + ProductListController, home (hero,
-  trust bar, category grid, featured/new-arrival rails, brands strip),
-  product list (search/filter/sort/infinite scroll), product detail
-  (gallery, price block, specs, related), categories tree, category/brand
-  screens, search with debounced suggestions, 66 new ARB strings
-  (en + ar). `flutter build web` also passes. Live-verified: featured
-  query returns 10 items with facets + priceRange; brand logo is null on
-  live records (initial fallback). Fixes during the phase: ProductCard
-  image uses `Expanded` (a square AspectRatio overflowed on wide cells)
-  + Flexible price/rating rows; smoke test uses manual pumps (hero timer
-  never settles under pumpAndSettle). Decisions D-14…D-19 recorded.
-- **Phase 3 — DONE.** Auth committed (`1d239a3`, 23 files) and merged
-  LOCALLY into `flutter-app` (merge commit `328aacf`). Gate passed:
-  `flutter analyze` clean, `flutter test` green (36/36).
-- **Demo restored (2026-11-27 ~19:40 EET).** The sandbox service restart
-  had killed mongod + all three servers. Restarted from the intact data
-  dir (no re-seed): mongod 27018, API 3002 (health ok), storefront 3000
-  (200), admin 3001 (200); catalogue still 60 products. Live login probe:
-  wrong credentials → 401 `INVALID_CREDENTIALS` envelope, exactly the
-  shape `ApiException` maps.
-- **Phase 2 — DONE.** Core committed (`2856a00`, 45 files) and merged
-  LOCALLY into `flutter-app` (`d6305fd`). Gate: analyze clean, test 19/19.
-- **Phase 1 — DONE.** Scaffold committed (`bfd98d5`) and merged locally
-  (`ed0653d`). Gate: analyze clean, test 1/1.
-- **Phase 0 — DONE.** Docs (`f91cade`); PR #3 merged on GitHub
-  (`81d1037`); local `flutter-app` fast-forwarded to `f91cade` (D-09).
-- Plan change recorded in `DECISIONS.md` (D-08…D-19).
+- Phase 5 (Cart & checkout) DONE and merged locally.
+  - Phase branch `flutter/phase-5-cart-checkout`, commit `690eac4`
+    ("feat(mobile): phase 5 cart & checkout", 26 files, +4538).
+  - Merged into `flutter-app` with merge commit `8c5452b`.
+  - Gate: `flutter analyze` clean (no issues); `flutter test` green
+    79/79 (was 54/54 — 25 new tests). `flutter build web` also passes.
+  - Live-verified against the demo API: `POST /cart/preview` prices a
+    guest basket (2 × 380.00 EGP = 760.00 EGP, status OK).
+  - Decisions D-20 (guest basket moves only on an explicit tap) and D-21
+    (`/cart` guest-accessible, `/checkout` auth-only) written in DECISIONS.md.
+  - Fixes during the phase: `AuthState.isAuthenticated` comes from the
+    `AuthStateX` extension (import `auth_state.dart`); deprecated
+    `RadioListTile` group API replaced with `RadioGroup`; test fixtures
+    must use literal JSON maps (freezed `toJson()` does not deep-serialize
+    nested DTOs); wallet number is a `SelectableText`, not `Text`;
+    the payment section sits below the fold — widget tests must
+    `ensureVisible` before tapping it.
 
 ## Next step
 
-1. Cut `flutter/phase-5-cart-checkout` from `flutter-app`; read the
-   storefront cart/checkout flow + the cart/order models from Phase 2
-   (`GET /cart`, `POST /cart/items`, `PATCH/DELETE /cart/items/{id}`,
-   `POST /cart/preview`, `POST /checkout/quote`, `GET
-   /checkout/payment-methods`, `POST /orders` with `Idempotency-Key`).
-2. Write CartRepository + cart state (Riverpod), cart screen (quantity
-   steppers, line statuses, preview for guests), checkout screen
-   (address → quote → payment method → place order), confirmation
-   screen, "Add to cart" on the product detail screen, ARB strings.
-3. Tests: cart repository + controller unit tests, cart/checkout widget
-   tests (mocked repo).
-4. Gate (`flutter analyze` clean, `flutter test` green) → commit on
-   `flutter/phase-5-cart-checkout` → merge LOCALLY into `flutter-app` →
-   Phase 6.
+- Phase 6 (Account): cut `flutter/phase-6-account` from `flutter-app`.
+  Build profile (GET /auth/me + PATCH /users/me), order history
+  (GET /orders) + order details (GET /orders/{id}, cancel, payment
+  resubmit), addresses CRUD (GET/POST/PATCH/DELETE /users/me/addresses,
+  set default), wishlist ONLY if the API supports it — per phase 0 it
+  does not (G1: mock repository, local-only, clearly marked).
+  Wire `/account`, `/account/orders`, `/account/orders/:id`,
+  `/account/addresses`, `/account/wishlist` routes (placeholders exist).
+  Then gate (analyze clean, test green) → commit → local merge → heartbeat.
+
+## Phases done
+
+- Phase 0 Recon — DONE (commit `f91cade`; PR #3 merged on GitHub `81d1037`
+  before the plan change; remote `flutter-app` tip `81d1037` vs local
+  `f91cade` — same content, different SHAs, D-09).
+- Phase 1 Scaffold — DONE (commit `bfd98d5` + `da2ca51`, merge `ed0653d`).
+  Gate: analyze clean, test 1/1.
+- Phase 2 Core — DONE (commit `2856a00`, merge `d6305fd`).
+  Gate: analyze clean, test 19/19.
+- Phase 3 Auth — DONE (commit `1d239a3`, merge `328aacf`).
+  Gate: analyze clean, test 36/36. Live-verified 401 INVALID_CREDENTIALS.
+- Phase 4 Catalogue — DONE (commit `072a140`, merge `3066b42`).
+  Gate: analyze clean, test 54/54, `flutter build web` passes.
+- Phase 5 Cart & checkout — DONE (commit `690eac4`, merge `8c5452b`).
+  Gate: analyze clean, test 79/79, `flutter build web` passes.
+
+## Phases remaining
+
+- 6 Account · 7 Polish · 8 Quality · 9 Wrap-up (README.md + REPORT.md +
+  final PR `flutter-app` → `phase-1-2-overnight`, NOT merged; one GitHub
+  sync when the owner is awake; if sync cannot complete, prepare a git
+  bundle of `flutter-app` + phase branches and record its path in REPORT.md).
 
 ## Blockers
 
-- None yet.
-- Note: sandbox memory is tight (8 GB total, ~450 MB available with the demo
-  running). If a Flutter build OOMs, stop the demo servers and retry — the demo
-  can be rebuilt later; the app work takes priority.
-- Note: `muse.edit` on this file twice failed to match visually-identical
-  text (2026-11-27, similarity 0.99) — likely invisible whitespace; rewrite
-  the whole file with `muse.write` instead of editing it in place, and never
-  run two edits on the same file in parallel.
-
-## Phase checklist
-
-- [x] 0. Recon — SCREENS.md + API_GAPS.md (merged: GitHub PR #3 `81d1037`)
-- [x] 1. Scaffold (merged locally: `ed0653d`; analyze clean, test 1/1)
-- [x] 2. Core (dio client, models) (merged locally: `d6305fd`; analyze clean, test 19/19)
-- [x] 3. Auth (merged locally: `328aacf`; analyze clean, test 36/36)
-- [x] 4. Catalogue (merged locally: `3066b42`; analyze clean, test 54/54)
-- [ ] 5. Cart & checkout
-- [ ] 6. Account
-- [ ] 7. Polish
-- [ ] 8. Quality (tests + CI workflow)
-- [ ] 9. Wrap-up (README.md, REPORT.md, final PR — DO NOT merge)
+- (none)
