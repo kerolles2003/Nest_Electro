@@ -28,7 +28,7 @@ phase 10 — the app renders its real typography fully offline).
 | 7 Polish | Image caching everywhere, pull-to-refresh, tooltips, WCAG AA contrast (caught + fixed a real dark-theme defect), RTL fixes on every screen, app icon placeholder | `a0da7cc` | `44e8ad2` | analyze clean, test 116/116, `flutter build web` passes; axe-style sweep: 0 violations on audited screens |
 | 8 Quality | 32 new tests, happy-path integration test, GitHub Actions workflow | `89c9efa` | `49172ab` | analyze clean, test **148/148** |
 | 9 Wrap-up | This report + `README.md` | `4aebdd7` | `cdd518e` | analyze clean, test 148/148 |
-| 10 Hardening | Stuck-spinner fix extended to account/orders/addresses/checkout (7 load paths, 6 regression tests); fonts bundled as TTFs, `google_fonts` removed; dark muted foreground measured + fixed (#64748B → #94A3B8); widget coverage for home / product detail / cart / checkout / login; load test 20→50→100 users + 3 checkouts + parallel idempotency proof (see "Phase 10 — Hardening" below) | `flutter/phase-10-hardening` | (merge commit recorded in PROGRESS.md) | analyze clean, test **163/163**, `flutter build web` passes |
+| 10 Hardening | Stuck-spinner fix extended to account/orders/addresses/checkout (7 load paths, 6 regression tests); fonts bundled as TTFs, `google_fonts` removed; dark muted foreground measured + fixed (#64748B → #94A3B8); widget coverage for home / product detail / cart / checkout / login; load test 20→50→100 users + 3 checkouts + parallel idempotency proof (see "Phase 10 — Hardening" below) | `d49d442` | `26d06f1` | analyze clean, test **163/163**, `flutter build web` passes |
 
 Final gate (re-verified on the merged tree): `flutter analyze` — no
 issues; `flutter test` — **163/163 passed**; `flutter build web` passes.
@@ -190,10 +190,16 @@ Load test (live local demo API; driver + raw results in
   binary under `apps/mobile`) MUST be excluded from any connector
   `push_files` manifest — snapshot push is text-only; the git bundle
   below carries them.
-- **Bundle fallback:** `~/workspace/nest-electro-flutter-app-v1.bundle`
-  (7,069,177 bytes, `git bundle verify` passed). Contains `flutter-app`
-  at `cdd518e` plus all 10 `flutter/phase-*` branches; prerequisite is
-  `5a1fd5c` (`phase-1-2-overnight` tip, already on GitHub). If the GitHub
-  sync ultimately cannot complete, this bundle is the transfer vehicle —
-  same pattern as bundle v7. Fetch it on the owner's machine and confirm
-  the `flutter-app` tip SHA before pushing.
+- **Bundle fallback:** `~/workspace/nest-electro-flutter-app-v3.bundle`
+  (7,265,939 bytes, `git bundle verify` passed). Contains `flutter-app`
+  at `26d06f1` (phase 10 merged) plus all 11 `flutter/phase-*` branches
+  (0–10); prerequisite is `5a1fd5c` (`phase-1-2-overnight` tip, already
+  on GitHub). If the GitHub sync ultimately cannot complete, this bundle
+  is the transfer vehicle — same pattern as bundle v7. Fetch it on the
+  owner's machine and confirm the `flutter-app` tip SHA before pushing.
+  **Bundle v2 (7,071,409 bytes, `flutter-app` at `44b6166`) is stale
+  after phase 10 — do not use it.** Note: the v3 bundle was verified
+  with `git bundle verify` only; the usual fetch-test into a temp clone
+  was blocked by a sandbox execution-risk check on the bundle file, so
+  the owner's fetch on his own machine is the final confirmation that
+  it transfers cleanly.

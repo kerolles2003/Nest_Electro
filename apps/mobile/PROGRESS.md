@@ -14,35 +14,27 @@ Demo API: http://127.0.0.1:3002/api/v1 (health ok, 60 products). Do NOT run a
 full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
 `MUSE_FINAL_GITHUB_HANDOFF_REVIEW.md` in the repo root.
 
-## Current phase: Phase 10 (Hardening) — DONE on its branch, awaiting merge
+## Current phase: MISSION LOCALLY COMPLETE (phases 0–10) — final GitHub sync pending owner awake
 
 ## Last completed step
 
-- Phase 10 (Hardening) DONE on branch `flutter/phase-10-hardening`
-  (cut from `flutter-app` at `44b6166`).
-  - Stuck-spinner fix extended: generic `catch` → `LOAD_FAILED` in 7
-    load paths (account, orders first page + load more, order detail,
-    addresses, checkout load + quote). 6 regression tests.
-  - Fonts bundled: 8 TTFs (Albert Sans + Urbanist 400/500/600/700,
-    ~352 KB) in `assets/fonts/`; `google_fonts` removed; app fully
-    offline; test `allowRuntimeFetching` workaround deleted.
-  - Dark muted foreground measured (#64748B = 3.90:1, below AA) and
-    fixed to #94A3B8 (7.24:1), pinned by test.
-  - Coverage: 15 new tests — home (2), error states on product detail /
-    cart / checkout / login, timeout → `TIMEOUT` mapping, double-tap
-    placeOrder places one order.
-  - Load test vs live local demo API (driver + results in
-    `~/workspace/loadtest-p10/`): steps 20 → 50 → 100 concurrent users
-    (browse + search + detail + cart preview), 0 5xx / 0 transport
-    errors; p95 at 100 users 1,393 ms on the products list, 120–273 ms
-    elsewhere; 3 full checkouts (register limit 3/hour/IP) + parallel
-    idempotency double-send → one order, no duplicates. Sandbox
-    numbers only — see REPORT.md "Phase 10 — Hardening" for the honest
-    limits.
-  - Gate on the branch: `flutter analyze` clean; `flutter test`
-    163/163; `flutter build web` passes.
-  - Decisions D-34…D-41 recorded. App icon untouched; no API/storefront/
-    admin edits; no GitHub writes; bundle v3 to be built after the merge.
+- Phase 10 (Hardening) DONE and merged locally.
+  - Phase branch `flutter/phase-10-hardening`, commit `d49d442`
+    ("feat(mobile): phase 10 hardening", 31 files, +943/−105).
+  - Merged into `flutter-app` with merge commit `26d06f1`.
+  - Gate re-verified on the merged tree: `flutter analyze` clean (no
+    issues); `flutter test` green 163/163; `flutter build web` passes.
+  - Bundle v3 created + verified:
+    `~/workspace/nest-electro-flutter-app-v3.bundle` (7,265,939 bytes,
+    `git bundle verify` passed) — `flutter-app` at `26d06f1` + all 11
+    `flutter/phase-*` branches; prerequisite `5a1fd5c`. Bundle v2 is
+    stale — do not use it.
+  - Fetch-test note: the usual temp-clone fetch-test of the bundle was
+    blocked by a sandbox execution-risk check on the bundle file, so it
+    was NOT run. `git bundle verify` passed and the bundle was created
+    by this session from the local repo; the owner's fetch on his own
+    machine is the final confirmation it transfers cleanly.
+  - Decisions D-34…D-41 recorded.
 - Phase 9 (Wrap-up) DONE and merged locally.
   - Phase branch `flutter/phase-9-wrap-up`, commit `4aebdd7`
     ("docs(mobile): phase 9 wrap-up", README.md + REPORT.md, +275/−10).
@@ -84,10 +76,6 @@ full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
 
 ## Next step
 
-- **Merge `flutter/phase-10-hardening` into `flutter-app`** (real merge
-  commit, local only), then build + verify + fetch-test bundle v3
-  (`~/workspace/nest-electro-flutter-app-v3.bundle`), record it in
-  REPORT.md, and update this file (phase 10 done, new tip).
 - **Final GitHub sync — ONLY when the owner is awake to approve its cards
   (D-08).** One sync: reuse the existing remote `flutter-app` branch (tip
   `81d1037`, phase 0 only — do NOT re-create it), snapshot-upload the
@@ -96,9 +84,11 @@ full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
   `flutter-app` → `phase-1-2-overnight`, **DO NOT merge it**. If the sync
   ultimately cannot complete, the bundle above
   (`~/workspace/nest-electro-flutter-app-v3.bundle`, `flutter-app`
-  at the merged tip) is the transfer vehicle — fetch it on the owner's
+  at `26d06f1`) is the transfer vehicle — fetch it on the owner's
   machine and confirm the tip SHA before pushing. **Bundle v2 is stale
-  after phase 10 — do not use it.**
+  after phase 10 — do not use it.** The owner's machine fetch also
+  serves as the bundle's fetch-test (blocked in the sandbox — see
+  "Last completed step").
 
 ## Phases done
 
@@ -124,17 +114,20 @@ full Jest run (1.5-CPU cell). Never stage/commit/discard the untracked
   merge `49172ab` into `flutter-app`). Gate: analyze clean, test 148/148.
 - Phase 9 Wrap-up — DONE (commit `4aebdd7` on `flutter/phase-9-wrap-up`,
   merge `cdd518e` into `flutter-app`). Gate: analyze clean, test 148/148.
-- Phase 10 Hardening — DONE on `flutter/phase-10-hardening` (commit SHA
-  and merge recorded in the post-merge heartbeat commit). Gate: analyze
-  clean, test 163/163, `flutter build web` passes.
+- Phase 10 Hardening — DONE (commit `d49d442` on
+  `flutter/phase-10-hardening`, merge `26d06f1` into `flutter-app`).
+  Gate: analyze clean, test 163/163, `flutter build web` passes.
+  Bundle v3: `~/workspace/nest-electro-flutter-app-v3.bundle`
+  (7,265,939 bytes, `flutter-app` at `26d06f1`).
 
 ## Phases remaining
 
-- Merge phase 10 + bundle v3, then final GitHub sync + final PR (NOT
-  merged) — pending the owner being awake to approve its cards (D-08).
-  Nothing else is open locally.
+- Final GitHub sync + final PR (NOT merged) — pending the owner being
+  awake to approve its cards (D-08). Nothing else is open locally.
 
 ## Blockers
 
 - (none locally; the final sync is gated on the owner being awake, by
-  his own decision — not a technical blocker)
+  his own decision — not a technical blocker. The v3 bundle fetch-test
+  was blocked in the sandbox by an execution-risk check; the owner's
+  fetch on his machine is the confirmation instead.)
