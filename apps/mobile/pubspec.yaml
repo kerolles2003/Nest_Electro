@@ -1,0 +1,94 @@
+name: nest_electro
+description: "Nest Electro — customer storefront mobile app (Flutter)."
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=3.35.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cached_network_image: ^3.4.1
+  dio: ^5.7.0
+  flutter_riverpod: ^2.6.1
+  flutter_secure_storage: ^9.2.4
+  freezed_annotation: ^2.4.4
+  go_router: ^14.8.1
+  intl: ^0.20.2
+  json_annotation: ^4.9.0
+  uuid: ^4.5.1
+  shared_preferences: ^2.5.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.13
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  # Storefront artwork copied from apps/storefront/public/images (same
+  # repo, same project). Category images are null on the live API, so the
+  # local files are the only artwork for the category tiles and hero.
+  assets:
+    - assets/images/banners/1.webp
+    - assets/images/banners/2.webp
+    - assets/images/banners/3.webp
+    - assets/images/categories/microcontrollers.png
+    - assets/images/categories/sensors.png
+    - assets/images/categories/passive-components.png
+    - assets/images/categories/power.png
+    - assets/images/categories/connectivity.png
+    - assets/images/categories/tools.png
+    - assets/images/categories/displays.png
+    - assets/images/categories/motors-robotics.png
+
+  # Bundled fonts (phase 10): Albert Sans body + Urbanist headings,
+  # static TTFs from Google Fonts (weights 400/500/600/700). Replaces the
+  # google_fonts runtime fetch — the app works fully offline now.
+  fonts:
+    - family: AlbertSans
+      fonts:
+        - asset: assets/fonts/AlbertSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/AlbertSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/AlbertSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/AlbertSans-Bold.ttf
+          weight: 700
+    - family: Urbanist
+      fonts:
+        - asset: assets/fonts/Urbanist-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Urbanist-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Urbanist-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Urbanist-Bold.ttf
+          weight: 700
+
+# Placeholder app icon (Phase 7): a navy rounded square with a crimson
+# "N", drawn from the storefront palette. The owner should replace
+# assets/icon/icon.png with the real brand mark and re-run
+# `dart run flutter_launcher_icons`.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#1a1a2e"
+    theme_color: "#1a1a2e"

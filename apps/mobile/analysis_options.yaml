@@ -1,0 +1,19 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # `@JsonKey` on freezed factory parameters is the documented freezed +
+    # json_serializable pattern, and it IS consumed by the generator (see the
+    # generated `unknownValue:` in *.g.dart). The analyzer flags it only
+    # because JsonKey targets fields/getters while the source location is a
+    # constructor parameter. Ignored project-wide instead of 15 inline
+    # ignore-comments.
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    always_use_package_imports: true
+    avoid_print: true
+    prefer_single_quotes: true
+    require_trailing_commas: true
+    sort_child_properties_last: true
